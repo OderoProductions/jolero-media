@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /portal/
+Allow: /
+
+Sitemap: https://primetapes.co.uk/sitemap.xml

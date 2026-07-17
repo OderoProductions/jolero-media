@@ -60,6 +60,23 @@
     "sameAs": ["https://instagram.com/prime.tapes"]
   }
   </script>
+
+  <!-- FAQ rich results — keep in sync with the #faq section below -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "Which sports do you cover?", "acceptedAnswer": { "@type": "Answer", "text": "Any sport. We've shot football, American football, basketball, baseball and tennis — and the approach travels: rugby, cricket, boxing, athletics, the gym." } },
+      { "@type": "Question", "name": "Do you work with brands as well as athletes?", "acceptedAnswer": { "@type": "Answer", "text": "Yes — activewear, kit, gyms, events and campaigns, shot where sport actually happens." } },
+      { "@type": "Question", "name": "How far do you travel?", "acceptedAnswer": { "@type": "Answer", "text": "Based in Worthing, shooting across the South Coast — Brighton, Chichester, Portsmouth and everywhere between. Further afield for the right project." } },
+      { "@type": "Question", "name": "How quickly will I get my content?", "acceptedAnswer": { "@type": "Answer", "text": "Fast enough to post while the result still matters. We agree a turnaround before every shoot, and social-first cuts come first." } },
+      { "@type": "Question", "name": "Do I need to be a professional athlete?", "acceptedAnswer": { "@type": "Answer", "text": "No — academy, semi-pro, Sunday league, fight camps and gym athletes are all welcome." } },
+      { "@type": "Question", "name": "Who owns the content?", "acceptedAnswer": { "@type": "Answer", "text": "You get full use of everything we deliver across your own channels. We may feature selected work in our portfolio unless we agree otherwise." } },
+      { "@type": "Question", "name": "How do we start?", "acceptedAnswer": { "@type": "Answer", "text": "Fill in the contact form — it takes about a minute. We reply to every serious enquiry within 48 hours." } }
+    ]
+  }
+  </script>
 </head>
 <body>
 
@@ -155,7 +172,7 @@
       </a>
     </section>
 
-    <!-- Sport ticker -->
+    <!-- Sport ticker (two identical halves = seamless loop) -->
     <div class="ticker" aria-hidden="true">
       <div class="ticker-track">
         <span>Football</span><span class="tick">●</span>
@@ -163,11 +180,21 @@
         <span>Basketball</span><span class="tick">●</span>
         <span>Baseball</span><span class="tick">●</span>
         <span>Tennis</span><span class="tick">●</span>
+        <span>Rugby</span><span class="tick">●</span>
+        <span>Cricket</span><span class="tick">●</span>
+        <span>Boxing &amp; MMA</span><span class="tick">●</span>
+        <span>Athletics</span><span class="tick">●</span>
+        <span>Gym &amp; Fitness</span><span class="tick">●</span>
         <span>Football</span><span class="tick">●</span>
         <span>American Football</span><span class="tick">●</span>
         <span>Basketball</span><span class="tick">●</span>
         <span>Baseball</span><span class="tick">●</span>
         <span>Tennis</span><span class="tick">●</span>
+        <span>Rugby</span><span class="tick">●</span>
+        <span>Cricket</span><span class="tick">●</span>
+        <span>Boxing &amp; MMA</span><span class="tick">●</span>
+        <span>Athletics</span><span class="tick">●</span>
+        <span>Gym &amp; Fitness</span><span class="tick">●</span>
       </div>
     </div>
 
@@ -241,16 +268,46 @@
             <figcaption><span class="tag">Football</span></figcaption>
           </figure>
           <figure class="work-tile reveal" data-sport="other">
-            <img src="assets/work-09.svg" alt="Placeholder — athlete training session photograph" loading="lazy" width="800" height="1000">
-            <figcaption><span class="tag">Training</span></figcaption>
+            <img src="assets/work-09.svg" alt="Placeholder — sports brand campaign photograph" loading="lazy" width="800" height="1000">
+            <figcaption><span class="tag">Brand Content</span></figcaption>
           </figure>
         </div>
         <p class="work-empty" id="work-empty" hidden>Nothing in this sport yet — it's coming.</p>
       </div>
     </section>
 
+    <!-- ================= WHO WE SHOOT ================= -->
+    <section class="section section-alt" id="audiences" aria-labelledby="audiences-heading">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">Who we shoot</p>
+          <h2 id="audiences-heading">If it moves, we shoot it<span class="dot">.</span></h2>
+          <p class="section-sub">
+            Ten sports and counting — the approach travels. Three kinds of clients, one job: make you impossible to ignore.
+          </p>
+        </div>
+        <div class="audience-grid">
+          <article class="audience reveal">
+            <h3>Athletes</h3>
+            <p>From academy to pro. Grow a following that scouts and sponsors can't ignore, with content that shows you at your best — every week, not just on highlights day.</p>
+            <a href="#contact">Get seen<span aria-hidden="true"> →</span></a>
+          </article>
+          <article class="audience reveal">
+            <h3>Clubs &amp; Teams</h3>
+            <p>Match days, squad shoots and season stories. Content that fills stands, keeps sponsors renewing and makes your club look like the level you're chasing.</p>
+            <a href="#contact">Cover your season<span aria-hidden="true"> →</span></a>
+          </article>
+          <article class="audience reveal">
+            <h3>Brands &amp; Gyms</h3>
+            <p>Kit, campaigns and community. Activewear, gyms and sports brands — content that looks like it belongs on game day, because it was shot there.</p>
+            <a href="#contact">Build your campaign<span aria-hidden="true"> →</span></a>
+          </article>
+        </div>
+      </div>
+    </section>
+
     <!-- ================= PACKAGES ================= -->
-    <section class="section section-alt" id="packages" aria-labelledby="packages-heading">
+    <section class="section" id="packages" aria-labelledby="packages-heading">
       <div class="container">
         <div class="section-head reveal">
           <p class="eyebrow">Packages</p>
@@ -293,7 +350,7 @@
     </section>
 
     <!-- ================= ABOUT ================= -->
-    <section class="section" id="about" aria-labelledby="about-heading">
+    <section class="section section-alt" id="about" aria-labelledby="about-heading">
       <div class="container">
         <div class="section-head reveal">
           <p class="eyebrow">The founders</p>
@@ -339,6 +396,47 @@
               </figcaption>
             </figure>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= FAQ ================= -->
+    <section class="section" id="faq" aria-labelledby="faq-heading">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">FAQ</p>
+          <h2 id="faq-heading">Straight answers<span class="dot">.</span></h2>
+        </div>
+        <!-- Keep these in sync with the FAQPage JSON-LD in <head> -->
+        <div class="faq reveal">
+          <details>
+            <summary>Which sports do you cover?</summary>
+            <p class="faq-a">Any sport. Between us we've shot football, American football, basketball, baseball and tennis — and the approach travels: rugby, cricket, boxing, athletics, the gym. If it moves, we can shoot it.</p>
+          </details>
+          <details>
+            <summary>Do you work with brands as well as athletes?</summary>
+            <p class="faq-a">Yes. Activewear, kit, gyms, events and campaigns — sports brands hire us because the content is shot where sport actually happens, not in a studio pretending.</p>
+          </details>
+          <details>
+            <summary>How far do you travel?</summary>
+            <p class="faq-a">We're based in Worthing and shoot across the South Coast — Brighton, Chichester, Portsmouth and everywhere between. Further afield for the right project: tell us where you play.</p>
+          </details>
+          <details>
+            <summary>How quickly will I get my content?</summary>
+            <p class="faq-a">Fast enough to post while the result still matters. We agree a turnaround before every shoot, and social-first cuts come first.</p>
+          </details>
+          <details>
+            <summary>Do I need to be a professional athlete?</summary>
+            <p class="faq-a">No. Academy, semi-pro, Sunday league, fight camps, gym athletes — if you're serious about where your sport is going, that's enough.</p>
+          </details>
+          <details>
+            <summary>Who owns the content?</summary>
+            <p class="faq-a">You get full use of everything we deliver across your own channels. We may feature selected work in our portfolio unless we agree otherwise.</p>
+          </details>
+          <details>
+            <summary>How do we start?</summary>
+            <p class="faq-a">Fill in the form below — takes about a minute. We reply to every serious enquiry within 48 hours.</p>
+          </details>
         </div>
       </div>
     </section>
