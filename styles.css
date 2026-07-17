@@ -1,5 +1,5 @@
 /* ============================================================
-   PRIME TAPES — styles.css
+   RE.PLAYS — styles.css
    ACCENT COLOUR: change --accent below and the whole site follows.
    ============================================================ */
 
@@ -174,11 +174,22 @@ h3 { font-size: clamp(1.35rem, 2.6vw, 1.7rem); }
   white-space: nowrap;
 }
 
+/* The dot in RE●PLAYS — raised to sit mid-height between the letters */
+.wordmark-dot {
+  display: inline-block;
+  width: 0.28em;
+  height: 0.28em;
+  margin-inline: 0.14em;
+  border-radius: 50%;
+  background: var(--accent);
+  vertical-align: 0.29em;   /* centres the dot on Anton's cap height */
+}
+
+/* Small pulsing dot used by the hero REC indicator */
 .rec-dot {
   display: inline-block;
   width: 0.5em;
   height: 0.5em;
-  margin-left: 0.3em;
   border-radius: 50%;
   background: var(--accent);
 }
