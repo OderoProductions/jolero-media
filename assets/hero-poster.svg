@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" role="img" aria-label="Dark stadium placeholder background">
+  <defs>
+    <radialGradient id="v" cx="0.5" cy="0.42" r="0.95">
+      <stop offset="0" stop-color="#1A1B1F"/>
+      <stop offset="0.55" stop-color="#101114"/>
+      <stop offset="1" stop-color="#0A0A0A"/>
+    </radialGradient>
+    <linearGradient id="beam" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.05"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="beam2" x1="1" y1="0" x2="0.6" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.04"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <pattern id="d" width="72" height="72" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="72" stroke="#FFFFFF" stroke-opacity="0.018" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#v)"/>
+  <polygon points="120,0 620,0 1120,1080 320,1080" fill="url(#beam)"/>
+  <polygon points="1300,0 1800,0 1700,1080 900,1080" fill="url(#beam2)"/>
+  <rect width="1920" height="1080" fill="url(#d)"/>
+  <ellipse cx="960" cy="1120" rx="1100" ry="260" fill="#000000" opacity="0.5"/>
+</svg>

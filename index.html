@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- ============================================================
+       PRIME TAPES — primetapes.co.uk
+       Static one-pager. No build step. Deploy this folder as-is to
+       Cloudflare Pages / Netlify / GitHub Pages.
+
+       QUICK EDIT MAP
+       · Swap portfolio images .... search "SWAP IMAGE" below
+       · Change accent colour ..... styles.css, line 1 (--accent)
+       · Connect the form ......... search "FORMSPREE" below
+       · Add hero video ........... search "HERO VIDEO" below
+       ============================================================ -->
+
+  <title>Prime Tapes — Sports Photography &amp; Videography | Worthing, West Sussex</title>
+  <meta name="description" content="Prime Tapes is a sports creative agency in Worthing, West Sussex. Match-day photo and video that grows your following, attracts sponsors and puts you in front of scouts.">
+  <link rel="canonical" href="https://primetapes.co.uk/">
+  <meta name="theme-color" content="#0A0A0A">
+
+  <!-- Open Graph / social sharing -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Prime Tapes">
+  <meta property="og:title" content="Prime Tapes — Sports Photography &amp; Videography">
+  <meta property="og:description" content="Get seen. Get signed. Get sponsored. Sports content for athletes, teams and brands across Worthing &amp; the South Coast.">
+  <meta property="og:url" content="https://primetapes.co.uk/">
+  <!-- TODO: export a 1200×630 JPG (a strong action shot + wordmark) and upload as /assets/og.jpg -->
+  <meta property="og:image" content="https://primetapes.co.uk/assets/og.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- Favicon (placeholder — replace assets/favicon.svg with final mark; optionally add favicon.ico + apple-touch-icon.png) -->
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+
+  <!-- Fonts: Anton (display) + Inter (body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Structured data: helps local search for "sports videographer Worthing" etc. -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ProfessionalService",
+    "name": "Prime Tapes",
+    "description": "Sports photography and videography agency for athletes, teams and brands.",
+    "url": "https://primetapes.co.uk/",
+    "email": "hello@primetapes.co.uk",
+    "areaServed": "Worthing, West Sussex and the South Coast, UK",
+    "address": { "@type": "PostalAddress", "addressLocality": "Worthing", "addressRegion": "West Sussex", "addressCountry": "GB" },
+    "sameAs": ["https://instagram.com/prime.tapes"]
+  }
+  </script>
+</head>
+<body>
+
+  <a class="skip-link" href="#work">Skip to content</a>
+
+  <!-- ================= NAV ================= -->
+  <header class="nav" id="top">
+    <div class="nav-inner container">
+      <a class="wordmark" href="#top" aria-label="Prime Tapes — back to top">
+        PRIME TAPES<span class="rec-dot" aria-hidden="true"></span>
+      </a>
+
+      <nav class="nav-links" aria-label="Sections">
+        <a href="#work">Work</a>
+        <a href="#packages">Packages</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+      </nav>
+
+      <a class="btn btn-primary nav-cta" href="#contact">Work with us</a>
+
+      <button class="nav-toggle" aria-expanded="false" aria-controls="mobile-menu" aria-label="Open menu">
+        <span class="nav-toggle-bar" aria-hidden="true"></span>
+        <span class="nav-toggle-bar" aria-hidden="true"></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Full-screen mobile menu -->
+  <div class="mobile-menu" id="mobile-menu" hidden>
+    <nav aria-label="Sections (mobile)">
+      <a href="#work">Work</a>
+      <a href="#packages">Packages</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <a class="btn btn-primary" href="#contact">Work with us</a>
+  </div>
+
+  <main>
+
+    <!-- ================= HERO ================= -->
+    <section class="hero" aria-label="Intro">
+      <div class="hero-media" aria-hidden="true">
+        <!-- SWAP IMAGE: replace assets/hero-poster.svg with a real match-day frame
+             (JPG/WebP, ~1920×1080, dark or gradable — the overlay handles legibility). -->
+        <img src="assets/hero-poster.svg" alt="" fetchpriority="high">
+
+        <!-- ============ HERO VIDEO (phase 2 — currently disabled) ============
+             When you have a hero reel, uncomment the <video> below and keep the
+             <img> above as the poster/fallback. Notes:
+             · Keep it short (10–20s loop), no audio track needed.
+             · Compress hard: H.264 MP4, 1080p, target under ~6–8 MB.
+             · muted + playsinline are REQUIRED for mobile autoplay.
+             · script.js already pauses it for users with reduced-motion set.
+        <video autoplay muted loop playsinline preload="metadata" poster="assets/hero-poster.svg">
+          <source src="assets/hero-loop.webm" type="video/webm">
+          <source src="assets/hero-loop.mp4" type="video/mp4">
+        </video>
+        ===================================================================== -->
+
+        <div class="hero-scrim"></div>
+      </div>
+
+      <!-- Viewfinder chrome (decorative) -->
+      <div class="vf" aria-hidden="true">
+        <span class="vf-corner tl"></span><span class="vf-corner tr"></span>
+        <span class="vf-corner bl"></span><span class="vf-corner br"></span>
+        <span class="vf-item vf-tc"><span class="rec-dot pulse"></span>REC&ensp;<span id="timecode">00:00:00:00</span></span>
+        <span class="vf-item vf-loc">WORTHING&thinsp;·&thinsp;50.81°N</span>
+      </div>
+
+      <div class="hero-content container">
+        <p class="eyebrow">Sports creative agency · Worthing, UK</p>
+        <h1 class="hero-title">
+          <span class="line">Get seen<span class="dot">.</span></span>
+          <span class="line">Get signed<span class="dot">.</span></span>
+          <span class="line">Get sponsored<span class="dot">.</span></span>
+        </h1>
+        <p class="hero-sub">
+          Content that grows your following, attracts sponsors and puts you in front
+          of scouts — for athletes, teams and brands across Worthing &amp; the South Coast.
+        </p>
+        <div class="hero-ctas">
+          <a class="btn btn-primary" href="#contact">Work with us</a>
+          <a class="btn btn-ghost" href="#work">See our work</a>
+        </div>
+      </div>
+
+      <a class="scroll-cue" href="#work" aria-label="Scroll to our work">
+        <span aria-hidden="true">SCROLL</span>
+      </a>
+    </section>
+
+    <!-- Sport ticker -->
+    <div class="ticker" aria-hidden="true">
+      <div class="ticker-track">
+        <span>Football</span><span class="tick">●</span>
+        <span>American Football</span><span class="tick">●</span>
+        <span>Basketball</span><span class="tick">●</span>
+        <span>Baseball</span><span class="tick">●</span>
+        <span>Tennis</span><span class="tick">●</span>
+        <span>Football</span><span class="tick">●</span>
+        <span>American Football</span><span class="tick">●</span>
+        <span>Basketball</span><span class="tick">●</span>
+        <span>Baseball</span><span class="tick">●</span>
+        <span>Tennis</span><span class="tick">●</span>
+      </div>
+    </div>
+
+    <!-- ================= WORK ================= -->
+    <section class="section" id="work" aria-labelledby="work-heading">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">The work</p>
+          <h2 id="work-heading">Proof beats promises<span class="dot">.</span></h2>
+          <p class="section-sub">
+            Match days, showcase tapes and brand shoots — cut for the platforms
+            where careers get noticed.
+          </p>
+        </div>
+
+        <div class="filters reveal" role="group" aria-label="Filter work by sport">
+          <button class="filter-btn is-active" data-filter="all" aria-pressed="true">All</button>
+          <button class="filter-btn" data-filter="football" aria-pressed="false">Football</button>
+          <button class="filter-btn" data-filter="basketball" aria-pressed="false">Basketball</button>
+          <button class="filter-btn" data-filter="other" aria-pressed="false">Other</button>
+        </div>
+
+        <!-- ============ PORTFOLIO GRID ============
+             SWAP IMAGE: for each tile, replace the placeholder src with a real
+             shot, e.g.  <img src="assets/work-01.jpg" alt="Striker celebrating a
+             goal at Worthing FC" loading="lazy" width="800" height="1000">
+             · Keep width/height (prevents layout shift) and write a real alt.
+             · Portrait 4:5 crops (e.g. 1600×2000) look best in this grid.
+             · data-sport controls the filter: football | basketball | other.
+
+             REPLACING A TILE WITH VIDEO: swap the <img> inside the figure for
+             an inline clip, e.g.
+               <video class="work-video" muted loop playsinline preload="none"
+                      poster="assets/work-03-poster.jpg">
+                 <source src="assets/work-03.mp4" type="video/mp4">
+               </video>
+             (script.js auto-plays .work-video when it scrolls into view),
+             or drop in a YouTube/Vimeo <iframe> with a 4:5 wrapper.
+             ========================================= -->
+        <div class="work-grid" id="work-grid">
+          <figure class="work-tile reveal" data-sport="football">
+            <img src="assets/work-01.svg" alt="Placeholder — football match-day photograph" loading="lazy" width="800" height="1000">
+            <figcaption><span class="tag">Football</span></figcaption>
+          </figure>
+          <figure class="work-tile reveal" data-sport="other">
+            <img src="assets/work-02.svg" alt="Placeholder — American football game photograph" loading="lazy" width="800" height="1000">
+            <figcaption><span class="tag">American Football</span></figcaption>
+          </figure>
+          <figure class="work-tile reveal" data-sport="basketball">
+            <img src="assets/work-03.svg" alt="Placeholder — basketball game photograph" loading="lazy" width="800" height="1000">
+            <figcaption><span class="tag">Basketball</span></figcaption>
+          </figure>
+          <figure class="work-tile reveal" data-sport="football">
+            <img src="assets/work-04.svg" alt="Placeholder — football training photograph" loading="lazy" width="800" height="1000">
+            <figcaption><span class="tag">Football</span></figcaption>
+          </figure>
+          <figure class="work-tile reveal" data-sport="other">
+            <img src="assets/work-05.svg" alt="Placeholder — tennis match photograph" loading="lazy" width="800" height="1000">
+            <figcaption><span class="tag">Tennis</span></figcaption>
+          </figure>
+          <figure class="work-tile reveal" data-sport="basketball">
+            <img src="assets/work-06.svg" alt="Placeholder — basketball portrait photograph" loading="lazy" width="800" height="1000">
+            <figcaption><span class="tag">Basketball</span></figcaption>
+          </figure>
+          <figure class="work-tile reveal" data-sport="other">
+            <img src="assets/work-07.svg" alt="Placeholder — baseball game photograph" loading="lazy" width="800" height="1000">
+            <figcaption><span class="tag">Baseball</span></figcaption>
+          </figure>
+          <figure class="work-tile reveal" data-sport="football">
+            <img src="assets/work-08.svg" alt="Placeholder — football club team photograph" loading="lazy" width="800" height="1000">
+            <figcaption><span class="tag">Football</span></figcaption>
+          </figure>
+          <figure class="work-tile reveal" data-sport="other">
+            <img src="assets/work-09.svg" alt="Placeholder — athlete training session photograph" loading="lazy" width="800" height="1000">
+            <figcaption><span class="tag">Training</span></figcaption>
+          </figure>
+        </div>
+        <p class="work-empty" id="work-empty" hidden>Nothing in this sport yet — it's coming.</p>
+      </div>
+    </section>
+
+    <!-- ================= PACKAGES ================= -->
+    <section class="section section-alt" id="packages" aria-labelledby="packages-heading">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">Packages</p>
+          <h2 id="packages-heading">Start with a taste<span class="dot">.</span> Grow with the season<span class="dot">.</span></h2>
+          <p class="section-sub">
+            One-offs open the door. Consistency is what gets you followed, sponsored
+            and scouted — that's why most of our athletes go monthly.
+          </p>
+        </div>
+
+        <div class="packages-grid">
+          <article class="package reveal">
+            <h3>Match Day</h3>
+            <p class="package-tag">The taster</p>
+            <p>One game, made to travel. A taste of what your content could look like when it's shot and cut properly.</p>
+            <a class="btn btn-ghost" href="#contact">Enquire</a>
+          </article>
+
+          <article class="package package-featured reveal">
+            <p class="badge">Most popular</p>
+            <h3>Monthly Growth</h3>
+            <p class="package-tag">The partnership</p>
+            <p>Your season, documented consistently. An ongoing content partnership that keeps you growing — and keeps you in front of sponsors and scouts all season, not just on a good week.</p>
+            <a class="btn btn-primary" href="#contact">Enquire</a>
+          </article>
+
+          <article class="package reveal">
+            <h3>Scout / Showcase</h3>
+            <p class="package-tag">The tape</p>
+            <p>Get seen by clubs, agents and academies with a tape that does you justice — built around your strongest moments.</p>
+            <a class="btn btn-ghost" href="#contact">Enquire</a>
+          </article>
+        </div>
+
+        <div class="packages-note reveal">
+          <p>Every package is tailored to your goals — <a href="#contact">tell us what you're trying to achieve</a>.</p>
+          <p class="muted">Clubs, teams and brands: we cover squads, match days and campaigns too. <a href="#contact">Get in touch</a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= ABOUT ================= -->
+    <section class="section" id="about" aria-labelledby="about-heading">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">The founders</p>
+          <h2 id="about-heading">Two founders<span class="dot">.</span> Every frame<span class="dot">.</span></h2>
+        </div>
+
+        <div class="about-grid">
+          <div class="about-copy reveal">
+            <!-- TODO: Christopher & Justin — replace this draft with your own words. -->
+            <p>
+              Prime Tapes is Christopher and Justin — two creators who shoot, cut and
+              deliver every frame themselves. No juniors, no hand-offs, no missed moments.
+            </p>
+            <p>
+              Between us we've covered football, American football, basketball, baseball
+              and tennis — from academy pitches to match days under lights. Different
+              sports, same job: make you impossible to ignore.
+            </p>
+            <p>
+              We're based in Worthing and shoot across the South Coast. If you're serious
+              about where your sport is taking you, we should talk.
+            </p>
+          </div>
+
+          <div class="founders">
+            <figure class="founder reveal">
+              <!-- SWAP IMAGE: replace with a real headshot, e.g.
+                   <img src="assets/christopher.jpg" alt="Christopher, co-founder of Prime Tapes" loading="lazy" width="800" height="1000"> -->
+              <img src="assets/founder-christopher.svg" alt="Placeholder headshot of Christopher, co-founder of Prime Tapes" loading="lazy" width="800" height="1000">
+              <figcaption>
+                <strong>Christopher</strong>
+                <!-- TODO: one-line role/specialty for Christopher -->
+                <span>Co-founder · Shoots &amp; edits</span>
+              </figcaption>
+            </figure>
+            <figure class="founder reveal">
+              <!-- SWAP IMAGE: replace with a real headshot (see note above). -->
+              <img src="assets/founder-justin.svg" alt="Placeholder headshot of Justin, co-founder of Prime Tapes" loading="lazy" width="800" height="1000">
+              <figcaption>
+                <strong>Justin</strong>
+                <!-- TODO: one-line role/specialty for Justin -->
+                <span>Co-founder · Shoots &amp; edits</span>
+              </figcaption>
+            </figure>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= CONTACT ================= -->
+    <section class="section section-alt" id="contact" aria-labelledby="contact-heading">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">Contact</p>
+          <h2 id="contact-heading">Tell us what you're chasing<span class="dot">.</span></h2>
+          <p class="section-sub">Takes about a minute. The more we know, the better we can help.</p>
+        </div>
+
+        <div class="contact-grid">
+          <aside class="contact-aside reveal">
+            <p class="contact-lead">Rather talk it through first?</p>
+            <!-- TODO: hello@primetapes.co.uk is a placeholder — update once the mailbox is live. -->
+            <a class="btn btn-ghost btn-block" href="mailto:hello@primetapes.co.uk">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+              hello@primetapes.co.uk
+            </a>
+            <a class="btn btn-primary btn-block" href="https://instagram.com/prime.tapes" target="_blank" rel="noopener">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none"/></svg>
+              @prime.tapes
+            </a>
+            <p class="muted contact-note">
+              We reply to every serious enquiry within 48 hours.
+              Based in Worthing · shooting across the South Coast.
+            </p>
+          </aside>
+
+          <!-- ============ FORMSPREE SETUP ============
+               1. Create a free form at https://formspree.io (use hello@primetapes.co.uk).
+               2. Copy your endpoint, e.g. https://formspree.io/f/abcdwxyz
+               3. Replace YOUR_FORM_ID in the action below with your form's ID.
+               script.js submits this via fetch and shows the success message in-page;
+               if JavaScript is off it falls back to a normal Formspree redirect.
+               ========================================== -->
+          <form class="contact-form reveal" id="contact-form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST" novalidate>
+            <input type="hidden" name="_subject" value="New enquiry — primetapes.co.uk">
+            <!-- Honeypot: hidden from humans, catches bots. Leave as-is. -->
+            <input type="text" name="_gotcha" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+            <div class="field">
+              <label for="f-name">Name</label>
+              <input id="f-name" name="name" type="text" autocomplete="name" required>
+            </div>
+            <div class="field">
+              <label for="f-email">Email</label>
+              <input id="f-email" name="email" type="email" autocomplete="email" required>
+            </div>
+            <div class="field">
+              <label for="f-instagram">Instagram handle</label>
+              <input id="f-instagram" name="instagram" type="text" placeholder="@yourhandle" required>
+            </div>
+            <div class="field">
+              <label for="f-sport">Sport</label>
+              <input id="f-sport" name="sport" type="text" placeholder="e.g. Football" required>
+            </div>
+            <div class="field">
+              <label for="f-level">Level</label>
+              <select id="f-level" name="level" required>
+                <option value="" selected disabled>Select…</option>
+                <option>Academy</option>
+                <option>Semi-pro</option>
+                <option>Professional</option>
+                <option>Club or Team</option>
+                <option>Brand</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="f-club">Club / team <span class="optional">(optional)</span></label>
+              <input id="f-club" name="club" type="text">
+            </div>
+            <div class="field">
+              <label for="f-goal">What are you trying to achieve?</label>
+              <select id="f-goal" name="goal" required>
+                <option value="" selected disabled>Select…</option>
+                <option>Grow my following</option>
+                <option>Attract sponsors</option>
+                <option>Get seen by clubs &amp; scouts</option>
+                <option>Club or team coverage</option>
+                <option>Brand content</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="f-looking">What are you looking for?</label>
+              <select id="f-looking" name="looking_for" required>
+                <option value="" selected disabled>Select…</option>
+                <option>Ongoing monthly content</option>
+                <option>One-off shoot</option>
+                <option>Not sure yet</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="f-budget">Budget range</label>
+              <select id="f-budget" name="budget" required>
+                <option value="" selected disabled>Select…</option>
+                <option>Under £150</option>
+                <option>£150–£300</option>
+                <option>£300–£500</option>
+                <option>£500+</option>
+                <option>Not sure yet</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="f-start">When do you want to start?</label>
+              <select id="f-start" name="start" required>
+                <option value="" selected disabled>Select…</option>
+                <option>ASAP – pre-season</option>
+                <option>During this season</option>
+                <option>Just exploring</option>
+              </select>
+            </div>
+            <div class="field field-wide">
+              <label for="f-message">Message <span class="optional">(optional)</span></label>
+              <textarea id="f-message" name="message" rows="4" placeholder="Anything else we should know?"></textarea>
+            </div>
+
+            <p class="form-error" id="form-error" hidden>Something went wrong sending that — try again, or email us directly.</p>
+
+            <div class="field field-wide">
+              <button class="btn btn-primary btn-block" type="submit" id="form-submit">Send enquiry</button>
+            </div>
+          </form>
+
+          <div class="form-success reveal" id="form-success" hidden tabindex="-1">
+            <p class="form-success-title">Received<span class="dot">.</span></p>
+            <p>Thanks — we'll come back to you within 48 hours. In the meantime, <a href="https://instagram.com/prime.tapes" target="_blank" rel="noopener">follow @prime.tapes</a> to see what we're shooting this week.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <a class="wordmark" href="#top">PRIME TAPES<span class="rec-dot" aria-hidden="true"></span></a>
+      <p class="footer-loc">Worthing · West Sussex</p>
+      <div class="footer-right">
+        <a class="footer-ig" href="https://instagram.com/prime.tapes" target="_blank" rel="noopener" aria-label="Prime Tapes on Instagram">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none"/></svg>
+        </a>
+        <p>© 2026 Prime Tapes</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

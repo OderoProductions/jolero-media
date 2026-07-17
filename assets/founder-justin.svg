@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000" role="img" aria-label="Placeholder headshot — Justin">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#17181B"/>
+      <stop offset="1" stop-color="#0C0C0E"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="1000" fill="url(#g)"/>
+  <g fill="#FFFFFF" fill-opacity="0.06">
+    <circle cx="400" cy="430" r="150"/>
+    <path d="M150 1000 c0 -200 112 -310 250 -310 s250 110 250 310 z"/>
+  </g>
+  <g stroke="#FFFFFF" stroke-opacity="0.2" stroke-width="1.5" fill="none">
+    <path d="M40 64 v-24 h24"/><path d="M736 40 h24 v24"/>
+    <path d="M40 936 v24 h24"/><path d="M760 936 v24 h-24"/>
+  </g>
+  <text x="42" y="972" font-family="ui-monospace, Menlo, Consolas, monospace" font-size="17" letter-spacing="3" fill="#FFFFFF" fill-opacity="0.32">JUSTIN — HEADSHOT</text>
+</svg>
