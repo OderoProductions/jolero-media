@@ -11,7 +11,7 @@
 
 window.REPLAYS_SEED = {
   // Bump this when you edit the seed — stale localStorage copies re-seed
-  version: 1,
+  version: 2,
 
   statuses: ["Booked", "Shoot scheduled", "Shot", "In edit", "Review", "Delivered"],
 
@@ -139,11 +139,70 @@ window.REPLAYS_SEED = {
     { id: "inv5", clientId: "c3", number: "RP-2026-013", amount: 250, status: "paid",   issued: "2026-06-25", due: "2026-07-09" }
   ],
 
+  /* ---- Phase 4 collections ---- */
+
+  contracts: [
+    {
+      id: "ct1",
+      clientId: "c1",
+      projectId: "",
+      title: "Season content agreement 2026/27",
+      status: "signed",
+      sentDate: "2026-07-06",
+      signedDate: "2026-07-08",
+      signerName: "Mark Davies",
+      body: "This agreement covers ongoing matchday and training content for the 2026/27 season.\n\n1. re.plays will shoot and edit content as scheduled with the club.\n2. Delivery via private link within the agreed turnaround.\n3. The club may use delivered content across its own channels.\n4. re.plays may feature selected work in its portfolio unless agreed otherwise.\n5. Cancellations within 48 hours of a shoot may be charged.\n\n(Sample agreement text — replace with your real terms.)"
+    },
+    {
+      id: "ct2",
+      clientId: "c2",
+      projectId: "p5",
+      title: "Monthly content agreement — August block",
+      status: "awaiting_signature",
+      sentDate: "2026-07-15",
+      signedDate: "",
+      signerName: "",
+      body: "This agreement covers the August training-content block.\n\n1. One content day per month at the gym, dates agreed in advance.\n2. Edited clips delivered within 7 days of each shoot.\n3. The gym may use delivered content across its own channels.\n4. re.plays may feature selected work in its portfolio unless agreed otherwise.\n5. Cancellations within 48 hours of a shoot may be charged.\n\n(Sample agreement text — replace with your real terms.)"
+    }
+  ],
+
+  briefs: [
+    {
+      id: "b1",
+      clientId: "c1",
+      projectId: "p3",
+      status: "requested",
+      requestedDate: "2026-07-16",
+      submittedDate: "",
+      answers: null
+    }
+  ],
+
+  testimonials: [
+    {
+      id: "t1",
+      clientId: "c3",
+      projectId: "p6",
+      rating: 5,
+      quote: "The tape got me two trial invites within a fortnight. Worth every penny.",
+      allowPublic: true,
+      date: "2026-07-03"
+    }
+  ],
+
+  // Admin-side notifications (client actions land here)
+  notifications: [
+    { id: "n1", date: "2026-07-08", text: "Contract signed — Season content agreement 2026/27 (Worthing Town FC)", read: true },
+    { id: "n2", date: "2026-07-03", text: "New 5★ review from Amara Osei — 2025/26 season highlight reel", read: false }
+  ],
+
   activity: [
     { id: "a1", clientId: "c1", date: "2026-07-10", text: "Your delivery is ready — Matchday vs Lancing FC" },
     { id: "a2", clientId: "c1", date: "2026-07-14", text: "New invoice RP-2026-014 added" },
     { id: "a3", clientId: "c1", date: "2026-07-16", text: "Pre-season promo shoot moved to In edit" },
     { id: "a4", clientId: "c2", date: "2026-07-16", text: "An edit is ready for your review — Fight Night 12" },
+    { id: "a8", clientId: "c2", date: "2026-07-15", text: "A contract is ready to sign — Monthly content agreement" },
+    { id: "a9", clientId: "c1", date: "2026-07-16", text: "Pre-shoot brief requested — Matchday — season opener vs Horsham" },
     { id: "a5", clientId: "c2", date: "2026-07-15", text: "New invoice RP-2026-015 added" },
     { id: "a6", clientId: "c3", date: "2026-07-01", text: "Your delivery is ready — 2025/26 highlight reel" },
     { id: "a7", clientId: "c3", date: "2026-07-15", text: "Pre-season training content marked as Shot" }

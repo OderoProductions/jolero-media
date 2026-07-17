@@ -58,12 +58,16 @@
     // (Phase 2: becomes one authenticated API request).
     getClientBundle: async function (clientId) {
       var s = load();
+      function mine(x) { return x.clientId === clientId; }
       return {
         client: s.clients.find(function (c) { return c.id === clientId; }) || null,
-        projects: s.projects.filter(function (p) { return p.clientId === clientId; }),
-        invoices: s.invoices.filter(function (i) { return i.clientId === clientId; }),
+        projects: s.projects.filter(mine),
+        invoices: s.invoices.filter(mine),
+        contracts: (s.contracts || []).filter(mine),
+        briefs: (s.briefs || []).filter(mine),
+        testimonials: (s.testimonials || []).filter(mine),
         activity: s.activity
-          .filter(function (a) { return a.clientId === clientId; })
+          .filter(mine)
           .sort(function (a, b) { return b.date < a.date ? -1 : 1; })
       };
     },
@@ -126,12 +130,122 @@
       return c;
     },
 
+    /* ---------- Phase 4: contracts ---------- */
+
+    addContract: async function (fields) {
+      var s = load();
+      var ct = {
+        id: uid("ct"),
+        clientId: fields.clientId,
+        projectId: fields.projectId || "",
+        title: fields.title,
+        status: "awaiting_signature",
+        sentDate: todayISO(),
+        signedDate: "",
+        signerName: "",
+        body: fields.body || ""
+      };
+      s.contracts.push(ct);
+      s.activity.push({ id: uid("a"), clientId: ct.clientId, date: todayISO(), text: "A contract is ready to sign — " + ct.title });
+      save(s);
+      return ct;
+    },
+
+    // Phase 2 upgrades this to a real e-sign flow with identity + audit trail;
+    // for now the client types their name as a mock signature.
+    signContract: async function (contractId, signerName) {
+      var s = load();
+      var ct = s.contracts.find(function (x) { return x.id === contractId; });
+      if (!ct || ct.status === "signed") return ct || null;
+      ct.status = "signed";
+      ct.signedDate = todayISO();
+      ct.signerName = signerName;
+      var client = s.clients.find(function (c) { return c.id === ct.clientId; });
+      notify(s, "Contract signed — " + ct.title + (client ? " (" + client.name + ")" : ""));
+      save(s);
+      return ct;
+    },
+
+    /* ---------- Phase 4: pre-shoot briefs ---------- */
+
+    requestBrief: async function (projectId) {
+      var s = load();
+      var p = s.projects.find(function (x) { return x.id === projectId; });
+      if (!p) return null;
+      var existing = s.briefs.find(function (b) { return b.projectId === projectId; });
+      if (existing) return existing;
+      var b = {
+        id: uid("b"),
+        clientId: p.clientId,
+        projectId: projectId,
+        status: "requested",
+        requestedDate: todayISO(),
+        submittedDate: "",
+        answers: null
+      };
+      s.briefs.push(b);
+      s.activity.push({ id: uid("a"), clientId: p.clientId, date: todayISO(), text: "Pre-shoot brief requested — " + p.title });
+      save(s);
+      return b;
+    },
+
+    submitBrief: async function (briefId, answers) {
+      var s = load();
+      var b = s.briefs.find(function (x) { return x.id === briefId; });
+      if (!b) return null;
+      b.status = "submitted";
+      b.submittedDate = todayISO();
+      b.answers = answers;
+      var p = s.projects.find(function (x) { return x.id === b.projectId; });
+      notify(s, "Pre-shoot brief submitted — " + (p ? p.title : "project"));
+      save(s);
+      return b;
+    },
+
+    /* ---------- Phase 4: testimonials ---------- */
+
+    addTestimonial: async function (fields) {
+      var s = load();
+      var t = {
+        id: uid("t"),
+        clientId: fields.clientId,
+        projectId: fields.projectId,
+        rating: fields.rating,
+        quote: fields.quote || "",
+        allowPublic: !!fields.allowPublic,
+        date: todayISO()
+      };
+      s.testimonials.push(t);
+      var client = s.clients.find(function (c) { return c.id === t.clientId; });
+      var p = s.projects.find(function (x) { return x.id === t.projectId; });
+      notify(s, "New " + t.rating + "★ review from " + (client ? client.name : "a client") + (p ? " — " + p.title : ""));
+      save(s);
+      return t;
+    },
+
+    /* ---------- Phase 4: admin notifications ---------- */
+
+    getNotifications: async function () {
+      return (load().notifications || []).slice().sort(function (a, b) { return b.date < a.date ? -1 : 1; });
+    },
+
+    markNotificationsRead: async function () {
+      var s = load();
+      (s.notifications || []).forEach(function (n) { n.read = true; });
+      save(s);
+    },
+
     // Wipe local edits and go back to the seed data
     resetDemo: async function () {
       try { localStorage.removeItem(KEY); } catch (e) {}
       return load();
     }
   };
+
+  // Internal: client actions surface on the admin bell (Phase 3 also emails)
+  function notify(state, text) {
+    state.notifications.push({ id: uid("n"), date: todayISO(), text: text, read: false });
+  }
 
   /* ---------- shared formatting helpers ---------- */
 

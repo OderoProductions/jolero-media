@@ -107,13 +107,58 @@
           "<span>due " + fmtDate(i.due) + "</span></div>";
       }).join("") || '<p class="empty-note">No invoices yet.</p>';
 
+      var contracts = (data.contracts || []).filter(function (ct) { return ct.clientId === c.id; });
+      var ctlines = contracts.map(function (ct) {
+        return '<div class="line-item"><strong>' + esc(ct.title) + "</strong>" +
+          (ct.status === "signed"
+            ? '<span class="pbadge">Signed ' + fmtDate(ct.signedDate) + "</span>"
+            : '<span class="pbadge pbadge-accent">Awaiting signature</span>') +
+          "</div>";
+      }).join("");
+
       return '<article class="panel client-block">' +
         '<div class="client-block-head"><h3>' + esc(c.name) + '</h3><span class="project-type">' + esc(c.kind) + "</span></div>" +
         '<p class="client-contact">' + esc(c.contactName) + (c.email ? " · " + esc(c.email) : "") + (c.phone ? " · " + esc(c.phone) : "") + "</p>" +
         '<div class="client-lines">' + plines + "</div>" +
         '<div class="client-lines">' + ilines + "</div>" +
+        (ctlines ? '<div class="client-lines">' + ctlines + "</div>" : "") +
         "</article>";
     }).join("");
+  }
+
+  // Phase 4: reviews left by clients
+  function renderTestimonials(data) {
+    var clientName = {}, projectTitle = {};
+    data.clients.forEach(function (c) { clientName[c.id] = c.name; });
+    data.projects.forEach(function (p) { projectTitle[p.id] = p.title; });
+
+    var star = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.3 6.9.6-5.2 4.6 1.5 6.7L12 16.9 5.9 20.2l1.5-6.7L2.2 8.9l6.9-.6z"/></svg>';
+    var items = (data.testimonials || []).slice().sort(function (a, b) { return b.date < a.date ? -1 : 1; });
+
+    document.getElementById("testimonials").innerHTML = items.map(function (t) {
+      var stars = '<span class="star-display" aria-label="' + t.rating + ' out of 5">' + star.repeat(t.rating) + "</span>";
+      return '<article class="panel client-block">' +
+        '<div class="client-block-head">' + stars + "<h3>" + esc(clientName[t.clientId] || "—") + "</h3>" +
+        '<span class="project-type">' + esc(projectTitle[t.projectId] || "") + "</span></div>" +
+        (t.quote ? '<p class="testimonial-quote">&ldquo;' + esc(t.quote) + "&rdquo;</p>" : "") +
+        '<p class="testimonial-meta">' + fmtDate(t.date) + " · " +
+        (t.allowPublic ? "OK to use publicly" : "Private — not for public use") + "</p>" +
+        "</article>";
+    }).join("") || '<p class="empty-note">No reviews yet — delivered projects prompt clients for one.</p>';
+    var n = items.length;
+    document.getElementById("reviews-count").textContent = n ? "(" + n + ")" : "";
+  }
+
+  // Phase 4: notification bell
+  async function renderBell() {
+    var notifications = await PortalStore.getNotifications();
+    var unread = notifications.filter(function (n) { return !n.read; }).length;
+    var count = document.getElementById("bell-count");
+    count.hidden = unread === 0;
+    count.textContent = unread;
+    document.getElementById("bell-list").innerHTML = notifications.map(function (n) {
+      return '<li class="' + (n.read ? "" : "unread") + '"><span>' + esc(n.text) + '</span><span class="feed-date">' + fmtDate(n.date) + "</span></li>";
+    }).join("") || '<li class="bell-empty">Nothing yet — client actions land here.</li>';
   }
 
   async function renderAll() {
@@ -121,14 +166,30 @@
     renderOverview(data);
     renderBoard(data);
     renderClients(data);
+    renderTestimonials(data);
+    renderBell();
 
-    // Keep the add-project client dropdown in sync with newly added clients
-    var npClient = document.getElementById("np-client");
-    var current = npClient.value;
-    npClient.innerHTML = data.clients.map(function (c) {
+    // Keep both client dropdowns in sync with newly added clients
+    var opts = data.clients.map(function (c) {
       return '<option value="' + esc(c.id) + '">' + esc(c.name) + "</option>";
     }).join("");
-    if (current) npClient.value = current;
+    ["np-client", "nc2-client"].forEach(function (id) {
+      var sel = document.getElementById(id);
+      var current = sel.value;
+      sel.innerHTML = opts;
+      if (current) sel.value = current;
+    });
+    syncContractProjects(data);
+  }
+
+  // The contract form's project dropdown only lists the chosen client's projects
+  function syncContractProjects(data) {
+    var clientId = document.getElementById("nc2-client").value;
+    var sel = document.getElementById("nc2-project");
+    sel.innerHTML = '<option value="">— none —</option>' + data.projects
+      .filter(function (p) { return p.clientId === clientId; })
+      .map(function (p) { return '<option value="' + esc(p.id) + '">' + esc(p.title) + "</option>"; })
+      .join("");
   }
 
   /* ---------- project dialog ---------- */
@@ -149,8 +210,40 @@
     f.elements.reviewLink.value = p.reviewLink || "";
     f.elements.deliveryLink.value = p.deliveryLink || "";
     f.elements.notes.value = p.notes || "";
+
+    // Phase 4: brief status for this project
+    var brief = (data.briefs || []).find(function (b) { return b.projectId === p.id; });
+    var briefEl = document.getElementById("ep-brief");
+    if (!brief) {
+      briefEl.innerHTML = '<label>Pre-shoot brief</label>' +
+        '<div><button class="btn btn-ghost" type="button" data-request-brief="' + esc(p.id) + '">Request brief from client</button></div>';
+    } else if (brief.status === "requested") {
+      briefEl.innerHTML = "<label>Pre-shoot brief</label>" +
+        '<div><span class="pbadge pbadge-accent">Requested ' + fmtDate(brief.requestedDate) + " — waiting on client</span></div>";
+    } else {
+      var a = brief.answers || {};
+      briefEl.innerHTML = "<label>Pre-shoot brief — submitted " + fmtDate(brief.submittedDate) + "</label>" +
+        '<div class="contract-body">' +
+        "Goal: " + esc(a.goal || "—") + "\n" +
+        "Must capture: " + esc(a.mustCapture || "—") + "\n" +
+        "Access notes: " + esc(a.access || "—") + "\n" +
+        "Tag: " + esc(a.handles || "—") +
+        (a.extra ? "\nExtra: " + esc(a.extra) : "") +
+        "</div>";
+    }
+
     dialog.showModal();
   }
+
+  // Request-brief button inside the dialog
+  document.addEventListener("click", async function (e) {
+    var btn = e.target.closest("[data-request-brief]");
+    if (!btn) return;
+    await PortalStore.requestBrief(btn.dataset.requestBrief);
+    document.getElementById("ep-brief").innerHTML = "<label>Pre-shoot brief</label>" +
+      '<div><span class="pbadge pbadge-accent">Requested — waiting on client</span></div>';
+    renderAll();
+  });
 
   editForm.addEventListener("submit", async function (e) {
     e.preventDefault();
@@ -219,6 +312,57 @@
     f.reset();
     f.closest("details").open = false;
     renderAll();
+  });
+
+  /* ---------- Phase 4: send contract ---------- */
+
+  document.getElementById("nc2-client").addEventListener("change", async function () {
+    syncContractProjects(await PortalStore.getData());
+  });
+
+  document.getElementById("add-contract").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    var f = e.target;
+    await PortalStore.addContract({
+      clientId: f.elements.clientId.value,
+      projectId: f.elements.projectId.value,
+      title: f.elements.title.value.trim(),
+      body: f.elements.body.value.trim()
+    });
+    f.reset();
+    f.closest("details").open = false;
+    renderAll();
+  });
+
+  /* ---------- Phase 4: notification bell ---------- */
+
+  var bellBtn = document.getElementById("bell-btn");
+  var bellPanel = document.getElementById("bell-panel");
+
+  bellBtn.addEventListener("click", function () {
+    var open = bellPanel.hidden;
+    bellPanel.hidden = !open;
+    bellBtn.setAttribute("aria-expanded", String(open));
+  });
+
+  document.getElementById("bell-read-all").addEventListener("click", async function () {
+    await PortalStore.markNotificationsRead();
+    renderBell();
+  });
+
+  // Close the panel on outside click or Escape
+  document.addEventListener("click", function (e) {
+    if (!bellPanel.hidden && !e.target.closest(".bell-wrap")) {
+      bellPanel.hidden = true;
+      bellBtn.setAttribute("aria-expanded", "false");
+    }
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && !bellPanel.hidden) {
+      bellPanel.hidden = true;
+      bellBtn.setAttribute("aria-expanded", "false");
+      bellBtn.focus();
+    }
   });
 
   /* ---------- reset demo ---------- */

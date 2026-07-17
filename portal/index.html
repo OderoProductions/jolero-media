@@ -58,6 +58,12 @@
       <div class="project-cards" id="projects"></div>
     </section>
 
+    <!-- Phase 4: contracts (section hides itself when the client has none) -->
+    <section class="portal-section" aria-labelledby="contracts-h" id="contracts-section" hidden>
+      <h2 id="contracts-h">Contracts</h2>
+      <div class="project-cards" id="contracts"></div>
+    </section>
+
     <section class="portal-section" aria-labelledby="invoices-h">
       <h2 id="invoices-h">Invoices</h2>
       <div class="panel table-wrap">
@@ -74,6 +80,99 @@
   <footer class="portal-foot">
     re.plays · Worthing, West Sussex — questions? <a class="link-quiet" href="mailto:hello@primetapes.co.uk">Email us</a>
   </footer>
+
+  <!-- Phase 4: contract signing dialog (mock signature — Phase 2 adds real e-sign) -->
+  <dialog class="pdialog" id="contract-dialog" aria-labelledby="cd-title">
+    <div class="pdialog-head">
+      <h3 id="cd-title">Contract</h3>
+      <button class="pdialog-close" type="button" data-close="contract-dialog" aria-label="Close">×</button>
+    </div>
+    <div class="pdialog-body">
+      <form class="portal-form" id="sign-form">
+        <input type="hidden" name="contractId">
+        <div class="field-wide contract-body" id="cd-body"></div>
+        <div class="field field-wide">
+          <label for="cd-name">Type your full name to sign</label>
+          <input id="cd-name" name="signerName" type="text" autocomplete="name" required>
+        </div>
+        <label class="agree-row field-wide">
+          <input type="checkbox" name="agree" required>
+          <span>I've read this agreement and I'm happy to go ahead.</span>
+        </label>
+        <p class="hint">Preview signing only — Phase 2 adds verified identity and an audit trail.</p>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">Sign agreement</button>
+          <button class="btn btn-ghost" type="button" data-close="contract-dialog">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- Phase 4: pre-shoot brief dialog -->
+  <dialog class="pdialog" id="brief-dialog" aria-labelledby="bd-title">
+    <div class="pdialog-head">
+      <h3 id="bd-title">Pre-shoot brief</h3>
+      <button class="pdialog-close" type="button" data-close="brief-dialog" aria-label="Close">×</button>
+    </div>
+    <div class="pdialog-body">
+      <form class="portal-form" id="brief-form">
+        <input type="hidden" name="briefId">
+        <div class="field field-wide">
+          <label for="bd-goal">What should this content achieve?</label>
+          <input id="bd-goal" name="goal" type="text" placeholder="e.g. Sell season tickets, get scouted, grow the gym" required>
+        </div>
+        <div class="field field-wide">
+          <label for="bd-capture">People &amp; moments we must capture</label>
+          <textarea id="bd-capture" name="mustCapture" rows="3" placeholder="Key players, a debut, a milestone, sponsors' boards…" required></textarea>
+        </div>
+        <div class="field field-wide">
+          <label for="bd-access">Location, timings &amp; access notes</label>
+          <textarea id="bd-access" name="access" rows="3" placeholder="Where to park, who to ask for on arrival, kick-off time…" required></textarea>
+        </div>
+        <div class="field field-wide">
+          <label for="bd-handles">Social handles to tag <span class="optional">(optional)</span></label>
+          <input id="bd-handles" name="handles" type="text" placeholder="@club, @players…">
+        </div>
+        <div class="field field-wide">
+          <label for="bd-extra">Anything else? <span class="optional">(optional)</span></label>
+          <textarea id="bd-extra" name="extra" rows="2"></textarea>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">Send brief</button>
+          <button class="btn btn-ghost" type="button" data-close="brief-dialog">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- Phase 4: quick review dialog -->
+  <dialog class="pdialog" id="review-dialog" aria-labelledby="rd-title">
+    <div class="pdialog-head">
+      <h3 id="rd-title">How did we do?</h3>
+      <button class="pdialog-close" type="button" data-close="review-dialog" aria-label="Close">×</button>
+    </div>
+    <div class="pdialog-body">
+      <form class="portal-form" id="review-form">
+        <input type="hidden" name="projectId">
+        <fieldset class="field field-wide" style="border:0;">
+          <legend style="font-size:0.8rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--paper-60);margin-bottom:8px;">Your rating</legend>
+          <div class="stars" id="rd-stars"></div>
+        </fieldset>
+        <div class="field field-wide">
+          <label for="rd-quote">A line we could quote <span class="optional">(optional)</span></label>
+          <textarea id="rd-quote" name="quote" rows="2" placeholder="What did the content do for you?"></textarea>
+        </div>
+        <label class="agree-row field-wide">
+          <input type="checkbox" name="allowPublic">
+          <span>You can use my words (and first name) on your site and socials.</span>
+        </label>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">Send review</button>
+          <button class="btn btn-ghost" type="button" data-close="review-dialog">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
 
   <script src="data.js"></script>
   <script src="store.js"></script>
