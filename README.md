@@ -7,6 +7,18 @@ Deploy the folder as-is.
 **Preview:** https://oderoproductions.github.io/prime-tapes/
 (repo name still says prime-tapes — rename repo + Pages URL whenever you like)
 
+## Client portal (Phase 1 — structure preview)
+
+`/portal/` is the client view (a "Previewing as" dropdown stands in for login),
+`/portal/admin/` is the admin board. All data is mock (`portal/data.js`) and every
+page reads it through `portal/store.js` — the single data layer. Admin edits
+persist to localStorage; "Reset demo data" restores the seed.
+
+Phase 2 (auth + real backend) only replaces the internals of `store.js` (its
+methods are already async) and swaps the dropdown for a session. Phase 3 hooks
+notifications into `store.updateProject`, which already knows when a status
+changes. Phases 2–4 are NOT built yet.
+
 ## Editing
 
 | Change | Where |

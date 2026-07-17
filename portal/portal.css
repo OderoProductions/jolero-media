@@ -1,0 +1,485 @@
+/* ============================================================
+   RE.PLAYS PORTAL — portal.css
+   Loaded AFTER ../styles.css — reuses its tokens (--accent, --ink,
+   --paper-60, fonts, .btn, .field, .wordmark) and only adds the
+   portal components: header, panels, stepper, tables, dialog.
+   ============================================================ */
+
+/* ---------- Frame ---------- */
+
+.portal-top {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(10, 10, 10, 0.92);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+
+.portal-top-inner {
+  max-width: 1100px;
+  margin-inline: auto;
+  padding: 14px var(--gutter);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.portal-top .wordmark { font-size: 1.05rem; }
+
+.portal-tag {
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--paper-60);
+  border: 1px solid var(--line);
+  padding: 4px 8px;
+  border-radius: var(--radius);
+}
+
+.portal-top-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.portal-top-right a {
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--paper-60);
+  padding: 8px 0;
+  transition: color 0.2s ease;
+}
+.portal-top-right a:hover { color: var(--paper); }
+
+/* "Previewing as" client switcher */
+.switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--paper-60);
+}
+.switcher select {
+  font: inherit;
+  color: var(--paper);
+  background: var(--ink-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 8px 10px;
+  cursor: pointer;
+}
+
+.portal-shell {
+  max-width: 1100px;
+  margin-inline: auto;
+  padding: clamp(24px, 4vw, 48px) var(--gutter) 96px;
+  display: grid;
+  gap: clamp(28px, 4vw, 44px);
+}
+
+.preview-note {
+  font-size: 0.82rem;
+  color: var(--paper-60);
+  border: 1px dashed rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+}
+.preview-note strong { color: var(--paper); font-weight: 600; }
+
+.portal-h1 {
+  font-size: clamp(1.9rem, 5vw, 2.8rem);
+  line-height: 1.02;
+}
+.portal-sub { color: var(--paper-60); margin-top: 8px; }
+
+.portal-section { display: grid; gap: 16px; }
+
+.portal-section > h2 {
+  font-size: 1.15rem;
+  letter-spacing: 0.05em;
+}
+.portal-section > h2 .count {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--paper-40);
+  margin-left: 8px;
+  letter-spacing: 0.1em;
+}
+
+/* ---------- Panels & badges ---------- */
+
+.panel {
+  background: var(--ink-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: clamp(18px, 3vw, 26px);
+}
+
+.pbadge {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 4px 9px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  color: var(--paper-60);
+  white-space: nowrap;
+}
+.pbadge-accent { border-color: var(--accent); color: var(--accent); }
+.pbadge-solid { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+
+/* ---------- Activity feed ---------- */
+
+.feed { list-style: none; display: grid; gap: 10px; }
+.feed li {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  font-size: 0.92rem;
+  color: var(--paper-60);
+}
+.feed li::before {
+  content: "";
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  transform: translateY(-1px);
+}
+.feed .feed-date {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  color: var(--paper-40);
+  flex: none;
+  min-width: 52px;
+}
+
+/* ---------- Project cards (client view) ---------- */
+
+.project-cards { display: grid; gap: 16px; }
+
+.project-card { display: grid; gap: 18px; }
+
+.project-card-head {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.project-card-head h3 {
+  font-size: 1.15rem;
+  letter-spacing: 0.04em;
+}
+.project-type {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--paper-40);
+}
+
+.project-meta {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  font-size: 0.86rem;
+  color: var(--paper-60);
+}
+.project-meta strong { color: var(--paper); font-weight: 600; }
+
+.project-cta { display: flex; gap: 10px; flex-wrap: wrap; }
+
+.project-notes { font-size: 0.88rem; color: var(--paper-60); }
+
+/* ---------- Status stepper ---------- */
+
+.stepper {
+  list-style: none;
+  display: flex;
+  align-items: flex-start;
+}
+.stepper li {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  min-width: 0;
+}
+
+/* connector line */
+.stepper li:not(:first-child)::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  right: 50%;
+  width: 100%;
+  height: 2px;
+  background: var(--line);
+}
+.stepper li.done:not(:first-child)::before,
+.stepper li.current:not(:first-child)::before { background: var(--accent); }
+
+.step-dot {
+  position: relative;
+  z-index: 1;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--ink-3);
+  border: 2px solid var(--line);
+  color: var(--accent-ink);
+}
+.stepper li.done .step-dot { background: var(--accent); border-color: var(--accent); }
+.stepper li.current .step-dot {
+  background: var(--ink);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(255, 59, 48, 0.18);
+}
+.step-dot svg { width: 10px; height: 10px; display: none; }
+.stepper li.done .step-dot svg { display: block; }
+
+.step-label {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--paper-40);
+  text-align: center;
+  line-height: 1.3;
+}
+.stepper li.current .step-label { color: var(--paper); }
+.stepper li.done .step-label { color: var(--paper-60); }
+
+/* current stage, spelled out (shown on mobile where labels hide) */
+.stage-now {
+  display: none;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--paper);
+}
+.stage-now .n { color: var(--paper-40); }
+
+@media (max-width: 640px) {
+  .step-label { display: none; }
+  .stage-now { display: block; }
+}
+
+/* ---------- Tables ---------- */
+
+.table-wrap { overflow-x: auto; }
+
+.ptable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.ptable th {
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--paper-40);
+  text-align: left;
+  font-weight: 400;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+.ptable td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.ptable tr:last-child td { border-bottom: 0; }
+.ptable .num { font-variant-numeric: tabular-nums; }
+
+.sort-btn {
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: color 0.2s ease;
+}
+.sort-btn:hover, .sort-btn.is-sorted { color: var(--paper); }
+.sort-btn.is-sorted::after { content: "↓"; }
+.sort-btn.is-sorted.asc::after { content: "↑"; }
+
+.row-btn {
+  font: inherit;
+  color: var(--paper);
+  font-weight: 600;
+  text-align: left;
+  padding: 0;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.2s ease, color 0.2s ease;
+}
+.row-btn:hover { text-decoration-color: var(--accent); }
+
+/* ---------- Admin overview strip ---------- */
+
+.overview {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+.stat {
+  background: var(--ink-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  display: grid;
+  gap: 4px;
+}
+.stat .stat-label {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--paper-40);
+}
+.stat .stat-value {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  letter-spacing: 0.03em;
+}
+.stat .stat-value.accent { color: var(--accent); }
+.stat .stat-sub { font-size: 0.78rem; color: var(--paper-60); }
+
+/* ---------- Admin clients list ---------- */
+
+.client-block { display: grid; gap: 12px; }
+.client-block-head {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.client-block-head h3 { font-size: 1.1rem; letter-spacing: 0.04em; }
+.client-contact { font-size: 0.84rem; color: var(--paper-60); }
+.client-lines { display: grid; gap: 6px; font-size: 0.9rem; }
+.client-lines .line-item {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  flex-wrap: wrap;
+  color: var(--paper-60);
+}
+.client-lines .line-item strong { color: var(--paper); font-weight: 500; }
+
+/* ---------- Forms (admin add / edit) ---------- */
+
+.portal-form {
+  display: grid;
+  gap: 16px 18px;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 640px) {
+  .portal-form { grid-template-columns: repeat(2, 1fr); }
+  .portal-form .field-wide { grid-column: 1 / -1; }
+}
+.portal-form .form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+details.adder { border: 1px solid var(--line); border-radius: var(--radius); background: var(--ink-2); }
+details.adder summary {
+  cursor: pointer;
+  padding: 14px 18px;
+  font-weight: 600;
+  font-size: 0.92rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+details.adder summary::-webkit-details-marker { display: none; }
+details.adder summary::before { content: "+"; color: var(--accent); font-weight: 700; }
+details.adder[open] summary { border-bottom: 1px solid var(--line); }
+details.adder .adder-body { padding: 18px; }
+
+/* ---------- Project detail dialog (admin) ---------- */
+
+.pdialog {
+  margin: auto;   /* restore centring — the site reset zeroes dialog margins */
+  width: min(560px, calc(100vw - 32px));
+  background: var(--ink-2);
+  color: var(--paper);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--radius);
+  padding: 0;
+}
+.pdialog::backdrop { background: rgba(0, 0, 0, 0.65); }
+
+.pdialog-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--line);
+}
+.pdialog-head h3 { font-size: 1.1rem; letter-spacing: 0.04em; }
+.pdialog-close {
+  margin-left: auto;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  font-size: 1.3rem;
+  color: var(--paper-60);
+  transition: color 0.2s ease;
+}
+.pdialog-close:hover { color: var(--paper); }
+.pdialog-body { padding: 22px; }
+.pdialog .hint { font-size: 0.78rem; color: var(--paper-40); grid-column: 1 / -1; }
+
+/* ---------- Footer ---------- */
+
+.portal-foot {
+  border-top: 1px solid var(--line);
+  padding: 24px var(--gutter);
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--paper-40);
+}
+
+.link-quiet {
+  color: var(--paper-60);
+  text-decoration-color: var(--accent);
+  text-underline-offset: 3px;
+}
+.link-quiet:hover { color: var(--paper); }
+
+.empty-note { color: var(--paper-60); font-size: 0.9rem; }

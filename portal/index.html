@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+
+  <!-- ============================================================
+       RE.PLAYS CLIENT PORTAL — client view (Phase 1: mock data)
+       No login yet: the "Previewing as" dropdown stands in for auth.
+       Phase 2 replaces the dropdown with a session and locks
+       /portal/admin/ behind an admin login. All data flows through
+       store.js — that file is the only thing Phase 2 swaps out.
+       ============================================================ -->
+
+  <title>Client Portal — re.plays</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="portal.css">
+</head>
+<body>
+
+  <header class="portal-top">
+    <div class="portal-top-inner">
+      <a class="wordmark" href="../" aria-label="re.plays — back to main site">RE<span class="wordmark-dot" aria-hidden="true"></span>PLAYS</a>
+      <span class="portal-tag">Client Portal</span>
+      <div class="portal-top-right">
+        <label class="switcher" for="client-switch">Previewing as
+          <select id="client-switch"></select>
+        </label>
+        <a href="admin/">Admin</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="portal-shell">
+    <p class="preview-note"><strong>Preview build.</strong> No login yet — Phase 2 adds authentication so each client only sees their own page. Use the dropdown above to preview each client's view.</p>
+
+    <header>
+      <h1 class="portal-h1" id="welcome">Welcome</h1>
+      <p class="portal-sub" id="welcome-sub"></p>
+    </header>
+
+    <section class="portal-section" aria-labelledby="feed-h">
+      <h2 id="feed-h">What's new</h2>
+      <div class="panel">
+        <ol class="feed" id="feed"></ol>
+      </div>
+    </section>
+
+    <section class="portal-section" aria-labelledby="projects-h">
+      <h2 id="projects-h">Your projects<span class="count" id="projects-count"></span></h2>
+      <div class="project-cards" id="projects"></div>
+    </section>
+
+    <section class="portal-section" aria-labelledby="invoices-h">
+      <h2 id="invoices-h">Invoices</h2>
+      <div class="panel table-wrap">
+        <table class="ptable" id="invoices">
+          <thead>
+            <tr><th scope="col">Invoice</th><th scope="col">Issued</th><th scope="col">Due</th><th scope="col">Amount</th><th scope="col">Status</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="portal-foot">
+    re.plays · Worthing, West Sussex — questions? <a class="link-quiet" href="mailto:hello@primetapes.co.uk">Email us</a>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="store.js"></script>
+  <script src="portal.js"></script>
+</body>
+</html>
