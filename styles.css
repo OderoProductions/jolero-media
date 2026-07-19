@@ -428,34 +428,6 @@ h3 { font-size: clamp(1.35rem, 2.6vw, 1.7rem); }
   .scroll-cue { display: none; }        /* avoid colliding with CTAs on short screens */
 }
 
-/* ---------- Ticker ---------- */
-
-.ticker {
-  border-block: 1px solid var(--line);
-  overflow: hidden;
-  padding-block: 14px;
-}
-
-.ticker-track {
-  display: flex;
-  align-items: center;
-  gap: 34px;
-  width: max-content;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.26em;
-  text-transform: uppercase;
-  color: var(--paper-40);
-  white-space: nowrap;
-  animation: ticker-scroll 70s linear infinite;
-}
-.ticker-track .tick { color: var(--accent); font-size: 0.5rem; }
-
-@keyframes ticker-scroll {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-
 /* ---------- Sections ---------- */
 
 .section { padding-block: var(--section-y); }
@@ -898,7 +870,6 @@ h3 { font-size: clamp(1.35rem, 2.6vw, 1.7rem); }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .reveal { opacity: 1; transform: none; transition: none; }
-  .ticker-track { animation: none; }
   .rec-dot.pulse { animation: none; }
   .scroll-cue::after { animation: none; transform: none; }
   *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
