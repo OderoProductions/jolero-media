@@ -83,10 +83,13 @@
   <a class="skip-link" href="#work">Skip to content</a>
 
   <!-- ================= NAV ================= -->
-  <header class="nav" id="top">
+  <!-- Note: the wordmark links use href="#" (empty fragment = top of document).
+       Don't anchor them to an id on this fixed header — browsers won't scroll
+       to a fixed-position element. -->
+  <header class="nav">
     <div class="nav-inner container">
       <!-- Wordmark: the red dot sits mid-height between RE and PLAYS -->
-      <a class="wordmark" href="#top" aria-label="re.plays — back to top">RE<span class="wordmark-dot" aria-hidden="true"></span>PLAYS</a>
+      <a class="wordmark" href="#" aria-label="re.plays — back to top">RE<span class="wordmark-dot" aria-hidden="true"></span>PLAYS</a>
 
       <nav class="nav-links" aria-label="Sections">
         <a href="#work">Work</a>
@@ -551,7 +554,7 @@
   <!-- ================= FOOTER ================= -->
   <footer class="footer">
     <div class="container footer-inner">
-      <a class="wordmark" href="#top" aria-label="re.plays — back to top">RE<span class="wordmark-dot" aria-hidden="true"></span>PLAYS</a>
+      <a class="wordmark" href="#" aria-label="re.plays — back to top">RE<span class="wordmark-dot" aria-hidden="true"></span>PLAYS</a>
       <p class="footer-loc">Worthing · West Sussex</p>
       <div class="footer-right">
         <a class="footer-portal" href="portal/">Client Portal</a>

@@ -49,6 +49,19 @@
     }
   });
 
+  /* ---------- Back-to-top wordmarks ----------
+     href="#" is the no-JS fallback; this handler makes the scroll
+     explicit (fragment scrolling is flaky across browsers when the
+     header is fixed) and keeps the URL free of stray hashes. */
+
+  document.querySelectorAll('a[href="#"]').forEach(function (link) {
+    link.addEventListener("click", function (e) {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: prefersReducedMotion ? "auto" : "smooth" });
+      history.replaceState(null, "", window.location.pathname + window.location.search);
+    });
+  });
+
   /* ---------- Hero timecode (viewfinder chrome) ---------- */
 
   var tc = document.getElementById("timecode");
