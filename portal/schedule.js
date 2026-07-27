@@ -42,6 +42,11 @@
   }
   var todayISO = iso(today);
 
+  // Drag-and-drop is desktop-only sugar (dialogs are the touch/keyboard path).
+  // Without this gate, iPadOS lifts draggable chips on press-and-hold and a
+  // stray release silently rewrites dates.
+  var DRAG_OK = !!(window.matchMedia && matchMedia("(hover: hover) and (pointer: fine)").matches);
+
   /* ---------- Google Calendar handoff ---------- */
 
   function plusHour(hhmm) {
@@ -151,7 +156,7 @@
       var chips = evs.slice(0, 3).map(function (e, idx) {
         return '<button class="chip chip-' + e.kind + (e.done ? " is-done" : "") +
           '" data-open-event="' + dISO + "|" + idx + '"' +
-          (e.kind === "invoice" ? "" : ' draggable="true"') + ' title="' +
+          (e.kind === "invoice" || !DRAG_OK ? "" : ' draggable="true"') + ' title="' +
           esc((e.label ? e.label + " — " : "") + e.title) + '">' +
           (e.time ? '<span class="chip-time">' + esc(e.time) + "</span> " : "") +
           esc(e.title) + "</button>";
@@ -291,10 +296,12 @@
 
   calGrid.addEventListener("dragleave", function (e) {
     var cell = e.target.closest ? e.target.closest(".cal-cell") : null;
-    // Only clear when truly leaving the cell, not moving between its children
-    if (cell && !(e.relatedTarget && cell.contains(e.relatedTarget))) {
-      cell.classList.remove("drop-target");
-    }
+    if (!cell) return;
+    // Only clear when truly leaving the cell, not moving between its children.
+    // WebKit reports relatedTarget as null on drag events — hit-test instead.
+    var over = e.relatedTarget ||
+      (typeof e.clientX === "number" ? document.elementFromPoint(e.clientX, e.clientY) : null);
+    if (!over || !cell.contains(over)) cell.classList.remove("drop-target");
   });
 
   calGrid.addEventListener("drop", function (e) {

@@ -41,6 +41,12 @@
 
   <link rel="stylesheet" href="styles.css">
 
+  <!-- Entrance bootstrap: set .js before first paint so the hero can't flash
+       visible->hidden on slow loads, and carry the stranded-content failsafe
+       inline in case script.js never arrives. script.js re-adding both later
+       is harmless. -->
+  <script>document.documentElement.classList.add("js");setTimeout(function(){document.documentElement.classList.add("is-loaded")},1200);</script>
+
   <!-- Structured data: helps local search for "sports videographer Worthing" etc. -->
   <script type="application/ld+json">
   {

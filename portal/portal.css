@@ -1154,7 +1154,7 @@ details.adder .adder-body { padding: 18px; }
 /* Halo colour for the animated current-step ring — same value the static
    .stepper li.current .step-dot box-shadow uses, tokenised for both themes. */
 :root { --halo: rgba(255, 59, 48, 0.18); }
-html.theme-light { --halo: rgba(255, 59, 48, 0.18); }
+html.theme-light { --halo: rgba(214, 42, 32, 0.18); }   /* tracks the light accent #D62A20 */
 
 @media (prefers-reduced-motion: no-preference) {
 

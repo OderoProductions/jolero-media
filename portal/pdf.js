@@ -246,11 +246,17 @@
     doc.text("F1", 10, GRAY, number, 14);
     doc.gap(16);
 
-    // Two meta columns as stacked lines
+    // Two meta columns as stacked lines. The left column is clamped so a
+    // long client name/email can never overprint the DATES column at x=M+260
+    // (~45 chars of Helvetica 10 fills that width).
+    function clamp(str) {
+      str = sanitize(str);
+      return str.length > 44 ? str.slice(0, 43) + "\x85" : str;   // 0x85 = ellipsis in WinAnsi
+    }
     var left = [["F2", 8.5, GRAY, "BILLED TO"]];
-    if (client.name) left.push(["F1", 10, INKC, sanitize(client.name)]);
-    if (client.contactName) left.push(["F1", 10, INKC, sanitize(client.contactName)]);
-    if (client.email) left.push(["F1", 10, INKC, sanitize(client.email)]);
+    if (client.name) left.push(["F1", 10, INKC, clamp(client.name)]);
+    if (client.contactName) left.push(["F1", 10, INKC, clamp(client.contactName)]);
+    if (client.email) left.push(["F1", 10, INKC, clamp(client.email)]);
 
     var right = [["F2", 8.5, GRAY, "DATES"]];
     right.push(["F1", 10, INKC, "Issued " + fmt(invoice.issued)]);

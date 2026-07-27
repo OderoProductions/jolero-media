@@ -85,7 +85,7 @@
       "</article>";
   }
 
-  function render(bundle) {
+  function render(bundle, opts) {
     var c = bundle.client;
     document.getElementById("welcome").textContent = "Welcome back, " + (c ? c.name : "…");
     document.getElementById("welcome-sub").textContent = c
@@ -137,7 +137,7 @@
     document.querySelector("#invoices tbody").innerHTML =
       rows || '<tr><td colspan="6" class="empty-note">No invoices yet.</td></tr>';
 
-    setupEntrance();
+    if (!opts || opts.replayEntrance !== false) setupEntrance();
   }
 
   /* ---------- Motion polish: panel entrance + stepper draw-in ----------
@@ -157,6 +157,8 @@
     return true;
   }
 
+  var entranceStart = 0;
+
   function onPanelIntersect(entries) {
     for (var k = 0; k < entries.length; k++) {
       var entry = entries[k];
@@ -166,6 +168,9 @@
       // may never reach that ratio, so any intersection reveals it instead
       // of leaving it invisible.
       if (entry.intersectionRatio >= 0.35 || entry.boundingClientRect.height > rootH * 0.6) {
+        // The document-order stagger (--p) is for the initial above-fold
+        // batch only; panels revealed later by scrolling animate at once.
+        if (Date.now() - entranceStart > 250) entry.target.style.setProperty("--p", 0);
         entry.target.classList.add("anim-ready");
         animObserver.unobserve(entry.target); // once per element
       }
@@ -181,6 +186,7 @@
     if (!motionAllowed()) return;
     if (animObserver) animObserver.disconnect();
     else animObserver = new IntersectionObserver(onPanelIntersect, { threshold: [0, 0.35] });
+    entranceStart = Date.now();
     var panels = document.querySelectorAll(".portal-shell .panel");
     for (var k = 0; k < panels.length; k++) {
       panels[k].classList.remove("anim-ready");         // persistent panels re-arm on re-render
@@ -195,7 +201,16 @@
     if (entranceFailsafe) clearTimeout(entranceFailsafe);
     entranceFailsafe = setTimeout(function () {
       var armed = document.querySelectorAll(".will-anim:not(.anim-ready)");
+      var hiddenTab = document.visibilityState === "hidden";
       for (var j = 0; j < armed.length; j++) {
+        if (!hiddenTab) {
+          // Visible tab: the observer is live, so below-fold panels should
+          // keep their scroll-into-view entrance. Only rescue stragglers
+          // already inside the viewport (an observer miss).
+          var r = armed[j].getBoundingClientRect();
+          if (r.bottom <= 0 || r.top >= window.innerHeight) continue;
+        }
+        armed[j].style.setProperty("--p", 0);
         armed[j].classList.add("anim-ready");
         if (animObserver) animObserver.unobserve(armed[j]);
       }
@@ -208,6 +223,7 @@
   document.addEventListener("focusin", function (e) {
     var el = e.target && e.target.closest ? e.target.closest(".will-anim:not(.anim-ready)") : null;
     if (el) {
+      el.style.setProperty("--p", 0);   // focused controls must appear NOW, not after the stagger
       el.classList.add("anim-ready");
       if (animObserver) animObserver.unobserve(el);
     }
@@ -216,13 +232,13 @@
   var currentClientId = null;
   var currentBundle = null;
 
-  async function show(clientId) {
+  async function show(clientId, opts) {
     var bundle = await PortalStore.getClientBundle(clientId);
     if (!bundle.client) return;
     currentClientId = clientId;
     currentBundle = bundle;
     try { sessionStorage.setItem(VIEW_KEY, clientId); } catch (e) {}
-    render(bundle);
+    render(bundle, opts);
   }
 
   // Signed contracts download as a real PDF (built in pdf.js, no server)
@@ -291,7 +307,7 @@
     if (!signForm.reportValidity()) return;
     await PortalStore.signContract(signForm.elements.contractId.value, signForm.elements.signerName.value.trim());
     contractDialog.close();
-    show(currentClientId);
+    show(currentClientId, { replayEntrance: false });
   });
 
   briefForm.addEventListener("submit", async function (e) {
@@ -305,7 +321,7 @@
       extra: briefForm.elements.extra.value.trim()
     });
     briefDialog.close();
-    show(currentClientId);
+    show(currentClientId, { replayEntrance: false });
   });
 
   reviewForm.addEventListener("submit", async function (e) {
@@ -319,7 +335,7 @@
       allowPublic: reviewForm.elements.allowPublic.checked
     });
     reviewDialog.close();
-    show(currentClientId);
+    show(currentClientId, { replayEntrance: false });
   });
 
   async function init() {
