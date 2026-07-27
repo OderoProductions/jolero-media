@@ -211,62 +211,23 @@
     }).join("");
   }
 
-  /* ---------- tasks ---------- */
-
-  async function renderTasks() {
-    var tasks = await PortalStore.getTasks();
-    var data = await PortalStore.getData();
-    var projectTitle = {};
-    data.projects.forEach(function (p) { projectTitle[p.id] = p.title; });
-
-    var open = tasks.filter(function (t) { return !t.done; });
-    var done = tasks.filter(function (t) { return t.done; });
-
-    function row(t) {
-      var overdue = !t.done && t.due && t.due < todayISO;
-      return '<div class="task-row' + (t.done ? " is-done" : "") + '">' +
-        '<input type="checkbox" ' + (t.done ? "checked" : "") +
-        ' data-toggle-task="' + esc(t.id) + '" aria-label="Mark ' + esc(t.title) + '">' +
-        "<div><span class='t-title'>" + esc(t.title) + "</span>" +
-        '<div class="t-meta">' + esc(t.type) +
-        (t.projectId && projectTitle[t.projectId] ? " · " + esc(projectTitle[t.projectId]) : "") +
-        "</div></div>" +
-        '<span class="t-meta t-due' + (overdue ? " is-overdue" : "") + '">' +
-        (overdue ? "Overdue · " : "") + fmtDate(t.due) + "</span>" +
-        '<button class="task-del" type="button" data-del-task="' + esc(t.id) + '" aria-label="Delete task">&times;</button>' +
-        "</div>";
-    }
-
-    document.getElementById("task-list").innerHTML =
-      (open.map(row).join("") + done.map(row).join("")) ||
-      '<p class="empty-note">No tasks yet — add one below.</p>';
-    document.getElementById("tasks-count").textContent =
-      open.length ? "(" + open.length + " open)" : "";
-  }
-
   /* ---------- refresh everything ---------- */
 
   async function refresh() {
     allEvents = await PortalStore.getScheduleEvents();
     renderCalendar();
     renderDay();
-    await renderTasks();
   }
+  // admin.js calls this after a task edit so the calendar stays in step
+  window.ScheduleRefresh = refresh;
 
   /* ---------- editing: route each entry to the right dialog ---------- */
 
   var eventDialog = document.getElementById("event-dialog");
-  var taskDialog = document.getElementById("task-dialog");
   var pdateDialog = document.getElementById("pdate-dialog");
   var eventForm = document.getElementById("event-form");
-  var taskForm = document.getElementById("task-form");
   var pdateForm = document.getElementById("pdate-form");
-
-  document.querySelectorAll("[data-close]").forEach(function (btn) {
-    btn.addEventListener("click", function () {
-      document.getElementById(btn.dataset.close).close();
-    });
-  });
+  // [data-close] handlers and the task dialog live in admin.js (shared)
 
   function openEventDialog(ev) {
     var f = eventForm;
@@ -289,19 +250,6 @@
       document.getElementById("ed-delete").hidden = true;
     }
     eventDialog.showModal();
-  }
-
-  async function openTaskDialog(taskId) {
-    var t = await PortalStore.getTask(taskId);
-    if (!t) return;
-    var f = taskForm;
-    f.elements.id.value = t.id;
-    f.elements.title.value = t.title;
-    f.elements.type.value = t.type;
-    f.elements.due.value = t.due || "";
-    f.elements.projectId.value = t.projectId || "";
-    f.elements.done.checked = !!t.done;
-    taskDialog.showModal();
   }
 
   async function openProjectDate(projectId, kind) {
@@ -337,11 +285,20 @@
     if (ev.kind === "event") {
       openEventDialog(await PortalStore.getEvent(ev.eventId));
     } else if (ev.kind === "task") {
-      openTaskDialog(ev.taskId);
+      window.AdminEditTask(ev.taskId);
     } else if (ev.kind === "shoot" || ev.kind === "deadline") {
       openProjectDate(ev.projectId, ev.kind);
     }
   }, true);
+
+  // Clicking an empty part of a day cell adds an event on that date
+  document.addEventListener("click", function (e) {
+    var cell = e.target.closest(".cal-cell");
+    if (!cell || e.target.closest("[data-open-event]")) return;
+    selected = cell.dataset.date;
+    renderDay();
+    openEventDialog(null);
+  });
 
   document.getElementById("add-event-btn").addEventListener("click", function () {
     openEventDialog(null);
@@ -370,29 +327,6 @@
     if (id && confirm("Delete this event?")) {
       await PortalStore.deleteEvent(id);
       eventDialog.close();
-      await refresh();
-    }
-  });
-
-  taskForm.addEventListener("submit", async function (e) {
-    e.preventDefault();
-    var f = taskForm;
-    await PortalStore.updateTask(f.elements.id.value, {
-      title: f.elements.title.value.trim(),
-      type: f.elements.type.value,
-      due: f.elements.due.value,
-      projectId: f.elements.projectId.value,
-      done: f.elements.done.checked
-    });
-    taskDialog.close();
-    await refresh();
-  });
-
-  document.getElementById("td-delete").addEventListener("click", async function () {
-    var id = taskForm.elements.id.value;
-    if (id && confirm("Delete this task?")) {
-      await PortalStore.deleteTask(id);
-      taskDialog.close();
       await refresh();
     }
   });
@@ -427,46 +361,11 @@
 
   // Delegated: day/chip selection, task toggles, task delete
   document.addEventListener("click", async function (e) {
-    var cell = e.target.closest("[data-date]");
-    if (cell) {
-      selected = cell.dataset.date;
-      renderDay();
-      document.getElementById("day-h").scrollIntoView({ block: "start", behavior: "smooth" });
-      return;
-    }
-    var toggle = e.target.closest("[data-toggle-task]");
-    if (toggle) {
-      await PortalStore.toggleTask(toggle.dataset.toggleTask);
-      await refresh();
-      return;
-    }
-    var del = e.target.closest("[data-del-task]");
-    if (del) {
-      await PortalStore.deleteTask(del.dataset.delTask);
-      await refresh();
-    }
-  });
-
-  document.getElementById("add-task").addEventListener("submit", async function (e) {
-    e.preventDefault();
-    var f = e.target;
-    await PortalStore.addTask({
-      title: f.elements.title.value.trim(),
-      type: f.elements.type.value,
-      due: f.elements.due.value,
-      projectId: f.elements.projectId.value
-    });
-    f.reset();
-    f.closest("details").open = false;
-    await refresh();
   });
 
   /* ---------- init ---------- */
 
   (async function init() {
-    var taskOpts = PortalStore.TASK_TYPES.map(function (t) { return "<option>" + esc(t) + "</option>"; }).join("");
-    document.getElementById("nt-type").innerHTML = taskOpts;
-    document.getElementById("td-type").innerHTML = taskOpts;
     document.getElementById("ed-type").innerHTML =
       PortalStore.EVENT_TYPES.map(function (t) { return "<option>" + esc(t) + "</option>"; }).join("");
 
@@ -474,12 +373,6 @@
     var clientName = {};
     data.clients.forEach(function (c) { clientName[c.id] = c.name; });
 
-    var projectOpts = '<option value="">— none —</option>' + data.projects.map(function (p) {
-      return '<option value="' + esc(p.id) + '">' + esc(p.title) +
-        " (" + esc(clientName[p.clientId] || "") + ")</option>";
-    }).join("");
-    document.getElementById("nt-project").innerHTML = projectOpts;
-    document.getElementById("td-project").innerHTML = projectOpts;
 
     document.getElementById("ed-client").innerHTML =
       '<option value="">— none —</option>' + data.clients.map(function (c) {

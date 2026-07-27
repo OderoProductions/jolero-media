@@ -223,6 +223,35 @@
       return t;
     },
 
+    /* ---------- Accounting: invoices ---------- */
+
+    addInvoice: async function (fields) {
+      var s = load();
+      var inv = {
+        id: uid("inv"),
+        clientId: fields.clientId,
+        number: fields.number,
+        amount: Number(fields.amount) || 0,
+        status: "unpaid",
+        issued: fields.issued || todayISO(),
+        due: fields.due || ""
+      };
+      s.invoices.push(inv);
+      s.activity.push({ id: uid("a"), clientId: inv.clientId, date: todayISO(), text: "New invoice " + inv.number + " added" });
+      save(s);
+      return inv;
+    },
+
+    toggleInvoice: async function (invoiceId) {
+      var s = load();
+      var inv = s.invoices.find(function (x) { return x.id === invoiceId; });
+      if (!inv) return null;
+      inv.status = inv.status === "paid" ? "unpaid" : "paid";
+      if (inv.status === "paid") notify(s, "Invoice " + inv.number + " marked paid");
+      save(s);
+      return inv;
+    },
+
     /* ---------- Schedule: standalone events ---------- */
 
     EVENT_TYPES: (seed.eventTypes || []).slice(),

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex">
-  <title>Dashboard — Jolero Media Portal</title>
+  <title>Accounting — Jolero Media Portal</title>
   <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,11 +18,11 @@
     <div class="portal-top-inner">
       <a class="wordmark" href="../../" aria-label="Jolero Media — back to main site">JOLERO<span class="wordmark-dot" aria-hidden="true"></span>MEDIA</a>
       <nav class="admin-nav" aria-label="Admin sections">
-        <a href="index.html" aria-current="page">Dashboard</a>
+        <a href="index.html">Dashboard</a>
         <a href="projects.html">Projects</a>
         <a href="schedule.html">Schedule</a>
         <a href="tasks.html">Tasks</a>
-        <a href="invoices.html">Accounting</a>
+        <a href="invoices.html" aria-current="page">Accounting</a>
         <a href="contracts.html">Contracts</a>
         <a href="clients.html">Clients</a>
       </nav>
@@ -47,11 +47,51 @@
 
   <main class="portal-shell">
     <header>
-      <h1 class="portal-h1">Dashboard</h1>
-      <p class="portal-sub">Everything at a glance. Tap any card to go deeper.</p>
+      <h1 class="portal-h1">Accounting</h1>
+      <p class="portal-sub">Invoices, what's outstanding and what's overdue. Due dates appear on the schedule.</p>
     </header>
-    <section class="portal-section" aria-label="Overview">
-      <div class="dash-grid" id="dash-grid"></div>
+    <section class="portal-section" aria-label="Totals">
+      <div class="overview" id="invoice-totals"></div>
+    </section>
+    <section class="portal-section" aria-labelledby="inv-h">
+      <h2 id="inv-h">Invoices</h2>
+      <div class="panel table-wrap">
+        <table class="ptable" id="invoice-table">
+          <thead><tr>
+            <th scope="col">Invoice</th><th scope="col">Client</th><th scope="col">Issued</th>
+            <th scope="col">Due</th><th scope="col">Amount</th><th scope="col">Status</th><th scope="col"></th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <details class="adder">
+        <summary>Add invoice</summary>
+        <div class="adder-body">
+          <form class="portal-form" id="add-invoice">
+            <div class="field">
+              <label for="ni-number">Invoice number</label>
+              <input id="ni-number" name="number" type="text" placeholder="JM-2026-016" required>
+            </div>
+            <div class="field">
+              <label for="ni-client">Client</label>
+              <select id="ni-client" name="clientId" required></select>
+            </div>
+            <div class="field">
+              <label for="ni-amount">Amount (£)</label>
+              <input id="ni-amount" name="amount" type="number" min="0" step="1" required>
+            </div>
+            <div class="field">
+              <label for="ni-issued">Issued</label>
+              <input id="ni-issued" name="issued" type="date" required>
+            </div>
+            <div class="field">
+              <label for="ni-due">Due</label>
+              <input id="ni-due" name="due" type="date" required>
+            </div>
+            <div class="form-actions"><button class="btn btn-primary" type="submit">Add invoice</button></div>
+          </form>
+        </div>
+      </details>
     </section>
   </main>
 

@@ -22,6 +22,12 @@ West Sussex. Plain static site — no frameworks, no build step. Deploy the fold
 page reads it through `portal/store.js` — the single data layer. Admin edits
 persist to localStorage; "Reset demo data" restores the seed.
 
+The admin area is a hub: `/portal/admin/` is a **Dashboard** of summary cards
+(schedule, tasks, accounting, contracts, projects, clients) that each link to
+their own page — `projects.html`, `schedule.html`, `tasks.html`,
+`invoices.html`, `contracts.html`, `clients.html`. One shared `admin.js` powers
+them all; each section renders only if its container exists on the page.
+
 `/portal/admin/schedule.html` is the Schedule page: a month calendar that
 aggregates shoot dates, delivery deadlines, unpaid invoice due dates and tasks
 (nothing is entered twice — it reads the same data as the board), plus a task

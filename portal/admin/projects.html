@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Projects — Jolero Media Portal</title>
+  <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../styles.css">
+  <link rel="stylesheet" href="../portal.css">
+</head>
+<body>
+
+  <header class="portal-top">
+    <div class="portal-top-inner">
+      <a class="wordmark" href="../../" aria-label="Jolero Media — back to main site">JOLERO<span class="wordmark-dot" aria-hidden="true"></span>MEDIA</a>
+      <nav class="admin-nav" aria-label="Admin sections">
+        <a href="index.html">Dashboard</a>
+        <a href="projects.html" aria-current="page">Projects</a>
+        <a href="schedule.html">Schedule</a>
+        <a href="tasks.html">Tasks</a>
+        <a href="invoices.html">Accounting</a>
+        <a href="contracts.html">Contracts</a>
+        <a href="clients.html">Clients</a>
+      </nav>
+      <div class="portal-top-right">
+        <div class="bell-wrap">
+          <button class="bell-btn" id="bell-btn" type="button" aria-label="Notifications" aria-expanded="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+            <span class="bell-count" id="bell-count" hidden></span>
+          </button>
+          <div class="bell-panel" id="bell-panel" hidden>
+            <div class="bell-panel-head">Notifications
+              <button class="link-quiet" id="bell-read-all" type="button">Mark all read</button>
+            </div>
+            <ol class="bell-list" id="bell-list"></ol>
+          </div>
+        </div>
+        <a href="../">Client view</a>
+        <button class="link-quiet" id="reset-demo" type="button" style="font-size:0.8rem;">Reset demo</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="portal-shell">
+    <header>
+      <h1 class="portal-h1">Projects</h1>
+      <p class="portal-sub">Every job and where it's up to. Click a project to edit it.</p>
+    </header>
+    <section class="portal-section" aria-label="By stage">
+      <div class="overview" id="overview"></div>
+    </section>
+    <section class="portal-section" aria-labelledby="board-h">
+      <h2 id="board-h">All projects<span class="count" id="board-count"></span></h2>
+      <div class="panel table-wrap">
+        <table class="ptable" id="board">
+          <thead><tr>
+            <th scope="col">Project</th><th scope="col">Client</th><th scope="col">Type</th>
+            <th scope="col"><button class="sort-btn" type="button" data-sort="status">Status</button></th>
+            <th scope="col">Shoot</th>
+            <th scope="col"><button class="sort-btn" type="button" data-sort="deadline">Deadline</button></th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <details class="adder">
+        <summary>Add project</summary>
+        <div class="adder-body">
+          <form class="portal-form" id="add-project">
+            <div class="field field-wide"><label for="np-title">Title</label><input id="np-title" name="title" type="text" required></div>
+            <div class="field"><label for="np-client">Client</label><select id="np-client" name="clientId" required></select></div>
+            <div class="field"><label for="np-type">Type</label><select id="np-type" name="type" required></select></div>
+            <div class="field"><label for="np-shoot">Shoot date</label><input id="np-shoot" name="shootDate" type="date"></div>
+            <div class="field"><label for="np-deadline">Delivery deadline</label><input id="np-deadline" name="deadline" type="date"></div>
+            <div class="field field-wide"><label for="np-notes">Notes <span class="optional">(optional)</span></label><textarea id="np-notes" name="notes" rows="2"></textarea></div>
+            <div class="form-actions"><button class="btn btn-primary" type="submit">Add project</button></div>
+          </form>
+        </div>
+      </details>
+    </section>
+  </main>
+
+  <dialog class="pdialog" id="project-dialog" aria-labelledby="pd-title">
+    <div class="pdialog-head">
+      <h3 id="pd-title">Project</h3>
+      <button class="pdialog-close" id="pd-close" type="button" aria-label="Close">&times;</button>
+    </div>
+    <div class="pdialog-body">
+      <form class="portal-form" id="edit-project">
+        <input type="hidden" name="id">
+        <div class="field field-wide"><label for="ep-title">Title</label><input id="ep-title" name="title" type="text" required></div>
+        <div class="field"><label for="ep-status">Status</label><select id="ep-status" name="status"></select></div>
+        <div class="field"><label for="ep-type">Type</label><select id="ep-type" name="type"></select></div>
+        <div class="field"><label for="ep-shoot">Shoot date</label><input id="ep-shoot" name="shootDate" type="date"></div>
+        <div class="field"><label for="ep-deadline">Delivery deadline</label><input id="ep-deadline" name="deadline" type="date"></div>
+        <div class="field field-wide"><label for="ep-review">Review link <span class="optional">(shown at Review)</span></label><input id="ep-review" name="reviewLink" type="url" placeholder="https://…"></div>
+        <div class="field field-wide"><label for="ep-delivery">Delivery link <span class="optional">(shown at Delivered)</span></label><input id="ep-delivery" name="deliveryLink" type="url" placeholder="https://…"></div>
+        <div class="field field-wide"><label for="ep-notes">Notes</label><textarea id="ep-notes" name="notes" rows="3"></textarea></div>
+        <div class="field field-wide" id="ep-brief"></div>
+        <p class="hint">Saving a status change posts an update to that client's "What's new" feed.</p>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">Save changes</button>
+          <button class="btn btn-ghost" type="button" id="pd-cancel">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <footer class="portal-foot">Jolero Media · internal — Phase 1/4 preview running on mock data</footer>
+
+  <script src="../data.js"></script>
+  <script src="../store.js"></script>
+  <script src="../admin.js"></script>
+</body>
+</html>
