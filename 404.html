@@ -32,6 +32,15 @@
       text-transform: uppercase;
       color: rgba(255, 255, 255, 0.5);
     }
+    /* Slow signal blink — motion-gated here so it's off for reduced
+       motion even if /styles.css (and its global kill switch) 404s. */
+    @media (prefers-reduced-motion: no-preference) {
+      .nf-code { animation: signal-blink 2.4s ease-in-out infinite alternate; }
+    }
+    @keyframes signal-blink {
+      from { opacity: 1; }
+      to { opacity: 0.35; }
+    }
     .nf h1 {
       font-family: "Anton", "Arial Narrow", sans-serif;
       font-weight: 400;
