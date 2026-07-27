@@ -33,6 +33,16 @@ aggregates shoot dates, delivery deadlines, unpaid invoice due dates and tasks
 (nothing is entered twice — it reads the same data as the board), plus a task
 list with types, due dates and overdue highlighting.
 
+The Accounting page also carries an **income & expenses ledger** for tax:
+paid invoices flow in automatically as income (no double entry), manual
+income/expenses can be added with HMRC-friendly categories, and totals
+(income / expenses / profit) filter by UK tax year (6 Apr–5 Apr).
+Spreadsheets import via CSV (Excel / Google Sheets / Numbers export) with a
+preview, tolerant parsing (DD/MM/YYYY or ISO dates, £ signs, quoted commas)
+and duplicate-safe re-imports; Export CSV produces an accountant-ready file.
+Native .xlsx parsing needs a third-party library — CSV is the supported route
+until Phase 2.
+
 Everything on the calendar is editable in place: click any entry to open the
 right editor. Standalone events (`events` in the seed) can be added, edited and
 deleted with optional start/end times; tasks open a full edit dialog; shoots and

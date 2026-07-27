@@ -84,7 +84,20 @@
         overdueTasks.length > 0) +
 
       card("invoices.html", "Accounting", fmtMoney(unpaidTotal),
-        unpaid.length + " unpaid · " + fmtMoney(paidTotal) + " received",
+        unpaid.length + " unpaid · " + fmtMoney(paidTotal) + " received" +
+        (function () {
+          // profit this tax year: paid invoices + income tx − expense tx
+          var ty = taxYearOf(todayISO());
+          var inc = 0, exp = 0;
+          data.invoices.forEach(function (i) {
+            if (i.status === "paid" && taxYearOf(i.paidDate || i.due) === ty) inc += i.amount;
+          });
+          (data.transactions || []).forEach(function (t) {
+            if (taxYearOf(t.date) !== ty) return;
+            if (t.kind === "income") inc += t.amount; else exp += t.amount;
+          });
+          return "<br>" + money2(inc - exp) + " profit · tax year " + ty;
+        })(),
         unpaid.length > 0) +
 
       card("contracts.html", "Contracts", (data.contracts || []).length,
@@ -232,6 +245,172 @@
     }
   }
 
+  /* ================= INCOME & EXPENSE LEDGER ================= */
+
+  var taxYearFilter = "all";
+  var pendingImport = [];
+
+  function money2(n) {
+    return "£" + Number(n).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  // UK tax year: 6 April – 5 April. "2026/27" starts 2026-04-06.
+  function taxYearOf(dateISO) {
+    if (!dateISO) return "—";
+    var y = Number(dateISO.slice(0, 4));
+    var start = y + "-04-06";
+    return dateISO >= start
+      ? y + "/" + String(y + 1).slice(2)
+      : (y - 1) + "/" + String(y).slice(2);
+  }
+
+  async function renderLedger() {
+    var tbody = document.querySelector("#ledger-table tbody");
+    if (!tbody) return;
+
+    var rows = await PortalStore.getLedger();
+
+    // Tax-year dropdown (keep the current pick across re-renders)
+    var years = [];
+    rows.forEach(function (r) {
+      var ty = taxYearOf(r.date);
+      if (years.indexOf(ty) === -1) years.push(ty);
+    });
+    years.sort().reverse();
+    var sel = el("tax-year");
+    sel.innerHTML = '<option value="all">All</option>' + years.map(function (y) {
+      return '<option value="' + y + '">' + y + "</option>";
+    }).join("");
+    if (taxYearFilter !== "all" && years.indexOf(taxYearFilter) === -1) taxYearFilter = "all";
+    sel.value = taxYearFilter;
+
+    var visible = rows.filter(function (r) {
+      return taxYearFilter === "all" || taxYearOf(r.date) === taxYearFilter;
+    });
+
+    tbody.innerHTML = visible.map(function (r) {
+      var amount = r.kind === "expense"
+        ? '<span class="tx-out">−' + money2(r.amount) + "</span>"
+        : '<span class="tx-in">+' + money2(r.amount) + "</span>";
+      var action = r.source === "invoice"
+        ? '<span class="t-meta">invoice</span>'
+        : '<button class="row-btn" type="button" data-edit-tx="' + esc(r.id) + '">Edit</button>';
+      return "<tr>" +
+        "<td>" + fmtDate(r.date) + "</td>" +
+        "<td>" + esc(r.description) + "</td>" +
+        "<td>" + esc(r.category) + "</td>" +
+        "<td>" + esc(r.client || "—") + "</td>" +
+        '<td class="num">' + amount + "</td>" +
+        "<td>" + action + "</td>" +
+        "</tr>";
+    }).join("") || '<tr><td colspan="6" class="empty-note">Nothing recorded yet.</td></tr>';
+
+    var income = visible.filter(function (r) { return r.kind === "income"; })
+      .reduce(function (t, r) { return t + r.amount; }, 0);
+    var expenses = visible.filter(function (r) { return r.kind === "expense"; })
+      .reduce(function (t, r) { return t + r.amount; }, 0);
+    var profit = income - expenses;
+
+    el("ledger-totals").innerHTML =
+      '<div class="stat"><span class="stat-label">Income</span><span class="stat-value">' +
+      money2(income) + '</span><span class="stat-sub">' +
+      (taxYearFilter === "all" ? "all time" : "tax year " + taxYearFilter) + "</span></div>" +
+      '<div class="stat"><span class="stat-label">Expenses</span><span class="stat-value">' +
+      money2(expenses) + '</span><span class="stat-sub">' +
+      visible.filter(function (r) { return r.kind === "expense"; }).length + " entries</span></div>" +
+      '<div class="stat"><span class="stat-label">Profit</span><span class="stat-value' +
+      (profit < 0 ? " accent" : "") + '">' + money2(profit) +
+      '</span><span class="stat-sub">income minus expenses</span></div>';
+  }
+
+  /* ---- CSV: parse, import, export ---- */
+
+  function parseCSV(text) {
+    var rows = [], row = [], field = "", inQ = false, i, ch;
+    for (i = 0; i < text.length; i++) {
+      ch = text[i];
+      if (inQ) {
+        if (ch === '"') {
+          if (text[i + 1] === '"') { field += '"'; i++; }
+          else inQ = false;
+        } else field += ch;
+      } else if (ch === '"') inQ = true;
+      else if (ch === ",") { row.push(field); field = ""; }
+      else if (ch === "\n" || ch === "\r") {
+        if (ch === "\r" && text[i + 1] === "\n") i++;
+        row.push(field); field = "";
+        if (row.length > 1 || row[0] !== "") rows.push(row);
+        row = [];
+      } else field += ch;
+    }
+    if (field !== "" || row.length) { row.push(field); rows.push(row); }
+    return rows;
+  }
+
+  // Accepts YYYY-MM-DD or DD/MM/YYYY (UK day-first)
+  function normDate(s) {
+    s = String(s).trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+    var m = s.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})$/);
+    if (m) {
+      return m[3] + "-" + String(m[2]).padStart(2, "0") + "-" + String(m[1]).padStart(2, "0");
+    }
+    return null;
+  }
+
+  function mapCsv(rows) {
+    if (!rows.length) return { rows: [], bad: 0 };
+    var head = rows[0].map(function (h) { return h.trim().toLowerCase(); });
+    function col(names) {
+      for (var i = 0; i < head.length; i++) {
+        if (names.indexOf(head[i]) !== -1) return i;
+      }
+      return -1;
+    }
+    var cDate = col(["date", "transaction date", "when"]);
+    var cDesc = col(["description", "desc", "details", "item", "narrative", "memo"]);
+    var cAmount = col(["amount", "value", "total", "amount (£)", "gbp"]);
+    var cKind = col(["type", "kind", "in/out", "direction"]);
+    var cCat = col(["category", "cat"]);
+    if (cDate === -1 || cAmount === -1) return { error: "Couldn't find Date and Amount columns in the header row." };
+
+    var out = [], bad = 0;
+    rows.slice(1).forEach(function (r) {
+      var date = normDate(r[cDate]);
+      var amount = parseFloat(String(r[cAmount]).replace(/[£,\s]/g, ""));
+      if (!date || isNaN(amount) || amount === 0) { bad++; return; }
+      var kind;
+      if (cKind !== -1 && r[cKind]) {
+        var k = String(r[cKind]).trim().toLowerCase();
+        kind = (k.indexOf("in") === 0 || k === "credit") ? "income" : "expense";
+      } else {
+        kind = amount < 0 ? "expense" : "income";
+      }
+      out.push({
+        date: date,
+        description: cDesc !== -1 ? String(r[cDesc]).trim() : "Imported entry",
+        amount: Math.abs(amount),
+        kind: kind,
+        category: cCat !== -1 && r[cCat] ? String(r[cCat]).trim() : (kind === "income" ? "Other income" : "Other expense")
+      });
+    });
+    return { rows: out, bad: bad };
+  }
+
+  function ledgerCsv(rows) {
+    function cell(v) {
+      v = String(v == null ? "" : v);
+      return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+    }
+    var lines = ["Date,Tax year,Type,Category,Description,Client,Source,Amount"];
+    rows.forEach(function (r) {
+      lines.push([r.date, taxYearOf(r.date), r.kind, r.category, r.description,
+        r.client, r.source, (r.kind === "expense" ? "-" : "") + r.amount.toFixed(2)
+      ].map(cell).join(","));
+    });
+    return lines.join("\r\n");
+  }
+
   /* ================= CONTRACTS ================= */
 
   function renderContracts(data) {
@@ -350,6 +529,7 @@
     renderTestimonials(data);
     renderTasks(data);
     renderBell();
+    await renderLedger();
     syncDropdowns(data);
   }
   window.AdminRefresh = renderAll;   // schedule.js calls this after edits
@@ -532,6 +712,21 @@
 
     if ((btn = e.target.closest("[data-edit-task]"))) { window.AdminEditTask(btn.dataset.editTask); return; }
 
+    if ((btn = e.target.closest("[data-edit-tx]"))) {
+      var tx = await PortalStore.getTransaction(btn.dataset.editTx);
+      if (tx && txDialog) {
+        txForm.elements.id.value = tx.id;
+        txForm.elements.kind.value = tx.kind;
+        fillTxCategories("txd-kind", "txd-cat");
+        txForm.elements.date.value = tx.date;
+        txForm.elements.description.value = tx.description;
+        txForm.elements.category.value = tx.category;
+        txForm.elements.amount.value = tx.amount;
+        txDialog.showModal();
+      }
+      return;
+    }
+
     if ((btn = e.target.closest("[data-toggle-task]"))) {
       await PortalStore.toggleTask(btn.dataset.toggleTask);
       renderAll();
@@ -624,6 +819,130 @@
     syncContractProjects(await PortalStore.getData());
   });
 
+  /* ================= LEDGER HANDLERS ================= */
+
+  function fillTxCategories(kindSelId, catSelId) {
+    var kindSel = el(kindSelId), catSel = el(catSelId);
+    if (!kindSel || !catSel) return;
+    var current = catSel.value;
+    var cats = PortalStore.TX_CATEGORIES[kindSel.value] || [];
+    catSel.innerHTML = cats.map(function (c) { return "<option>" + esc(c) + "</option>"; }).join("");
+    if (current && cats.indexOf(current) !== -1) catSel.value = current;
+  }
+  on("ntx-kind", "change", function () { fillTxCategories("ntx-kind", "ntx-cat"); });
+  on("txd-kind", "change", function () { fillTxCategories("txd-kind", "txd-cat"); });
+
+  form("add-tx", function (f) {
+    return PortalStore.addTransaction({
+      kind: f.elements.kind.value,
+      date: f.elements.date.value,
+      description: f.elements.description.value.trim(),
+      category: f.elements.category.value,
+      amount: f.elements.amount.value
+    });
+  });
+
+  on("tax-year", "change", function () {
+    taxYearFilter = el("tax-year").value;
+    renderLedger();
+  });
+
+  on("export-ledger", "click", async function () {
+    var rows = (await PortalStore.getLedger()).filter(function (r) {
+      return taxYearFilter === "all" || taxYearOf(r.date) === taxYearFilter;
+    });
+    var blob = new Blob([ledgerCsv(rows)], { type: "text/csv;charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "jolero-media-ledger" + (taxYearFilter === "all" ? "" : "-" + taxYearFilter.replace("/", "-")) + ".csv";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  });
+
+  // CSV file chosen → parse and preview before anything is written
+  on("csv-file", "change", function () {
+    var input = el("csv-file");
+    var preview = el("csv-preview");
+    var importBtn = el("csv-import-btn");
+    pendingImport = [];
+    preview.hidden = false;
+    importBtn.hidden = true;
+
+    var file = input.files && input.files[0];
+    if (!file) { preview.hidden = true; return; }
+
+    var reader = new FileReader();
+    reader.onload = function () {
+      var mapped = mapCsv(parseCSV(String(reader.result)));
+      if (mapped.error) {
+        preview.innerHTML = '<p class="form-error">' + esc(mapped.error) + "</p>";
+        return;
+      }
+      pendingImport = mapped.rows;
+      var inc = mapped.rows.filter(function (r) { return r.kind === "income"; }).length;
+      var exp = mapped.rows.length - inc;
+      var sample = mapped.rows.slice(0, 5).map(function (r) {
+        return "<tr><td>" + fmtDate(r.date) + "</td><td>" + esc(r.description) + "</td><td>" +
+          esc(r.category) + "</td><td class='num'>" +
+          (r.kind === "expense" ? "−" : "+") + money2(r.amount) + "</td></tr>";
+      }).join("");
+      preview.innerHTML =
+        '<p class="hint"><strong>' + mapped.rows.length + " rows ready</strong> — " +
+        inc + " income · " + exp + " expense" +
+        (mapped.bad ? " · " + mapped.bad + " skipped (bad date or amount)" : "") + "</p>" +
+        (sample
+          ? '<div class="table-wrap"><table class="ptable"><thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Amount</th></tr></thead><tbody>' +
+            sample + "</tbody></table></div>" +
+            (mapped.rows.length > 5 ? '<p class="hint">…and ' + (mapped.rows.length - 5) + " more.</p>" : "")
+          : "");
+      importBtn.hidden = mapped.rows.length === 0;
+    };
+    reader.readAsText(file);
+  });
+
+  on("csv-import-btn", "click", async function () {
+    if (!pendingImport.length) return;
+    var result = await PortalStore.importTransactions(pendingImport);
+    el("csv-preview").innerHTML = '<p class="hint"><strong>Done.</strong> ' +
+      result.added + " imported" +
+      (result.duplicates ? ", " + result.duplicates + " skipped as duplicates already in the ledger" : "") + ".</p>";
+    el("csv-import-btn").hidden = true;
+    el("csv-file").value = "";
+    pendingImport = [];
+    renderAll();
+  });
+
+  /* ---- transaction edit dialog ---- */
+
+  var txDialog = el("tx-dialog");
+  var txForm = el("tx-form");
+
+  if (txForm) {
+    txForm.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      await PortalStore.updateTransaction(txForm.elements.id.value, {
+        kind: txForm.elements.kind.value,
+        date: txForm.elements.date.value,
+        description: txForm.elements.description.value.trim(),
+        category: txForm.elements.category.value,
+        amount: txForm.elements.amount.value
+      });
+      txDialog.close();
+      renderAll();
+    });
+    on("txd-delete", "click", async function () {
+      var id = txForm.elements.id.value;
+      if (id && confirm("Delete this entry?")) {
+        await PortalStore.deleteTransaction(id);
+        txDialog.close();
+        renderAll();
+      }
+    });
+  }
+
   /* ================= BELL ================= */
 
   var bellBtn = el("bell-btn");
@@ -672,6 +991,10 @@
 
     var taskOpts = PortalStore.TASK_TYPES.map(function (t) { return "<option>" + esc(t) + "</option>"; }).join("");
     ["nt-type", "td-type"].forEach(function (id) { if (el(id)) el(id).innerHTML = taskOpts; });
+
+    // Ledger form defaults
+    fillTxCategories("ntx-kind", "ntx-cat");
+    if (el("ntx-date")) el("ntx-date").value = todayISO();
 
     renderAll();
   })();

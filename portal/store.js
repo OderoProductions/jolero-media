@@ -247,9 +247,123 @@
       var inv = s.invoices.find(function (x) { return x.id === invoiceId; });
       if (!inv) return null;
       inv.status = inv.status === "paid" ? "unpaid" : "paid";
-      if (inv.status === "paid") notify(s, "Invoice " + inv.number + " marked paid");
+      if (inv.status === "paid") {
+        inv.paidDate = todayISO();   // becomes the income date in the ledger
+        notify(s, "Invoice " + inv.number + " marked paid");
+      } else {
+        inv.paidDate = "";
+      }
       save(s);
       return inv;
+    },
+
+    /* ---------- Accounting: income & expense ledger ----------
+       The ledger = paid invoices (income, automatic) + the transactions
+       collection (manual + CSV imports). Phase 2 can point this at real
+       bank/accounting data without any page changes. */
+
+    TX_CATEGORIES: JSON.parse(JSON.stringify(seed.txCategories || { income: [], expense: [] })),
+
+    getLedger: async function () {
+      var s = load();
+      var clientName = {};
+      s.clients.forEach(function (c) { clientName[c.id] = c.name; });
+
+      var rows = [];
+
+      s.invoices.forEach(function (inv) {
+        if (inv.status !== "paid") return;
+        rows.push({
+          id: "inv:" + inv.id,
+          source: "invoice",
+          kind: "income",
+          date: inv.paidDate || inv.due || inv.issued,
+          description: "Invoice " + inv.number,
+          category: "Shoots & retainers",
+          client: clientName[inv.clientId] || "",
+          amount: inv.amount
+        });
+      });
+
+      (s.transactions || []).forEach(function (tx) {
+        rows.push({
+          id: tx.id,
+          source: "manual",
+          kind: tx.kind,
+          date: tx.date,
+          description: tx.description,
+          category: tx.category,
+          client: clientName[tx.clientId] || "",
+          amount: tx.amount
+        });
+      });
+
+      return rows.sort(function (a, b) { return a.date < b.date ? 1 : -1; });
+    },
+
+    getTransaction: async function (txId) {
+      return (load().transactions || []).find(function (x) { return x.id === txId; }) || null;
+    },
+
+    addTransaction: async function (fields) {
+      var s = load();
+      var tx = {
+        id: uid("tx"),
+        kind: fields.kind === "income" ? "income" : "expense",
+        date: fields.date,
+        description: fields.description,
+        category: fields.category || "Other",
+        amount: Math.abs(Number(fields.amount)) || 0,
+        clientId: fields.clientId || ""
+      };
+      s.transactions.push(tx);
+      save(s);
+      return tx;
+    },
+
+    updateTransaction: async function (txId, patch) {
+      var s = load();
+      var tx = (s.transactions || []).find(function (x) { return x.id === txId; });
+      if (!tx) return null;
+      Object.keys(patch).forEach(function (k) { tx[k] = patch[k]; });
+      tx.amount = Math.abs(Number(tx.amount)) || 0;
+      save(s);
+      return tx;
+    },
+
+    deleteTransaction: async function (txId) {
+      var s = load();
+      s.transactions = (s.transactions || []).filter(function (x) { return x.id !== txId; });
+      save(s);
+    },
+
+    // Bulk CSV import. Skips rows identical (date+description+amount+kind)
+    // to something already recorded, so re-importing a file is safe.
+    importTransactions: async function (rows) {
+      var s = load();
+      var seen = {};
+      (s.transactions || []).forEach(function (t) {
+        seen[t.date + "|" + t.description.toLowerCase() + "|" + t.amount + "|" + t.kind] = true;
+      });
+      var added = 0, duplicates = 0;
+      rows.forEach(function (r) {
+        var key = r.date + "|" + String(r.description).toLowerCase() + "|" + r.amount + "|" + r.kind;
+        if (seen[key]) { duplicates++; return; }
+        seen[key] = true;
+        s.transactions.push({
+          id: uid("tx"),
+          kind: r.kind,
+          date: r.date,
+          description: r.description,
+          category: r.category || "Other",
+          amount: Math.abs(Number(r.amount)) || 0,
+          clientId: ""
+        });
+        added++;
+      });
+      if (added) notify(s, "Imported " + added + " transaction(s) from spreadsheet");
+      save(s);
+      return { added: added, duplicates: duplicates };
     },
 
     /* ---------- Schedule: standalone events ---------- */

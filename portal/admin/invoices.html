@@ -93,7 +93,135 @@
         </div>
       </details>
     </section>
+
+    <!-- ================= INCOME & EXPENSES ================= -->
+    <section class="portal-section" aria-labelledby="ledger-h">
+      <h2 id="ledger-h">Income &amp; expenses</h2>
+
+      <div class="cal-bar">
+        <label class="switcher" for="tax-year">Tax year
+          <select id="tax-year"></select>
+        </label>
+        <div class="cal-actions">
+          <button class="btn btn-ghost" type="button" id="export-ledger">Export CSV</button>
+        </div>
+      </div>
+
+      <div class="overview" id="ledger-totals"></div>
+
+      <div class="panel table-wrap">
+        <table class="ptable" id="ledger-table">
+          <thead><tr>
+            <th scope="col">Date</th><th scope="col">Description</th><th scope="col">Category</th>
+            <th scope="col">Client</th><th scope="col">Amount</th><th scope="col"></th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <p class="preview-note">
+        <strong>For tax.</strong> Paid invoices flow in automatically as income — only add
+        things that aren't invoiced (sales, and every expense). UK tax years run
+        6&nbsp;April to 5&nbsp;April. Export CSV gives your accountant the lot in one file.
+      </p>
+
+      <details class="adder">
+        <summary>Add income / expense</summary>
+        <div class="adder-body">
+          <form class="portal-form" id="add-tx">
+            <div class="field">
+              <label for="ntx-kind">Type</label>
+              <select id="ntx-kind" name="kind" required>
+                <option value="expense">Expense</option>
+                <option value="income">Income</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="ntx-date">Date</label>
+              <input id="ntx-date" name="date" type="date" required>
+            </div>
+            <div class="field field-wide">
+              <label for="ntx-desc">Description</label>
+              <input id="ntx-desc" name="description" type="text" placeholder="e.g. Lens hire — Fight Night" required>
+            </div>
+            <div class="field">
+              <label for="ntx-cat">Category</label>
+              <select id="ntx-cat" name="category" required></select>
+            </div>
+            <div class="field">
+              <label for="ntx-amount">Amount (£)</label>
+              <input id="ntx-amount" name="amount" type="number" min="0.01" step="0.01" required>
+            </div>
+            <div class="form-actions"><button class="btn btn-primary" type="submit">Add to ledger</button></div>
+          </form>
+        </div>
+      </details>
+
+      <details class="adder">
+        <summary>Import from spreadsheet (CSV)</summary>
+        <div class="adder-body">
+          <div class="portal-form">
+            <div class="field field-wide">
+              <label for="csv-file">Choose a .csv file</label>
+              <input id="csv-file" type="file" accept=".csv,text/csv">
+            </div>
+            <p class="hint field-wide">
+              Export your sheet as CSV from Excel / Google Sheets / Numbers (File → Download → CSV).
+              Expected columns: <strong>Date, Description, Amount</strong> — plus optional
+              <strong>Type</strong> (income/expense) and <strong>Category</strong>. If there's no
+              Type column, negative amounts are treated as expenses. Dates can be
+              YYYY-MM-DD or DD/MM/YYYY. Re-importing the same file won't create duplicates.
+            </p>
+            <div class="field-wide" id="csv-preview" hidden></div>
+            <div class="form-actions">
+              <button class="btn btn-primary" type="button" id="csv-import-btn" hidden>Import rows</button>
+            </div>
+          </div>
+        </div>
+      </details>
+    </section>
   </main>
+
+  <!-- Edit an income/expense entry -->
+  <dialog class="pdialog" id="tx-dialog" aria-labelledby="txd-title">
+    <div class="pdialog-head">
+      <h3 id="txd-title">Entry</h3>
+      <button class="pdialog-close" type="button" data-close="tx-dialog" aria-label="Close">&times;</button>
+    </div>
+    <div class="pdialog-body">
+      <form class="portal-form" id="tx-form">
+        <input type="hidden" name="id">
+        <div class="field">
+          <label for="txd-kind">Type</label>
+          <select id="txd-kind" name="kind">
+            <option value="expense">Expense</option>
+            <option value="income">Income</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="txd-date">Date</label>
+          <input id="txd-date" name="date" type="date" required>
+        </div>
+        <div class="field field-wide">
+          <label for="txd-desc">Description</label>
+          <input id="txd-desc" name="description" type="text" required>
+        </div>
+        <div class="field">
+          <label for="txd-cat">Category</label>
+          <select id="txd-cat" name="category"></select>
+        </div>
+        <div class="field">
+          <label for="txd-amount">Amount (£)</label>
+          <input id="txd-amount" name="amount" type="number" min="0.01" step="0.01" required>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">Save entry</button>
+          <button class="btn btn-ghost" type="button" data-close="tx-dialog">Cancel</button>
+          <button class="btn btn-ghost" type="button" id="txd-delete">Delete</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
 
   <footer class="portal-foot">Jolero Media · internal — Phase 1/4 preview running on mock data</footer>
 

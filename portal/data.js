@@ -11,7 +11,7 @@
 
 window.JOLERO_SEED = {
   // Bump this when you edit the seed — stale localStorage copies re-seed
-  version: 4,
+  version: 5,
 
   statuses: ["Booked", "Shoot scheduled", "Shot", "In edit", "Review", "Delivered"],
 
@@ -22,6 +22,13 @@ window.JOLERO_SEED = {
 
   // Standalone calendar entries (anything not driven by a project)
   eventTypes: ["Shoot", "Meeting", "Content day", "Edit day", "Personal", "Other"],
+
+  // Ledger categories — expense list loosely follows the HMRC self-assessment
+  // buckets so year-end mapping is painless. Edit freely.
+  txCategories: {
+    income: ["Shoots & retainers", "Print & product sales", "Licensing", "Other income"],
+    expense: ["Equipment", "Equipment hire", "Software & subscriptions", "Travel & fuel", "Insurance", "Marketing", "Phone & internet", "Training", "Fees & admin", "Other expense"]
+  },
 
   clients: [
     {
@@ -138,11 +145,24 @@ window.JOLERO_SEED = {
   ],
 
   invoices: [
-    { id: "inv1", clientId: "c1", number: "JM-2026-011", amount: 450, status: "paid",   issued: "2026-07-01", due: "2026-07-15" },
+    { id: "inv1", clientId: "c1", number: "JM-2026-011", amount: 450, status: "paid",   issued: "2026-07-01", due: "2026-07-15", paidDate: "2026-07-14" },
     { id: "inv2", clientId: "c1", number: "JM-2026-014", amount: 450, status: "unpaid", issued: "2026-07-14", due: "2026-07-28" },
-    { id: "inv3", clientId: "c2", number: "JM-2026-012", amount: 320, status: "paid",   issued: "2026-07-02", due: "2026-07-16" },
+    { id: "inv3", clientId: "c2", number: "JM-2026-012", amount: 320, status: "paid",   issued: "2026-07-02", due: "2026-07-16", paidDate: "2026-07-15" },
     { id: "inv4", clientId: "c2", number: "JM-2026-015", amount: 180, status: "unpaid", issued: "2026-07-15", due: "2026-07-29" },
-    { id: "inv5", clientId: "c3", number: "JM-2026-013", amount: 250, status: "paid",   issued: "2026-06-25", due: "2026-07-09" }
+    { id: "inv5", clientId: "c3", number: "JM-2026-013", amount: 250, status: "paid",   issued: "2026-06-25", due: "2026-07-09", paidDate: "2026-07-08" }
+  ],
+
+  /* ---- Accounting: manual/imported income & expenses ----
+     Paid invoices join these automatically in the ledger — never enter
+     an invoice here too, or it will be counted twice. ---- */
+
+  transactions: [
+    { id: "tx1", kind: "expense", date: "2026-07-03", description: "Adobe Creative Cloud",          category: "Software & subscriptions", amount: 59.98,  clientId: "" },
+    { id: "tx2", kind: "expense", date: "2026-07-05", description: "Fuel — Lancing away day",       category: "Travel & fuel",            amount: 28.40,  clientId: "c1" },
+    { id: "tx3", kind: "expense", date: "2026-07-10", description: "70-200mm lens hire (2 days)",   category: "Equipment hire",           amount: 96.00,  clientId: "c2" },
+    { id: "tx4", kind: "expense", date: "2026-07-12", description: "Public liability insurance",    category: "Insurance",                amount: 14.75,  clientId: "" },
+    { id: "tx5", kind: "income",  date: "2026-07-18", description: "Matchday print sales",          category: "Print & product sales",    amount: 85.00,  clientId: "c1" },
+    { id: "tx6", kind: "expense", date: "2026-07-21", description: "SD cards x2",                   category: "Equipment",                amount: 43.98,  clientId: "" }
   ],
 
   /* ---- Schedule: standalone events (added straight from the calendar) ----

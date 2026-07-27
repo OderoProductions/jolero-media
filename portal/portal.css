@@ -131,6 +131,32 @@
 
 .overdue-cell { color: var(--accent); }
 
+/* Ledger amounts */
+.tx-in  { font-variant-numeric: tabular-nums; }
+.tx-out { font-variant-numeric: tabular-nums; color: var(--accent); }
+
+/* File input styled like the other fields */
+.field input[type="file"] {
+  padding: 10px 14px;
+  cursor: pointer;
+}
+.field input[type="file"]::file-selector-button {
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--paper);
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: var(--radius);
+  padding: 8px 14px;
+  margin-right: 14px;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+.field input[type="file"]::file-selector-button:hover { border-color: var(--paper); }
+
 /* "Previewing as" client switcher */
 .switcher {
   display: inline-flex;
