@@ -1,5 +1,5 @@
 /* ============================================================
-   RE.PLAYS PORTAL — admin.js (admin view)
+   JOLERO MEDIA PORTAL — admin.js (admin view)
    All reads/writes go through PortalStore; edits persist to
    localStorage so the flow can be played with in the preview.
    ============================================================ */

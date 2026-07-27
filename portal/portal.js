@@ -1,5 +1,5 @@
 /* ============================================================
-   RE.PLAYS PORTAL — portal.js (client view)
+   JOLERO MEDIA PORTAL — portal.js (client view)
    Reads everything through PortalStore. The "previewing as"
    dropdown stands in for the Phase 2 login session.
    ============================================================ */
@@ -12,7 +12,7 @@
   var fmtMoney = PortalUtil.fmtMoney;
   var STATUSES = PortalStore.STATUSES;
 
-  var VIEW_KEY = "replays_portal_viewing_as"; // preview-only; replaced by auth in Phase 2
+  var VIEW_KEY = "jolero_portal_viewing_as"; // preview-only; replaced by auth in Phase 2
 
   var tick = '<svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M1.5 5.5 4 8 8.5 2.5"/></svg>';
 

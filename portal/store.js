@@ -1,19 +1,19 @@
 /* ============================================================
-   RE.PLAYS PORTAL — store.js (the data layer)
+   JOLERO MEDIA PORTAL — store.js (the data layer)
 
    THE ONLY FILE THAT KNOWS WHERE DATA LIVES.
    Phase 1: seed from data.js, persist edits to localStorage.
    Phase 2: replace the internals of these methods with real API
    calls (they are already async, so no call site changes).
 
-   Pages must never touch REPLAYS_SEED or localStorage directly.
+   Pages must never touch JOLERO_SEED or localStorage directly.
    ============================================================ */
 
 (function () {
   "use strict";
 
-  var KEY = "replays_portal_v1";
-  var seed = window.REPLAYS_SEED;
+  var KEY = "jolero_portal_v1";
+  var seed = window.JOLERO_SEED;
 
   function load() {
     try {

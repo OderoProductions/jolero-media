@@ -1,5 +1,5 @@
 /* ============================================================
-   RE.PLAYS PORTAL — data.js (MOCK DATA — Phase 1)
+   JOLERO MEDIA PORTAL — data.js (MOCK DATA — Phase 1)
 
    Single source of sample data for the whole portal. Every page
    reads it through store.js, never directly — so Phase 2 only
@@ -9,7 +9,7 @@
    placeholders for previewing the structure.
    ============================================================ */
 
-window.REPLAYS_SEED = {
+window.JOLERO_SEED = {
   // Bump this when you edit the seed — stale localStorage copies re-seed
   version: 2,
 
@@ -132,11 +132,11 @@ window.REPLAYS_SEED = {
   ],
 
   invoices: [
-    { id: "inv1", clientId: "c1", number: "RP-2026-011", amount: 450, status: "paid",   issued: "2026-07-01", due: "2026-07-15" },
-    { id: "inv2", clientId: "c1", number: "RP-2026-014", amount: 450, status: "unpaid", issued: "2026-07-14", due: "2026-07-28" },
-    { id: "inv3", clientId: "c2", number: "RP-2026-012", amount: 320, status: "paid",   issued: "2026-07-02", due: "2026-07-16" },
-    { id: "inv4", clientId: "c2", number: "RP-2026-015", amount: 180, status: "unpaid", issued: "2026-07-15", due: "2026-07-29" },
-    { id: "inv5", clientId: "c3", number: "RP-2026-013", amount: 250, status: "paid",   issued: "2026-06-25", due: "2026-07-09" }
+    { id: "inv1", clientId: "c1", number: "JM-2026-011", amount: 450, status: "paid",   issued: "2026-07-01", due: "2026-07-15" },
+    { id: "inv2", clientId: "c1", number: "JM-2026-014", amount: 450, status: "unpaid", issued: "2026-07-14", due: "2026-07-28" },
+    { id: "inv3", clientId: "c2", number: "JM-2026-012", amount: 320, status: "paid",   issued: "2026-07-02", due: "2026-07-16" },
+    { id: "inv4", clientId: "c2", number: "JM-2026-015", amount: 180, status: "unpaid", issued: "2026-07-15", due: "2026-07-29" },
+    { id: "inv5", clientId: "c3", number: "JM-2026-013", amount: 250, status: "paid",   issued: "2026-06-25", due: "2026-07-09" }
   ],
 
   /* ---- Phase 4 collections ---- */
@@ -151,7 +151,7 @@ window.REPLAYS_SEED = {
       sentDate: "2026-07-06",
       signedDate: "2026-07-08",
       signerName: "Mark Davies",
-      body: "This agreement covers ongoing matchday and training content for the 2026/27 season.\n\n1. re.plays will shoot and edit content as scheduled with the club.\n2. Delivery via private link within the agreed turnaround.\n3. The club may use delivered content across its own channels.\n4. re.plays may feature selected work in its portfolio unless agreed otherwise.\n5. Cancellations within 48 hours of a shoot may be charged.\n\n(Sample agreement text — replace with your real terms.)"
+      body: "This agreement covers ongoing matchday and training content for the 2026/27 season.\n\n1. Jolero Media will shoot and edit content as scheduled with the club.\n2. Delivery via private link within the agreed turnaround.\n3. The club may use delivered content across its own channels.\n4. Jolero Media may feature selected work in its portfolio unless agreed otherwise.\n5. Cancellations within 48 hours of a shoot may be charged.\n\n(Sample agreement text — replace with your real terms.)"
     },
     {
       id: "ct2",
@@ -162,7 +162,7 @@ window.REPLAYS_SEED = {
       sentDate: "2026-07-15",
       signedDate: "",
       signerName: "",
-      body: "This agreement covers the August training-content block.\n\n1. One content day per month at the gym, dates agreed in advance.\n2. Edited clips delivered within 7 days of each shoot.\n3. The gym may use delivered content across its own channels.\n4. re.plays may feature selected work in its portfolio unless agreed otherwise.\n5. Cancellations within 48 hours of a shoot may be charged.\n\n(Sample agreement text — replace with your real terms.)"
+      body: "This agreement covers the August training-content block.\n\n1. One content day per month at the gym, dates agreed in advance.\n2. Edited clips delivered within 7 days of each shoot.\n3. The gym may use delivered content across its own channels.\n4. Jolero Media may feature selected work in its portfolio unless agreed otherwise.\n5. Cancellations within 48 hours of a shoot may be charged.\n\n(Sample agreement text — replace with your real terms.)"
     }
   ],
 
@@ -198,12 +198,12 @@ window.REPLAYS_SEED = {
 
   activity: [
     { id: "a1", clientId: "c1", date: "2026-07-10", text: "Your delivery is ready — Matchday vs Lancing FC" },
-    { id: "a2", clientId: "c1", date: "2026-07-14", text: "New invoice RP-2026-014 added" },
+    { id: "a2", clientId: "c1", date: "2026-07-14", text: "New invoice JM-2026-014 added" },
     { id: "a3", clientId: "c1", date: "2026-07-16", text: "Pre-season promo shoot moved to In edit" },
     { id: "a4", clientId: "c2", date: "2026-07-16", text: "An edit is ready for your review — Fight Night 12" },
     { id: "a8", clientId: "c2", date: "2026-07-15", text: "A contract is ready to sign — Monthly content agreement" },
     { id: "a9", clientId: "c1", date: "2026-07-16", text: "Pre-shoot brief requested — Matchday — season opener vs Horsham" },
-    { id: "a5", clientId: "c2", date: "2026-07-15", text: "New invoice RP-2026-015 added" },
+    { id: "a5", clientId: "c2", date: "2026-07-15", text: "New invoice JM-2026-015 added" },
     { id: "a6", clientId: "c3", date: "2026-07-01", text: "Your delivery is ready — 2025/26 highlight reel" },
     { id: "a7", clientId: "c3", date: "2026-07-15", text: "Pre-season training content marked as Shot" }
   ]

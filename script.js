@@ -1,5 +1,5 @@
 /* ============================================================
-   RE.PLAYS — script.js
+   JOLERO MEDIA — script.js
    Vanilla JS only. Everything degrades gracefully with JS off:
    the form falls back to a normal Formspree POST, nav links are
    plain anchors, and content is visible without animations.

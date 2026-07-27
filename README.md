@@ -1,11 +1,19 @@
-# re.plays — sports creative agency, Worthing
+# Jolero Media — joleromedia.com
 
-One-page marketing site for re.plays (formerly Prime Tapes), a sports creative agency
-in Worthing, West Sussex. Plain static site — no frameworks, no build step.
-Deploy the folder as-is.
+One-page marketing site for Jolero Media, a sports creative agency in Worthing,
+West Sussex. Plain static site — no frameworks, no build step. Deploy the folder as-is.
 
-**Preview:** https://oderoproductions.github.io/prime-tapes/
-(repo name still says prime-tapes — rename repo + Pages URL whenever you like)
+**Preview:** https://oderoproductions.github.io/jolero-media/
+
+## Editing
+
+| Change | Where |
+|---|---|
+| Swap placeholder images for real shots | `index.html` — search `SWAP IMAGE` |
+| Accent colour | `styles.css` line 7 — `--accent` |
+| Connect the contact form | `index.html` — search `FORMSPREE`, replace `YOUR_FORM_ID` |
+| Hero video background | `index.html` — search `HERO VIDEO` |
+| Copy that needs founder input | search `TODO` |
 
 ## Client portal (Phases 1 & 4 — structure preview)
 
@@ -25,23 +33,18 @@ upgrades contract signing with verified identity/audit trail. Phase 3 hooks
 emails into the same store methods that already post feed entries and bell
 notifications. Phases 2–3 are NOT built yet.
 
-## Editing
+## Going live on joleromedia.com
 
-| Change | Where |
-|---|---|
-| Swap placeholder images for real shots | `index.html` — search `SWAP IMAGE` |
-| Accent colour | `styles.css` line 7 — `--accent` |
-| Connect the contact form | `index.html` — search `FORMSPREE`, replace `YOUR_FORM_ID` |
-| Hero video background (phase 2) | `index.html` — search `HERO VIDEO` |
-| Copy that needs founder input | search `TODO` |
+The domain is registered but not yet connected. To point it at this repo:
 
-## Rebrand follow-ups
+1. At your registrar, add these DNS records for the apex domain:
+   `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153` (A records)
+   plus a CNAME for `www` → `oderoproductions.github.io`.
+2. Once those resolve, add a `CNAME` file containing `joleromedia.com` to this
+   repo and set the custom domain in the repo's Pages settings.
 
-Domain (canonical/OG/JSON-LD still point at primetapes.co.uk), the
-`hello@primetapes.co.uk` email and the `@prime.tapes` Instagram handle still carry
-the old name — search `TODO` in `index.html` and update once the new ones exist.
+Alternatively point Cloudflare Pages / Netlify at this repo (no build command,
+output = repo root) and add the domain there.
 
-## Going live
-
-Point Cloudflare Pages / Netlify at this repo (no build command, output = repo root),
-then add the custom domain. Create the Formspree form and the hello@ mailbox first.
+Still to do before launch: real portfolio photos, the Formspree form ID, and a
+1200×630 `assets/og.jpg` for link previews.

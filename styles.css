@@ -1,5 +1,5 @@
 /* ============================================================
-   RE.PLAYS — styles.css
+   JOLERO MEDIA — styles.css
    ACCENT COLOUR: change --accent below and the whole site follows.
    ============================================================ */
 
@@ -174,7 +174,7 @@ h3 { font-size: clamp(1.35rem, 2.6vw, 1.7rem); }
   white-space: nowrap;
 }
 
-/* The dot in RE●PLAYS — raised to sit mid-height between the letters */
+/* The dot in JOLERO●MEDIA — raised to sit mid-height between the letters */
 .wordmark-dot {
   display: inline-block;
   width: 0.28em;
@@ -235,12 +235,13 @@ h3 { font-size: clamp(1.35rem, 2.6vw, 1.7rem); }
   letter-spacing: 0.08em;
   text-transform: uppercase;
   text-decoration: none;
+  white-space: nowrap;
   color: var(--paper-60);
   transition: color 0.2s ease;
 }
 .nav-links a:hover { color: var(--paper); }
 
-.nav-cta { display: none; min-height: 42px; padding: 8px 20px; }
+.nav-cta { display: none; min-height: 42px; padding: 8px 20px; flex: none; white-space: nowrap; }
 
 /* Quiet portal links — present but not competing with the CTA */
 .nav-links .nav-portal { color: var(--paper-40); }
@@ -272,7 +273,9 @@ h3 { font-size: clamp(1.35rem, 2.6vw, 1.7rem); }
 .nav-toggle[aria-expanded="true"] .nav-toggle-bar:first-child { transform: translateY(4.5px) rotate(45deg); }
 .nav-toggle[aria-expanded="true"] .nav-toggle-bar:last-child { transform: translateY(-4.5px) rotate(-45deg); }
 
-@media (min-width: 900px) {
+/* 1000px, not 900: the JOLERO●MEDIA wordmark plus five links and the CTA
+   need the extra room, otherwise nav items shrink and wrap. */
+@media (min-width: 1000px) {
   .nav-links { display: flex; }
   .nav-cta { display: inline-flex; }
   .nav-toggle { display: none; }
@@ -830,6 +833,12 @@ h3 { font-size: clamp(1.35rem, 2.6vw, 1.7rem); }
 }
 
 .footer .wordmark { font-size: 1.05rem; }
+.footer-brand { display: grid; gap: 7px; }
+.footer-slogan {
+  font-size: 0.84rem;
+  color: var(--paper-60);
+  letter-spacing: 0.01em;
+}
 .footer-loc { color: var(--paper-60); font-size: 0.9rem; }
 
 .footer-right {
