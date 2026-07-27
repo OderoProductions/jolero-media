@@ -175,6 +175,8 @@
   // Arms every client-view panel (feed, project cards, contracts, invoices)
   // for its entrance. Runs after every render, so switching client in the
   // dropdown re-runs the entrance — that's intentional.
+  var entranceFailsafe = null;
+
   function setupEntrance() {
     if (!motionAllowed()) return;
     if (animObserver) animObserver.disconnect();
@@ -186,6 +188,18 @@
       panels[k].classList.add("will-anim");             // hidden state applies from this point only
       animObserver.observe(panels[k]);
     }
+
+    // Failsafe: IntersectionObserver never fires while a tab isn't rendering
+    // (background-tab load, print, prerender). Reveal anything still armed
+    // after 1.2s so content can never be stranded invisible.
+    if (entranceFailsafe) clearTimeout(entranceFailsafe);
+    entranceFailsafe = setTimeout(function () {
+      var armed = document.querySelectorAll(".will-anim:not(.anim-ready)");
+      for (var j = 0; j < armed.length; j++) {
+        armed[j].classList.add("anim-ready");
+        if (animObserver) animObserver.unobserve(armed[j]);
+      }
+    }, 1200);
   }
 
   // Keyboard safety: if focus lands inside a panel that is still waiting to
