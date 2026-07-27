@@ -1108,3 +1108,24 @@ details.adder .adder-body { padding: 18px; }
 .link-quiet:hover { color: var(--paper); }
 
 .empty-note { color: var(--paper-60); font-size: 0.9rem; }
+
+/* ---------- Drag-and-drop rescheduling (admin calendar, schedule.js) ----------
+   Chips (except invoices) get draggable="true"; while one is in flight the
+   body carries a dragging-<kind> class and the hovered cell gets .drop-target.
+   Token-only colors — light mode flips automatically via html.theme-light. */
+
+.chip[draggable="true"] { cursor: grab; }
+.chip.is-dragging { opacity: 0.4; }
+
+.cal-cell.drop-target {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  background: var(--soft-strong);
+}
+
+/* Soften the highlight hand-off between cells while dragging only.
+   Guarded so reduced-motion users never see the transition at all
+   (the global reduced-motion block in styles.css also zeroes it). */
+@media (prefers-reduced-motion: no-preference) {
+  body[class*="dragging-"] .cal-cell { transition: background-color 120ms; }
+}
