@@ -225,7 +225,9 @@
           ? '<span class="pbadge">Paid</span>'
           : '<span class="pbadge pbadge-solid">Unpaid</span>') + "</td>" +
         '<td><button class="row-btn" type="button" data-toggle-invoice="' + esc(i.id) + '">' +
-        (i.status === "paid" ? "Mark unpaid" : "Mark paid") + "</button></td>" +
+        (i.status === "paid" ? "Mark unpaid" : "Mark paid") + "</button> " +
+        '<button class="row-btn" type="button" data-invoice-pdf="' + esc(i.id) +
+        '" aria-label="Download PDF of invoice ' + esc(i.number) + '">PDF</button></td>' +
         "</tr>";
     }).join("") || '<tr><td colspan="7" class="empty-note">No invoices yet.</td></tr>';
 
@@ -890,6 +892,18 @@
         if (ct) {
           var cclient = cdata.clients.find(function (c) { return c.id === ct.clientId; });
           window.ContractPDF.download(ct, cclient ? cclient.name : "");
+        }
+      }
+      return;
+    }
+
+    if ((btn = e.target.closest("[data-invoice-pdf]"))) {
+      if (window.InvoicePDF) {
+        var idata = await PortalStore.getData();
+        var inv = (idata.invoices || []).find(function (x) { return x.id === btn.dataset.invoicePdf; });
+        if (inv) {
+          var iclient = idata.clients.find(function (c) { return c.id === inv.clientId; });
+          window.InvoicePDF.download(inv, iclient || {});
         }
       }
       return;
