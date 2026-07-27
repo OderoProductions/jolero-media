@@ -84,7 +84,17 @@
        to a fixed-position element. -->
   <header class="nav">
     <div class="nav-inner container">
-      <!-- Wordmark: the red dot sits mid-height between JOLERO and MEDIA -->
+      <!-- ============ WORDMARK ============
+           Text version: the red dot sits mid-height between JOLERO and MEDIA.
+
+           LOGO SWAP: when the real logo lands, save it as assets/logo.svg
+           (white/light version — it sits on near-black) and replace the link
+           contents with:
+             <img src="assets/logo.svg" alt="Jolero Media">
+           keeping the <a class="wordmark"> wrapper and its aria-label.
+           Sizing is handled by CSS. Four places use this wordmark:
+           index.html (nav + footer), portal/index.html, portal/admin/index.html.
+           ==================================== -->
       <a class="wordmark" href="#" aria-label="Jolero Media — back to top">JOLERO<span class="wordmark-dot" aria-hidden="true"></span>MEDIA</a>
 
       <nav class="nav-links" aria-label="Sections">
