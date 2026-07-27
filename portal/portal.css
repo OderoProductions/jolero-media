@@ -716,6 +716,8 @@ details.adder .adder-body { padding: 18px; }
   transition: background-color 0.15s ease;
 }
 .chip:hover { background: rgba(255, 255, 255, 0.12); }
+.chip-time { color: var(--paper-40); font-variant-numeric: tabular-nums; }
+.chip-event    { border-left-color: #35C46A; }
 .chip-shoot    { border-left-color: var(--accent); }
 .chip-deadline { border-left-color: #FFB020; }
 .chip-task     { border-left-color: #4FA3FF; }
@@ -765,6 +767,7 @@ details.adder .adder-body { padding: 18px; }
   border-left-width: 3px;
   border-radius: var(--radius);
 }
+.day-row.k-event    { border-left-color: #35C46A; }
 .day-row.k-shoot    { border-left-color: var(--accent); }
 .day-row.k-deadline { border-left-color: #FFB020; }
 .day-row.k-task     { border-left-color: #4FA3FF; }

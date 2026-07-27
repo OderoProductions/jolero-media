@@ -61,6 +61,7 @@
         <span class="cal-month" id="cal-month">—</span>
         <button class="cal-today" type="button" id="cal-today-btn">Today</button>
         <div class="cal-actions">
+          <button class="btn btn-primary" type="button" id="add-event-btn">Add event</button>
           <button class="btn btn-ghost" type="button" id="export-ics">Export .ics</button>
         </div>
       </div>
@@ -70,11 +71,13 @@
       </div>
 
       <div class="cal-legend" aria-hidden="true">
+        <span><i style="background:#35C46A"></i>Event</span>
         <span><i style="background:#FF3B30"></i>Shoot</span>
         <span><i style="background:#FFB020"></i>Delivery due</span>
         <span><i style="background:#4FA3FF"></i>Task</span>
         <span><i style="background:#9B7BFF"></i>Invoice due</span>
       </div>
+      <p class="empty-note">Click any entry to edit it. Shoots and deadlines belong to a project — editing those moves the project's date on the board too.</p>
 
       <p class="preview-note">
         <strong>Google Calendar.</strong> Use <em>Export .ics</em> to import everything in one go
@@ -120,6 +123,116 @@
       </details>
     </section>
   </main>
+
+  <!-- Add / edit a standalone calendar event -->
+  <dialog class="pdialog" id="event-dialog" aria-labelledby="ed-title">
+    <div class="pdialog-head">
+      <h3 id="ed-title">Event</h3>
+      <button class="pdialog-close" type="button" data-close="event-dialog" aria-label="Close">&times;</button>
+    </div>
+    <div class="pdialog-body">
+      <form class="portal-form" id="event-form">
+        <input type="hidden" name="id">
+        <div class="field field-wide">
+          <label for="ed-name">Title</label>
+          <input id="ed-name" name="title" type="text" placeholder="e.g. Content planning" required>
+        </div>
+        <div class="field">
+          <label for="ed-type">Type</label>
+          <select id="ed-type" name="type"></select>
+        </div>
+        <div class="field">
+          <label for="ed-date">Date</label>
+          <input id="ed-date" name="date" type="date" required>
+        </div>
+        <div class="field">
+          <label for="ed-start">Start <span class="optional">(optional)</span></label>
+          <input id="ed-start" name="time" type="time">
+        </div>
+        <div class="field">
+          <label for="ed-end">End <span class="optional">(optional)</span></label>
+          <input id="ed-end" name="endTime" type="time">
+        </div>
+        <div class="field field-wide">
+          <label for="ed-client">Client <span class="optional">(optional)</span></label>
+          <select id="ed-client" name="clientId"></select>
+        </div>
+        <div class="field field-wide">
+          <label for="ed-notes">Notes <span class="optional">(optional)</span></label>
+          <textarea id="ed-notes" name="notes" rows="2"></textarea>
+        </div>
+        <p class="hint">Leave the times blank for an all-day entry.</p>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">Save event</button>
+          <button class="btn btn-ghost" type="button" data-close="event-dialog">Cancel</button>
+          <button class="btn btn-ghost" type="button" id="ed-delete" hidden>Delete</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- Edit a task -->
+  <dialog class="pdialog" id="task-dialog" aria-labelledby="td-title">
+    <div class="pdialog-head">
+      <h3 id="td-title">Task</h3>
+      <button class="pdialog-close" type="button" data-close="task-dialog" aria-label="Close">&times;</button>
+    </div>
+    <div class="pdialog-body">
+      <form class="portal-form" id="task-form">
+        <input type="hidden" name="id">
+        <div class="field field-wide">
+          <label for="td-name">What needs doing?</label>
+          <input id="td-name" name="title" type="text" required>
+        </div>
+        <div class="field">
+          <label for="td-type">Type</label>
+          <select id="td-type" name="type"></select>
+        </div>
+        <div class="field">
+          <label for="td-due">Due</label>
+          <input id="td-due" name="due" type="date" required>
+        </div>
+        <div class="field field-wide">
+          <label for="td-project">Linked project <span class="optional">(optional)</span></label>
+          <select id="td-project" name="projectId"></select>
+        </div>
+        <label class="agree-row field-wide">
+          <input type="checkbox" name="done">
+          <span>Done</span>
+        </label>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">Save task</button>
+          <button class="btn btn-ghost" type="button" data-close="task-dialog">Cancel</button>
+          <button class="btn btn-ghost" type="button" id="td-delete">Delete</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- Move a project's shoot date / deadline -->
+  <dialog class="pdialog" id="pdate-dialog" aria-labelledby="pd2-title">
+    <div class="pdialog-head">
+      <h3 id="pd2-title">Project date</h3>
+      <button class="pdialog-close" type="button" data-close="pdate-dialog" aria-label="Close">&times;</button>
+    </div>
+    <div class="pdialog-body">
+      <form class="portal-form" id="pdate-form">
+        <input type="hidden" name="id">
+        <input type="hidden" name="field">
+        <p class="field-wide" id="pd2-what"></p>
+        <div class="field field-wide">
+          <label for="pd2-date">Date</label>
+          <input id="pd2-date" name="date" type="date" required>
+        </div>
+        <p class="hint">This belongs to a project — changing it here updates the board as well.</p>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">Save date</button>
+          <button class="btn btn-ghost" type="button" data-close="pdate-dialog">Cancel</button>
+          <a class="btn btn-ghost" id="pd2-open" href="index.html">Open on board</a>
+        </div>
+      </form>
+    </div>
+  </dialog>
 
   <footer class="portal-foot">Jolero Media · internal — schedule runs on the same mock data as the board</footer>
 

@@ -223,9 +223,62 @@
       return t;
     },
 
+    /* ---------- Schedule: standalone events ---------- */
+
+    EVENT_TYPES: (seed.eventTypes || []).slice(),
+
+    addEvent: async function (fields) {
+      var s = load();
+      var ev = {
+        id: uid("ev"),
+        title: fields.title,
+        type: fields.type || "Other",
+        date: fields.date,
+        time: fields.time || "",
+        endTime: fields.endTime || "",
+        notes: fields.notes || "",
+        clientId: fields.clientId || ""
+      };
+      s.events.push(ev);
+      save(s);
+      return ev;
+    },
+
+    updateEvent: async function (eventId, patch) {
+      var s = load();
+      var ev = (s.events || []).find(function (x) { return x.id === eventId; });
+      if (!ev) return null;
+      Object.keys(patch).forEach(function (k) { ev[k] = patch[k]; });
+      save(s);
+      return ev;
+    },
+
+    deleteEvent: async function (eventId) {
+      var s = load();
+      s.events = (s.events || []).filter(function (x) { return x.id !== eventId; });
+      save(s);
+    },
+
+    getEvent: async function (eventId) {
+      return (load().events || []).find(function (x) { return x.id === eventId; }) || null;
+    },
+
     /* ---------- Schedule: tasks ---------- */
 
     TASK_TYPES: (seed.taskTypes || []).slice(),
+
+    getTask: async function (taskId) {
+      return (load().tasks || []).find(function (x) { return x.id === taskId; }) || null;
+    },
+
+    updateTask: async function (taskId, patch) {
+      var s = load();
+      var t = (s.tasks || []).find(function (x) { return x.id === taskId; });
+      if (!t) return null;
+      Object.keys(patch).forEach(function (k) { t[k] = patch[k]; });
+      save(s);
+      return t;
+    },
 
     getTasks: async function () {
       return (load().tasks || []).slice().sort(function (a, b) {
@@ -276,6 +329,16 @@
 
       var events = [];
 
+      (s.events || []).forEach(function (e) {
+        events.push({
+          kind: "event", date: e.date,
+          time: e.time || "", endTime: e.endTime || "",
+          title: e.title, label: e.type,
+          sub: e.notes || (clientName[e.clientId] || ""),
+          eventId: e.id
+        });
+      });
+
       s.projects.forEach(function (p) {
         if (p.shootDate) events.push({
           kind: "shoot", date: p.shootDate,
@@ -311,7 +374,11 @@
         });
       });
 
-      return events.sort(function (a, b) { return a.date < b.date ? -1 : 1; });
+      // Date first, then timed entries in clock order ahead of all-day ones
+      return events.sort(function (a, b) {
+        if (a.date !== b.date) return a.date < b.date ? -1 : 1;
+        return (a.time || "99:99") < (b.time || "99:99") ? -1 : 1;
+      });
     },
 
     /* ---------- Phase 4: admin notifications ---------- */

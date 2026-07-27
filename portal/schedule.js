@@ -44,12 +44,34 @@
 
   /* ---------- Google Calendar handoff ---------- */
 
-  // Single event → Google's prefilled "create event" screen (all-day).
+  function plusHour(hhmm) {
+    var p = hhmm.split(":");
+    var h = Math.min(23, Number(p[0]) + 1);
+    return String(h).padStart(2, "0") + ":" + p[1];
+  }
+  function stampT(dateISO, hhmm) {
+    return compact(dateISO) + "T" + hhmm.replace(":", "") + "00";
+  }
+
+  // Timed entries get real start/end times; everything else stays all-day.
+  function rangeFor(ev) {
+    if (ev.time) {
+      return {
+        start: stampT(ev.date, ev.time),
+        end: stampT(ev.date, ev.endTime || plusHour(ev.time)),
+        timed: true
+      };
+    }
+    return { start: compact(ev.date), end: nextDayCompact(ev.date), timed: false };
+  }
+
+  // Single event → Google's prefilled "create event" screen.
   function gcalUrl(ev) {
+    var r = rangeFor(ev);
     var params = new URLSearchParams({
       action: "TEMPLATE",
       text: (ev.label ? ev.label + " — " : "") + ev.title,
-      dates: compact(ev.date) + "/" + nextDayCompact(ev.date),
+      dates: r.start + "/" + r.end,
       details: (ev.sub ? ev.sub + "\n" : "") + "Added from the Jolero Media portal."
     });
     return "https://calendar.google.com/calendar/render?" + params.toString();
@@ -73,8 +95,15 @@
       lines.push("BEGIN:VEVENT");
       lines.push("UID:" + (ev.taskId || ev.projectId || "ev") + "-" + i + "@joleromedia.com");
       lines.push("DTSTAMP:" + stamp);
-      lines.push("DTSTART;VALUE=DATE:" + compact(ev.date));
-      lines.push("DTEND;VALUE=DATE:" + nextDayCompact(ev.date));
+      var r = rangeFor(ev);
+      if (r.timed) {
+        // Floating local time — imports at the stated clock time in any calendar
+        lines.push("DTSTART:" + r.start);
+        lines.push("DTEND:" + r.end);
+      } else {
+        lines.push("DTSTART;VALUE=DATE:" + r.start);
+        lines.push("DTEND;VALUE=DATE:" + r.end);
+      }
       lines.push("SUMMARY:" + icsEscape((ev.label ? ev.label + " — " : "") + ev.title));
       if (ev.sub) lines.push("DESCRIPTION:" + icsEscape(ev.sub));
       lines.push("END:VEVENT");
@@ -119,9 +148,11 @@
       var outside = cursor.getMonth() !== view.m;
       var evs = eventsOn(dISO);
 
-      var chips = evs.slice(0, 3).map(function (e) {
+      var chips = evs.slice(0, 3).map(function (e, idx) {
         return '<button class="chip chip-' + e.kind + (e.done ? " is-done" : "") +
-          '" data-date="' + dISO + '" title="' + esc((e.label ? e.label + " — " : "") + e.title) + '">' +
+          '" data-open-event="' + dISO + "|" + idx + '" title="' +
+          esc((e.label ? e.label + " — " : "") + e.title) + '">' +
+          (e.time ? '<span class="chip-time">' + esc(e.time) + "</span> " : "") +
           esc(e.title) + "</button>";
       }).join("");
       if (evs.length > 3) {
@@ -157,16 +188,24 @@
       return;
     }
 
-    list.innerHTML = evs.map(function (e) {
-      var actions = '<a class="btn btn-ghost" href="' + esc(gcalUrl(e)) +
-        '" target="_blank" rel="noopener">Add to Google Calendar</a>';
-      if (e.taskId) {
-        actions = '<button class="btn btn-ghost" type="button" data-toggle-task="' + esc(e.taskId) + '">' +
-          (e.done ? "Mark not done" : "Mark done") + "</button>" + actions;
+    list.innerHTML = evs.map(function (e, idx) {
+      var actions = "";
+      if (e.kind !== "invoice") {
+        actions += '<button class="btn btn-ghost" type="button" data-open-event="' +
+          selected + "|" + idx + '">Edit</button>';
       }
+      if (e.taskId) {
+        actions += '<button class="btn btn-ghost" type="button" data-toggle-task="' +
+          esc(e.taskId) + '">' + (e.done ? "Mark not done" : "Mark done") + "</button>";
+      }
+      actions += '<a class="btn btn-ghost" href="' + esc(gcalUrl(e)) +
+        '" target="_blank" rel="noopener">Add to Google Calendar</a>';
+
+      var when = e.time ? e.time + (e.endTime ? "–" + e.endTime : "") : "All day";
       return '<div class="day-row k-' + e.kind + '">' +
         "<div><span class='d-title'>" + esc(e.title) + "</span>" +
-        '<div class="d-sub">' + esc(e.label) + (e.sub ? " · " + esc(e.sub) : "") + "</div></div>" +
+        '<div class="d-sub">' + esc(when) + " · " + esc(e.label) +
+        (e.sub ? " · " + esc(e.sub) : "") + "</div></div>" +
         '<div class="d-actions">' + actions + "</div>" +
         "</div>";
     }).join("");
@@ -213,6 +252,160 @@
     renderDay();
     await renderTasks();
   }
+
+  /* ---------- editing: route each entry to the right dialog ---------- */
+
+  var eventDialog = document.getElementById("event-dialog");
+  var taskDialog = document.getElementById("task-dialog");
+  var pdateDialog = document.getElementById("pdate-dialog");
+  var eventForm = document.getElementById("event-form");
+  var taskForm = document.getElementById("task-form");
+  var pdateForm = document.getElementById("pdate-form");
+
+  document.querySelectorAll("[data-close]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      document.getElementById(btn.dataset.close).close();
+    });
+  });
+
+  function openEventDialog(ev) {
+    var f = eventForm;
+    f.reset();
+    if (ev) {
+      document.getElementById("ed-title").textContent = "Edit event";
+      f.elements.id.value = ev.id;
+      f.elements.title.value = ev.title;
+      f.elements.type.value = ev.type;
+      f.elements.date.value = ev.date;
+      f.elements.time.value = ev.time || "";
+      f.elements.endTime.value = ev.endTime || "";
+      f.elements.clientId.value = ev.clientId || "";
+      f.elements.notes.value = ev.notes || "";
+      document.getElementById("ed-delete").hidden = false;
+    } else {
+      document.getElementById("ed-title").textContent = "Add event";
+      f.elements.id.value = "";
+      f.elements.date.value = selected || todayISO;
+      document.getElementById("ed-delete").hidden = true;
+    }
+    eventDialog.showModal();
+  }
+
+  async function openTaskDialog(taskId) {
+    var t = await PortalStore.getTask(taskId);
+    if (!t) return;
+    var f = taskForm;
+    f.elements.id.value = t.id;
+    f.elements.title.value = t.title;
+    f.elements.type.value = t.type;
+    f.elements.due.value = t.due || "";
+    f.elements.projectId.value = t.projectId || "";
+    f.elements.done.checked = !!t.done;
+    taskDialog.showModal();
+  }
+
+  async function openProjectDate(projectId, kind) {
+    var data = await PortalStore.getData();
+    var p = data.projects.find(function (x) { return x.id === projectId; });
+    if (!p) return;
+    var isShoot = kind === "shoot";
+    var f = pdateForm;
+    f.elements.id.value = p.id;
+    f.elements.field.value = isShoot ? "shootDate" : "deadline";
+    f.elements.date.value = (isShoot ? p.shootDate : p.deadline) || "";
+    document.getElementById("pd2-what").innerHTML =
+      "<strong>" + esc(p.title) + "</strong><br>" +
+      (isShoot ? "Shoot date" : "Delivery deadline");
+    pdateDialog.showModal();
+  }
+
+  // One entry point: chips in the grid and rows in the day list both send
+  // "<date>|<index>", which resolves against the same sorted event list.
+  document.addEventListener("click", async function (e) {
+    var opener = e.target.closest("[data-open-event]");
+    if (!opener) return;
+    e.stopPropagation();
+
+    var parts = opener.dataset.openEvent.split("|");
+    var evs = eventsOn(parts[0]);
+    var ev = evs[Number(parts[1])];
+    if (!ev) return;
+
+    selected = parts[0];
+    renderDay();
+
+    if (ev.kind === "event") {
+      openEventDialog(await PortalStore.getEvent(ev.eventId));
+    } else if (ev.kind === "task") {
+      openTaskDialog(ev.taskId);
+    } else if (ev.kind === "shoot" || ev.kind === "deadline") {
+      openProjectDate(ev.projectId, ev.kind);
+    }
+  }, true);
+
+  document.getElementById("add-event-btn").addEventListener("click", function () {
+    openEventDialog(null);
+  });
+
+  eventForm.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    var f = eventForm;
+    var fields = {
+      title: f.elements.title.value.trim(),
+      type: f.elements.type.value,
+      date: f.elements.date.value,
+      time: f.elements.time.value,
+      endTime: f.elements.endTime.value,
+      clientId: f.elements.clientId.value,
+      notes: f.elements.notes.value.trim()
+    };
+    if (f.elements.id.value) await PortalStore.updateEvent(f.elements.id.value, fields);
+    else await PortalStore.addEvent(fields);
+    eventDialog.close();
+    await refresh();
+  });
+
+  document.getElementById("ed-delete").addEventListener("click", async function () {
+    var id = eventForm.elements.id.value;
+    if (id && confirm("Delete this event?")) {
+      await PortalStore.deleteEvent(id);
+      eventDialog.close();
+      await refresh();
+    }
+  });
+
+  taskForm.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    var f = taskForm;
+    await PortalStore.updateTask(f.elements.id.value, {
+      title: f.elements.title.value.trim(),
+      type: f.elements.type.value,
+      due: f.elements.due.value,
+      projectId: f.elements.projectId.value,
+      done: f.elements.done.checked
+    });
+    taskDialog.close();
+    await refresh();
+  });
+
+  document.getElementById("td-delete").addEventListener("click", async function () {
+    var id = taskForm.elements.id.value;
+    if (id && confirm("Delete this task?")) {
+      await PortalStore.deleteTask(id);
+      taskDialog.close();
+      await refresh();
+    }
+  });
+
+  pdateForm.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    var f = pdateForm;
+    var patch = {};
+    patch[f.elements.field.value] = f.elements.date.value;
+    await PortalStore.updateProject(f.elements.id.value, patch);
+    pdateDialog.close();
+    await refresh();
+  });
 
   /* ---------- events ---------- */
 
@@ -271,16 +464,26 @@
   /* ---------- init ---------- */
 
   (async function init() {
-    document.getElementById("nt-type").innerHTML =
-      PortalStore.TASK_TYPES.map(function (t) { return "<option>" + esc(t) + "</option>"; }).join("");
+    var taskOpts = PortalStore.TASK_TYPES.map(function (t) { return "<option>" + esc(t) + "</option>"; }).join("");
+    document.getElementById("nt-type").innerHTML = taskOpts;
+    document.getElementById("td-type").innerHTML = taskOpts;
+    document.getElementById("ed-type").innerHTML =
+      PortalStore.EVENT_TYPES.map(function (t) { return "<option>" + esc(t) + "</option>"; }).join("");
 
     var data = await PortalStore.getData();
     var clientName = {};
     data.clients.forEach(function (c) { clientName[c.id] = c.name; });
-    document.getElementById("nt-project").innerHTML =
-      '<option value="">— none —</option>' + data.projects.map(function (p) {
-        return '<option value="' + esc(p.id) + '">' + esc(p.title) +
-          " (" + esc(clientName[p.clientId] || "") + ")</option>";
+
+    var projectOpts = '<option value="">— none —</option>' + data.projects.map(function (p) {
+      return '<option value="' + esc(p.id) + '">' + esc(p.title) +
+        " (" + esc(clientName[p.clientId] || "") + ")</option>";
+    }).join("");
+    document.getElementById("nt-project").innerHTML = projectOpts;
+    document.getElementById("td-project").innerHTML = projectOpts;
+
+    document.getElementById("ed-client").innerHTML =
+      '<option value="">— none —</option>' + data.clients.map(function (c) {
+        return '<option value="' + esc(c.id) + '">' + esc(c.name) + "</option>";
       }).join("");
 
     selected = todayISO;

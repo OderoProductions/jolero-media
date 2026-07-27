@@ -11,7 +11,7 @@
 
 window.JOLERO_SEED = {
   // Bump this when you edit the seed — stale localStorage copies re-seed
-  version: 3,
+  version: 4,
 
   statuses: ["Booked", "Shoot scheduled", "Shot", "In edit", "Review", "Delivered"],
 
@@ -19,6 +19,9 @@ window.JOLERO_SEED = {
 
   // Task categories — "Post" is the content-posting schedule
   taskTypes: ["Shoot prep", "Edit", "Post", "Admin", "Invoice", "Other"],
+
+  // Standalone calendar entries (anything not driven by a project)
+  eventTypes: ["Shoot", "Meeting", "Content day", "Edit day", "Personal", "Other"],
 
   clients: [
     {
@@ -140,6 +143,15 @@ window.JOLERO_SEED = {
     { id: "inv3", clientId: "c2", number: "JM-2026-012", amount: 320, status: "paid",   issued: "2026-07-02", due: "2026-07-16" },
     { id: "inv4", clientId: "c2", number: "JM-2026-015", amount: 180, status: "unpaid", issued: "2026-07-15", due: "2026-07-29" },
     { id: "inv5", clientId: "c3", number: "JM-2026-013", amount: 250, status: "paid",   issued: "2026-06-25", due: "2026-07-09" }
+  ],
+
+  /* ---- Schedule: standalone events (added straight from the calendar) ----
+     time/endTime are optional — leave blank for an all-day entry. */
+
+  events: [
+    { id: "ev1", title: "Content planning — August", type: "Meeting",     date: "2026-07-29", time: "10:00", endTime: "11:00", notes: "Map out the August posting schedule.", clientId: "" },
+    { id: "ev2", title: "Edit day — no shoots",      type: "Edit day",    date: "2026-08-05", time: "",      endTime: "",      notes: "Clear the backlog.",                  clientId: "" },
+    { id: "ev3", title: "Kit service + card wipe",   type: "Personal",    date: "2026-08-10", time: "",      endTime: "",      notes: "",                                     clientId: "" }
   ],
 
   /* ---- Schedule: tasks (feed the calendar alongside shoots/deadlines) ---- */

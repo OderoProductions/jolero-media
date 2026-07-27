@@ -27,6 +27,12 @@ aggregates shoot dates, delivery deadlines, unpaid invoice due dates and tasks
 (nothing is entered twice — it reads the same data as the board), plus a task
 list with types, due dates and overdue highlighting.
 
+Everything on the calendar is editable in place: click any entry to open the
+right editor. Standalone events (`events` in the seed) can be added, edited and
+deleted with optional start/end times; tasks open a full edit dialog; shoots and
+deadlines open a date editor that writes back to the project, so the board stays
+in step. Invoice due dates are read-only reflections of the invoice.
+
 Google Calendar today: each event has an "Add to Google Calendar" link and
 there's an "Export .ics" download to import everything in one go. Automatic
 two-way sync needs OAuth + a backend and arrives with Phase 2 — it plugs into
