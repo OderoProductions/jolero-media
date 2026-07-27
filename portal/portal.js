@@ -117,16 +117,24 @@
       .sort(function (a, b) { return a.status === "awaiting_signature" ? -1 : b.status === "awaiting_signature" ? 1 : 0; })
       .map(contractCard).join("");
 
-    // Invoices
+    // Invoices (extra header cell for the per-row PDF download)
+    var headRow = document.querySelector("#invoices thead tr");
+    if (headRow && headRow.children.length === 5) {
+      var th = document.createElement("th");
+      th.setAttribute("scope", "col");
+      headRow.appendChild(th);
+    }
     var rows = bundle.invoices.map(function (inv) {
       var badge = inv.status === "paid"
         ? '<span class="pbadge">Paid</span>'
         : '<span class="pbadge pbadge-solid">Unpaid</span>';
       return "<tr><td>" + esc(inv.number) + "</td><td>" + fmtDate(inv.issued) + "</td><td>" + fmtDate(inv.due) +
-        '</td><td class="num">' + fmtMoney(inv.amount) + "</td><td>" + badge + "</td></tr>";
+        '</td><td class="num">' + fmtMoney(inv.amount) + "</td><td>" + badge + "</td>" +
+        '<td><button class="row-btn" type="button" data-invoice-pdf="' + esc(inv.id) +
+        '" aria-label="Download PDF of invoice ' + esc(inv.number) + '">PDF</button></td></tr>';
     }).join("");
     document.querySelector("#invoices tbody").innerHTML =
-      rows || '<tr><td colspan="5" class="empty-note">No invoices yet.</td></tr>';
+      rows || '<tr><td colspan="6" class="empty-note">No invoices yet.</td></tr>';
   }
 
   var currentClientId = null;
@@ -147,6 +155,14 @@
     if (!b || !window.ContractPDF || !currentBundle) return;
     var ct = currentBundle.contracts.find(function (x) { return x.id === b.dataset.contractPdf; });
     if (ct) window.ContractPDF.download(ct, currentBundle.client ? currentBundle.client.name : "");
+  });
+
+  // Invoices download as branded PDFs the same way
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-invoice-pdf]");
+    if (!b || !window.InvoicePDF || !currentBundle) return;
+    var inv = currentBundle.invoices.find(function (x) { return x.id === b.dataset.invoicePdf; });
+    if (inv) window.InvoicePDF.download(inv, currentBundle.client || {});
   });
 
   /* ---------- Phase 4: dialogs ---------- */
