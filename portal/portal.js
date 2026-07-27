@@ -20,7 +20,8 @@
     var idx = STATUSES.indexOf(status);
     var lis = STATUSES.map(function (s, i) {
       var cls = i < idx ? "done" : i === idx ? "current" : "";
-      return '<li class="' + cls + '"' + (i === idx ? ' aria-current="step"' : "") + '>' +
+      // --i drives the draw-in stagger in portal.css (connector sweep + dot pop delays)
+      return '<li class="' + cls + '" style="--i:' + i + '"' + (i === idx ? ' aria-current="step"' : "") + '>' +
         '<span class="step-dot">' + tick + '</span>' +
         '<span class="step-label">' + esc(s) + "</span></li>";
     }).join("");
@@ -127,7 +128,68 @@
     }).join("");
     document.querySelector("#invoices tbody").innerHTML =
       rows || '<tr><td colspan="5" class="empty-note">No invoices yet.</td></tr>';
+
+    setupEntrance();
   }
+
+  /* ---------- Motion polish: panel entrance + stepper draw-in ----------
+     Progressive enhancement only. When IntersectionObserver is missing or
+     the user prefers reduced motion, no classes are ever added, so the
+     page renders exactly as before: fully visible, zero animation.
+     (The matching CSS lives at the end of portal.css and is additionally
+     gated behind @media (prefers-reduced-motion: no-preference).) */
+
+  var animObserver = null;
+
+  function motionAllowed() {
+    if (!("IntersectionObserver" in window)) return false;
+    try {
+      if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return false;
+    } catch (e) {}
+    return true;
+  }
+
+  function onPanelIntersect(entries) {
+    for (var k = 0; k < entries.length; k++) {
+      var entry = entries[k];
+      if (!entry.isIntersecting) continue;
+      var rootH = entry.rootBounds ? entry.rootBounds.height : window.innerHeight;
+      // Reveal at 35% visibility. A panel taller than ~60% of the viewport
+      // may never reach that ratio, so any intersection reveals it instead
+      // of leaving it invisible.
+      if (entry.intersectionRatio >= 0.35 || entry.boundingClientRect.height > rootH * 0.6) {
+        entry.target.classList.add("anim-ready");
+        animObserver.unobserve(entry.target); // once per element
+      }
+    }
+  }
+
+  // Arms every client-view panel (feed, project cards, contracts, invoices)
+  // for its entrance. Runs after every render, so switching client in the
+  // dropdown re-runs the entrance — that's intentional.
+  function setupEntrance() {
+    if (!motionAllowed()) return;
+    if (animObserver) animObserver.disconnect();
+    else animObserver = new IntersectionObserver(onPanelIntersect, { threshold: [0, 0.35] });
+    var panels = document.querySelectorAll(".portal-shell .panel");
+    for (var k = 0; k < panels.length; k++) {
+      panels[k].classList.remove("anim-ready");         // persistent panels re-arm on re-render
+      panels[k].style.setProperty("--p", k);            // 60ms entrance stagger in portal.css
+      panels[k].classList.add("will-anim");             // hidden state applies from this point only
+      animObserver.observe(panels[k]);
+    }
+  }
+
+  // Keyboard safety: if focus lands inside a panel that is still waiting to
+  // animate (e.g. tabbing below the fold), reveal it immediately rather than
+  // letting the user focus invisible controls.
+  document.addEventListener("focusin", function (e) {
+    var el = e.target && e.target.closest ? e.target.closest(".will-anim:not(.anim-ready)") : null;
+    if (el) {
+      el.classList.add("anim-ready");
+      if (animObserver) animObserver.unobserve(el);
+    }
+  });
 
   var currentClientId = null;
   var currentBundle = null;
