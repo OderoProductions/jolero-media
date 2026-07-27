@@ -11,6 +11,25 @@
   // Signals that JS is live — reveal-on-scroll styles only apply with this class
   document.documentElement.classList.add("js");
 
+  /* ---------- Hero entrance: mark the page loaded ----------
+     styles.css keys the hero power-on sequence off html.is-loaded.
+     The 1200ms timeout is a safety net registered IMMEDIATELY after
+     .js is added — if anything later in this file throws, content is
+     never stranded hidden. Adding the class twice is harmless. */
+
+  var markLoaded = function () {
+    document.documentElement.classList.add("is-loaded");
+  };
+  window.setTimeout(markLoaded, 1200); // safety fallback
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", function () {
+      window.setTimeout(markLoaded, 80);
+    });
+  } else {
+    window.setTimeout(markLoaded, 80);
+  }
+
   var prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   /* ---------- Sticky nav: solid background after leaving the hero top ---------- */
@@ -119,6 +138,33 @@
   if (heroVideo && prefersReducedMotion) {
     heroVideo.removeAttribute("autoplay");
     heroVideo.pause();
+  }
+
+  /* ---------- Hero parallax ----------
+     The backdrop drifts at ~0.18 of scroll speed (the scrim rides with
+     it, untouched). One rAF loop, fed by a passive scroll listener;
+     skipped entirely for reduced motion, and idle once the hero has
+     scrolled out of view. */
+
+  var heroSection = document.querySelector(".hero");
+  var heroMedia = document.querySelector(".hero-media");
+  if (heroSection && heroMedia && !prefersReducedMotion) {
+    var parallaxQueued = false;
+    var updateParallax = function () {
+      parallaxQueued = false;
+      var y = window.scrollY;
+      var heroHeight = heroSection.offsetHeight;
+      if (y > heroHeight) return; // hero off-screen — do nothing
+      var offset = Math.min(y * 0.18, heroHeight);
+      heroMedia.style.transform = "translate3d(0, " + offset + "px, 0)";
+    };
+    window.addEventListener("scroll", function () {
+      if (!parallaxQueued) {
+        parallaxQueued = true;
+        window.requestAnimationFrame(updateParallax);
+      }
+    }, { passive: true });
+    updateParallax();
   }
 
   /* ---------- Work filter ---------- */
