@@ -150,7 +150,8 @@
 
       var chips = evs.slice(0, 3).map(function (e, idx) {
         return '<button class="chip chip-' + e.kind + (e.done ? " is-done" : "") +
-          '" data-open-event="' + dISO + "|" + idx + '" title="' +
+          '" data-open-event="' + dISO + "|" + idx + '"' +
+          (e.kind === "invoice" ? "" : ' draggable="true"') + ' title="' +
           esc((e.label ? e.label + " — " : "") + e.title) + '">' +
           (e.time ? '<span class="chip-time">' + esc(e.time) + "</span> " : "") +
           esc(e.title) + "</button>";
@@ -221,6 +222,98 @@
   // admin.js calls this after a task edit so the calendar stays in step
   window.ScheduleRefresh = refresh;
 
+  /* ---------- drag-and-drop rescheduling (desktop-only sugar) ----------
+     Chips (except invoices) can be dragged onto another day cell to move
+     the underlying record. The edit dialogs remain the keyboard/touch
+     path — this never replaces them. */
+
+  var calGrid = document.getElementById("cal-grid");
+  var dragInfo = null;       // {kind, id, fromDate} while a chip is in flight
+  var justDragged = false;   // suppresses the ghost click that follows a drop
+
+  function idFor(ev) {
+    return ev.eventId || ev.taskId || ev.postId || ev.projectId || "";
+  }
+
+  function clearDropTargets() {
+    var marked = calGrid.querySelectorAll(".cal-cell.drop-target");
+    for (var i = 0; i < marked.length; i++) marked[i].classList.remove("drop-target");
+  }
+
+  function cleanupDrag() {
+    clearDropTargets();
+    var ghost = calGrid.querySelector(".chip.is-dragging");
+    if (ghost) ghost.classList.remove("is-dragging");
+    if (dragInfo) document.body.classList.remove("dragging-" + dragInfo.kind);
+    dragInfo = null;
+  }
+
+  async function applyMove(info, date) {
+    if (info.kind === "event") await PortalStore.updateEvent(info.id, { date: date });
+    else if (info.kind === "task") await PortalStore.updateTask(info.id, { due: date });
+    else if (info.kind === "post") await PortalStore.updatePost(info.id, { date: date });
+    else if (info.kind === "shoot") await PortalStore.updateProject(info.id, { shootDate: date });
+    else if (info.kind === "deadline") await PortalStore.updateProject(info.id, { deadline: date });
+    else return;
+    await refresh();
+    // Keep the task/post/project lists elsewhere on the page in step
+    if (window.AdminRefresh) window.AdminRefresh();
+  }
+
+  calGrid.addEventListener("dragstart", function (e) {
+    var chip = e.target.closest ? e.target.closest('.chip[draggable="true"]') : null;
+    if (!chip) return;
+    var parts = String(chip.dataset.openEvent || "").split("|");
+    var ev = eventsOn(parts[0])[Number(parts[1])];
+    if (!ev || ev.kind === "invoice") return;
+    dragInfo = { kind: ev.kind, id: idFor(ev), fromDate: parts[0] };
+    if (e.dataTransfer) {
+      try {
+        e.dataTransfer.setData("text/plain", ev.kind + "|" + dragInfo.id + "|" + parts[0]);
+        e.dataTransfer.effectAllowed = "move";
+      } catch (err) { /* older engines can throw on setData — drag still works */ }
+    }
+    chip.classList.add("is-dragging");
+    document.body.classList.add("dragging-" + ev.kind);
+  });
+
+  calGrid.addEventListener("dragover", function (e) {
+    if (!dragInfo) return;
+    var cell = e.target.closest(".cal-cell");
+    if (!cell) return;
+    e.preventDefault();   // required to allow the drop
+    if (e.dataTransfer) e.dataTransfer.dropEffect = "move";
+    if (!cell.classList.contains("drop-target")) {
+      clearDropTargets();
+      cell.classList.add("drop-target");
+    }
+  });
+
+  calGrid.addEventListener("dragleave", function (e) {
+    var cell = e.target.closest ? e.target.closest(".cal-cell") : null;
+    // Only clear when truly leaving the cell, not moving between its children
+    if (cell && !(e.relatedTarget && cell.contains(e.relatedTarget))) {
+      cell.classList.remove("drop-target");
+    }
+  });
+
+  calGrid.addEventListener("drop", function (e) {
+    e.preventDefault();
+    var info = dragInfo;
+    var cell = e.target.closest(".cal-cell");
+    cleanupDrag();
+    if (!info || !cell) return;
+    var toDate = cell.dataset.date;
+    if (!toDate || toDate === info.fromDate) return;   // same-day drop = no-op
+    applyMove(info, toDate);
+  });
+
+  calGrid.addEventListener("dragend", function () {
+    cleanupDrag();
+    justDragged = true;
+    setTimeout(function () { justDragged = false; }, 250);
+  });
+
   /* ---------- editing: route each entry to the right dialog ---------- */
 
   var eventDialog = document.getElementById("event-dialog");
@@ -270,6 +363,7 @@
   // One entry point: chips in the grid and rows in the day list both send
   // "<date>|<index>", which resolves against the same sorted event list.
   document.addEventListener("click", async function (e) {
+    if (justDragged) return;   // ghost click after a drag — don't open dialogs
     var opener = e.target.closest("[data-open-event]");
     if (!opener) return;
     e.stopPropagation();
@@ -295,6 +389,7 @@
 
   // Clicking an empty part of a day cell adds an event on that date
   document.addEventListener("click", function (e) {
+    if (justDragged) return;   // ghost click after a drag — don't open dialogs
     var cell = e.target.closest(".cal-cell");
     if (!cell || e.target.closest("[data-open-event]")) return;
     selected = cell.dataset.date;
