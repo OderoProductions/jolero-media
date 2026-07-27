@@ -11,11 +11,14 @@
 
 window.JOLERO_SEED = {
   // Bump this when you edit the seed — stale localStorage copies re-seed
-  version: 2,
+  version: 3,
 
   statuses: ["Booked", "Shoot scheduled", "Shot", "In edit", "Review", "Delivered"],
 
   projectTypes: ["Matchday shoot", "Highlight reel", "Training content", "Event coverage"],
+
+  // Task categories — "Post" is the content-posting schedule
+  taskTypes: ["Shoot prep", "Edit", "Post", "Admin", "Invoice", "Other"],
 
   clients: [
     {
@@ -137,6 +140,18 @@ window.JOLERO_SEED = {
     { id: "inv3", clientId: "c2", number: "JM-2026-012", amount: 320, status: "paid",   issued: "2026-07-02", due: "2026-07-16" },
     { id: "inv4", clientId: "c2", number: "JM-2026-015", amount: 180, status: "unpaid", issued: "2026-07-15", due: "2026-07-29" },
     { id: "inv5", clientId: "c3", number: "JM-2026-013", amount: 250, status: "paid",   issued: "2026-06-25", due: "2026-07-09" }
+  ],
+
+  /* ---- Schedule: tasks (feed the calendar alongside shoots/deadlines) ---- */
+
+  tasks: [
+    { id: "tk1", title: "First cut — pre-season promo",              type: "Edit",       due: "2026-07-22", projectId: "p2", done: true },
+    { id: "tk2", title: "Post Lancing reel — Tuesday slot",           type: "Post",       due: "2026-07-28", projectId: "p1", done: false },
+    { id: "tk3", title: "Chase invoice JM-2026-014",                  type: "Invoice",    due: "2026-07-29", projectId: "",   done: false },
+    { id: "tk4", title: "Confirm access with Woodside Road stewards", type: "Shoot prep", due: "2026-07-30", projectId: "p3", done: false },
+    { id: "tk5", title: "Send August content plan to the gym",        type: "Admin",      due: "2026-07-31", projectId: "p5", done: false },
+    { id: "tk6", title: "Charge batteries + clear cards",             type: "Shoot prep", due: "2026-08-01", projectId: "p3", done: false },
+    { id: "tk7", title: "Batch walkout reels for socials",            type: "Post",       due: "2026-08-03", projectId: "p4", done: false }
   ],
 
   /* ---- Phase 4 collections ---- */

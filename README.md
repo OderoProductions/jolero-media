@@ -22,6 +22,16 @@ West Sussex. Plain static site — no frameworks, no build step. Deploy the fold
 page reads it through `portal/store.js` — the single data layer. Admin edits
 persist to localStorage; "Reset demo data" restores the seed.
 
+`/portal/admin/schedule.html` is the Schedule page: a month calendar that
+aggregates shoot dates, delivery deadlines, unpaid invoice due dates and tasks
+(nothing is entered twice — it reads the same data as the board), plus a task
+list with types, due dates and overdue highlighting.
+
+Google Calendar today: each event has an "Add to Google Calendar" link and
+there's an "Export .ics" download to import everything in one go. Automatic
+two-way sync needs OAuth + a backend and arrives with Phase 2 — it plugs into
+`PortalStore.getScheduleEvents()`, so no view code changes.
+
 Phase 4 extras are built in the same mock style: contract sending + client
 signing (typed-name signature for now), pre-shoot brief request/submit flow,
 post-delivery review collection (star rating + quote + usage permission), and

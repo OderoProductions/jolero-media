@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+
+  <!-- ============================================================
+       JOLERO MEDIA PORTAL — Schedule (calendar + tasks)
+
+       The calendar is a READ-THROUGH of everything already in the
+       portal: shoot dates, delivery deadlines, unpaid invoice due
+       dates and tasks. Nothing is entered twice — change a project's
+       date on the Board and it moves here.
+
+       GOOGLE CALENDAR (works today, no setup):
+       · every event has an "Add to Google Calendar" button
+       · "Export .ics" downloads all events to import in one go
+       True two-way sync needs OAuth + a backend — that arrives with
+       Phase 2 and plugs into PortalStore.getScheduleEvents().
+       ============================================================ -->
+
+  <title>Schedule — Jolero Media Portal</title>
+  <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="../../styles.css">
+  <link rel="stylesheet" href="../portal.css">
+</head>
+<body>
+
+  <header class="portal-top">
+    <div class="portal-top-inner">
+      <a class="wordmark" href="../../" aria-label="Jolero Media — back to main site">JOLERO<span class="wordmark-dot" aria-hidden="true"></span>MEDIA</a>
+      <span class="portal-tag">Admin</span>
+      <div class="portal-top-right">
+        <a href="index.html">Board</a>
+        <a href="schedule.html" aria-current="page">Schedule</a>
+        <a href="../">Client view</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="portal-shell">
+    <header>
+      <h1 class="portal-h1">Schedule</h1>
+      <p class="portal-sub">Shoot days, deadlines, invoices and tasks — one view. Pulled live from the board, so nothing is entered twice.</p>
+    </header>
+
+    <section class="portal-section" aria-labelledby="cal-h">
+      <h2 id="cal-h">Calendar</h2>
+
+      <div class="cal-bar">
+        <div class="cal-nav">
+          <button type="button" id="cal-prev" aria-label="Previous month">&larr;</button>
+          <button type="button" id="cal-next" aria-label="Next month">&rarr;</button>
+        </div>
+        <span class="cal-month" id="cal-month">—</span>
+        <button class="cal-today" type="button" id="cal-today-btn">Today</button>
+        <div class="cal-actions">
+          <button class="btn btn-ghost" type="button" id="export-ics">Export .ics</button>
+        </div>
+      </div>
+
+      <div class="cal-scroll">
+        <div class="cal-grid" id="cal-grid" role="grid" aria-labelledby="cal-h"></div>
+      </div>
+
+      <div class="cal-legend" aria-hidden="true">
+        <span><i style="background:#FF3B30"></i>Shoot</span>
+        <span><i style="background:#FFB020"></i>Delivery due</span>
+        <span><i style="background:#4FA3FF"></i>Task</span>
+        <span><i style="background:#9B7BFF"></i>Invoice due</span>
+      </div>
+
+      <p class="preview-note">
+        <strong>Google Calendar.</strong> Use <em>Export .ics</em> to import everything in one go
+        (Google Calendar → Settings → Import &amp; export), or add single events with the
+        button on any day below. Automatic two-way sync arrives with the Phase 2 backend.
+      </p>
+    </section>
+
+    <section class="portal-section" aria-labelledby="day-h">
+      <h2 id="day-h">Selected day<span class="count" id="day-label"></span></h2>
+      <div class="day-list" id="day-list"></div>
+    </section>
+
+    <section class="portal-section" aria-labelledby="tasks-h">
+      <h2 id="tasks-h">Tasks<span class="count" id="tasks-count"></span></h2>
+      <div class="task-list" id="task-list"></div>
+
+      <details class="adder">
+        <summary>Add task</summary>
+        <div class="adder-body">
+          <form class="portal-form" id="add-task">
+            <div class="field field-wide">
+              <label for="nt-title">What needs doing?</label>
+              <input id="nt-title" name="title" type="text" placeholder="e.g. Post matchday reel" required>
+            </div>
+            <div class="field">
+              <label for="nt-type">Type</label>
+              <select id="nt-type" name="type" required></select>
+            </div>
+            <div class="field">
+              <label for="nt-due">Due</label>
+              <input id="nt-due" name="due" type="date" required>
+            </div>
+            <div class="field field-wide">
+              <label for="nt-project">Linked project <span class="optional">(optional)</span></label>
+              <select id="nt-project" name="projectId"></select>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-primary" type="submit">Add task</button>
+            </div>
+          </form>
+        </div>
+      </details>
+    </section>
+  </main>
+
+  <footer class="portal-foot">Jolero Media · internal — schedule runs on the same mock data as the board</footer>
+
+  <script src="../data.js"></script>
+  <script src="../store.js"></script>
+  <script src="../schedule.js"></script>
+</body>
+</html>

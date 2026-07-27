@@ -42,6 +42,15 @@
     chips += '<div class="stat"><span class="stat-label">Unpaid invoices</span><span class="stat-value accent">' + fmtMoney(unpaidTotal) +
       '</span><span class="stat-sub">' + unpaid.length + " open</span></div>";
 
+    // Open tasks — links through to the Schedule page
+    var openTasks = (data.tasks || []).filter(function (t) { return !t.done; });
+    var overdue = openTasks.filter(function (t) { return t.due && t.due < todayISO(); });
+    chips += '<a class="stat" href="schedule.html" style="text-decoration:none;">' +
+      '<span class="stat-label">Open tasks</span><span class="stat-value' +
+      (overdue.length ? " accent" : "") + '">' + openTasks.length +
+      '</span><span class="stat-sub">' +
+      (overdue.length ? overdue.length + " overdue" : "none overdue") + "</span></a>";
+
     var upcoming = data.projects
       .filter(function (p) { return p.shootDate && p.shootDate >= todayISO(); })
       .sort(function (a, b) { return a.shootDate < b.shootDate ? -1 : 1; })

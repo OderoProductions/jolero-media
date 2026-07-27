@@ -223,6 +223,97 @@
       return t;
     },
 
+    /* ---------- Schedule: tasks ---------- */
+
+    TASK_TYPES: (seed.taskTypes || []).slice(),
+
+    getTasks: async function () {
+      return (load().tasks || []).slice().sort(function (a, b) {
+        return (a.due || "9999") < (b.due || "9999") ? -1 : 1;
+      });
+    },
+
+    addTask: async function (fields) {
+      var s = load();
+      var t = {
+        id: uid("tk"),
+        title: fields.title,
+        type: fields.type || "Other",
+        due: fields.due || "",
+        projectId: fields.projectId || "",
+        done: false
+      };
+      s.tasks.push(t);
+      save(s);
+      return t;
+    },
+
+    toggleTask: async function (taskId) {
+      var s = load();
+      var t = (s.tasks || []).find(function (x) { return x.id === taskId; });
+      if (!t) return null;
+      t.done = !t.done;
+      save(s);
+      return t;
+    },
+
+    deleteTask: async function (taskId) {
+      var s = load();
+      s.tasks = (s.tasks || []).filter(function (x) { return x.id !== taskId; });
+      save(s);
+    },
+
+    /* ---------- Schedule: unified calendar feed ----------
+       Everything that lands on a date, from every collection, so shoot
+       days and portal deadlines appear without being re-entered.
+       PHASE 2: this is the method real Google Calendar sync plugs into —
+       swap the body for an API call and every view follows. */
+
+    getScheduleEvents: async function () {
+      var s = load();
+      var clientName = {};
+      s.clients.forEach(function (c) { clientName[c.id] = c.name; });
+
+      var events = [];
+
+      s.projects.forEach(function (p) {
+        if (p.shootDate) events.push({
+          kind: "shoot", date: p.shootDate,
+          title: p.title, label: "Shoot",
+          sub: clientName[p.clientId] || "", projectId: p.id
+        });
+        if (p.deadline) events.push({
+          kind: "deadline", date: p.deadline,
+          title: p.title, label: "Delivery due",
+          sub: clientName[p.clientId] || "", projectId: p.id
+        });
+      });
+
+      (s.tasks || []).forEach(function (t) {
+        if (!t.due) return;
+        events.push({
+          kind: "task", date: t.due,
+          title: t.title, label: t.type,
+          sub: t.projectId ? (function () {
+            var p = s.projects.find(function (x) { return x.id === t.projectId; });
+            return p ? p.title : "";
+          })() : "",
+          taskId: t.id, done: t.done
+        });
+      });
+
+      s.invoices.forEach(function (i) {
+        if (i.status !== "unpaid" || !i.due) return;
+        events.push({
+          kind: "invoice", date: i.due,
+          title: i.number, label: "Invoice due",
+          sub: clientName[i.clientId] || ""
+        });
+      });
+
+      return events.sort(function (a, b) { return a.date < b.date ? -1 : 1; });
+    },
+
     /* ---------- Phase 4: admin notifications ---------- */
 
     getNotifications: async function () {
