@@ -286,6 +286,8 @@
       openEventDialog(await PortalStore.getEvent(ev.eventId));
     } else if (ev.kind === "task") {
       window.AdminEditTask(ev.taskId);
+    } else if (ev.kind === "post") {
+      window.AdminEditPost(ev.postId);
     } else if (ev.kind === "shoot" || ev.kind === "deadline") {
       openProjectDate(ev.projectId, ev.kind);
     }
@@ -303,6 +305,13 @@
   document.getElementById("add-event-btn").addEventListener("click", function () {
     openEventDialog(null);
   });
+
+  var addPostBtn = document.getElementById("add-post-btn");
+  if (addPostBtn) {
+    addPostBtn.addEventListener("click", function () {
+      window.AdminAddPost(selected || todayISO);
+    });
+  }
 
   eventForm.addEventListener("submit", async function (e) {
     e.preventDefault();

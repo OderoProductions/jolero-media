@@ -864,6 +864,7 @@ details.adder .adder-body { padding: 18px; }
 .chip:hover { background: rgba(255, 255, 255, 0.12); }
 .chip-time { color: var(--paper-40); font-variant-numeric: tabular-nums; }
 .chip-event    { border-left-color: #35C46A; }
+.chip-post     { border-left-color: #FF6FB5; }
 .chip-shoot    { border-left-color: var(--accent); }
 .chip-deadline { border-left-color: #FFB020; }
 .chip-task     { border-left-color: #4FA3FF; }
@@ -914,6 +915,7 @@ details.adder .adder-body { padding: 18px; }
   border-radius: var(--radius);
 }
 .day-row.k-event    { border-left-color: #35C46A; }
+.day-row.k-post     { border-left-color: #FF6FB5; }
 .day-row.k-shoot    { border-left-color: var(--accent); }
 .day-row.k-deadline { border-left-color: #FFB020; }
 .day-row.k-task     { border-left-color: #4FA3FF; }
@@ -922,6 +924,62 @@ details.adder .adder-body { padding: 18px; }
 .day-row .d-sub { font-size: 0.82rem; color: var(--paper-60); }
 .day-row .d-actions { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
 .day-row .btn { min-height: 38px; padding: 7px 14px; font-size: 0.76rem; }
+
+/* ---------- Content planner ---------- */
+
+.post-list { display: grid; gap: 8px; }
+
+.post-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  background: var(--ink-2);
+  border: 1px solid var(--line);
+  border-left: 3px solid #FF6FB5;
+  border-radius: var(--radius);
+  flex-wrap: wrap;
+}
+.post-row.is-done { opacity: 0.55; }
+.post-row.is-done .t-title { text-decoration: line-through; }
+
+.post-when {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  color: var(--paper-60);
+  white-space: nowrap;
+  min-width: 96px;
+  font-variant-numeric: tabular-nums;
+}
+
+.post-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-mini { min-height: 36px; padding: 6px 12px; font-size: 0.72rem; }
+
+.post-status {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--paper);
+  background: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 8px 10px;
+  cursor: pointer;
+}
+.post-status:hover { border-color: rgba(255, 255, 255, 0.3); }
+
+@media (max-width: 560px) {
+  .post-actions { margin-left: 0; width: 100%; justify-content: flex-start; }
+}
 
 /* ---------- Schedule: tasks ---------- */
 

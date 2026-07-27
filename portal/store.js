@@ -406,6 +406,48 @@
       return (load().events || []).find(function (x) { return x.id === eventId; }) || null;
     },
 
+    /* ---------- Content planner ---------- */
+
+    POST_PLATFORMS: (seed.postPlatforms || []).slice(),
+    POST_STATUSES: (seed.postStatuses || []).slice(),
+
+    getPost: async function (postId) {
+      return (load().posts || []).find(function (x) { return x.id === postId; }) || null;
+    },
+
+    addPost: async function (fields) {
+      var s = load();
+      var po = {
+        id: uid("po"),
+        title: fields.title,
+        platform: fields.platform || "Other",
+        date: fields.date,
+        time: fields.time || "",
+        status: fields.status || "Idea",
+        mediaLink: fields.mediaLink || "",
+        projectId: fields.projectId || "",
+        notes: fields.notes || ""
+      };
+      s.posts.push(po);
+      save(s);
+      return po;
+    },
+
+    updatePost: async function (postId, patch) {
+      var s = load();
+      var po = (s.posts || []).find(function (x) { return x.id === postId; });
+      if (!po) return null;
+      Object.keys(patch).forEach(function (k) { po[k] = patch[k]; });
+      save(s);
+      return po;
+    },
+
+    deletePost: async function (postId) {
+      var s = load();
+      s.posts = (s.posts || []).filter(function (x) { return x.id !== postId; });
+      save(s);
+    },
+
     /* ---------- Schedule: tasks ---------- */
 
     TASK_TYPES: (seed.taskTypes || []).slice(),
@@ -479,6 +521,18 @@
           title: e.title, label: e.type,
           sub: e.notes || (clientName[e.clientId] || ""),
           eventId: e.id
+        });
+      });
+
+      // Content planner: planned posts land on the calendar too
+      (s.posts || []).forEach(function (po) {
+        events.push({
+          kind: "post", date: po.date,
+          time: po.time || "",
+          title: po.title, label: po.platform,
+          sub: po.status,
+          postId: po.id,
+          done: po.status === "Posted"
         });
       });
 

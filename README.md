@@ -23,10 +23,15 @@ page reads it through `portal/store.js` — the single data layer. Admin edits
 persist to localStorage; "Reset demo data" restores the seed.
 
 The admin area is a hub: `/portal/admin/` is a **Dashboard** of summary cards
-(schedule, tasks, accounting, contracts, projects, clients) that each link to
-their own page — `projects.html`, `schedule.html`, `tasks.html`,
-`invoices.html`, `contracts.html`, `clients.html`. One shared `admin.js` powers
-them all; each section renders only if its container exists on the page.
+that link into the section pages — `projects.html`, `schedule.html` (calendar +
+content planner + tasks), `invoices.html`, `contracts.html`, `clients.html`.
+One shared `admin.js` powers them all; each section renders only if its
+container exists on the page. (`tasks.html` now just redirects to Schedule.)
+
+The Schedule page carries the **content planner**: planned posts with platform,
+post date/time, a status pipeline (Idea → Drafted → Ready → Posted), a media
+link (Google Drive etc) and notes. Posts appear on the calendar in pink, join
+the Google Calendar / .ics exports, and tick off via an inline status dropdown.
 
 `/portal/admin/schedule.html` is the Schedule page: a month calendar that
 aggregates shoot dates, delivery deadlines, unpaid invoice due dates and tasks

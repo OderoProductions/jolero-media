@@ -11,7 +11,7 @@
 
 window.JOLERO_SEED = {
   // Bump this when you edit the seed — stale localStorage copies re-seed
-  version: 6,
+  version: 7,
 
   statuses: ["Booked", "Shoot scheduled", "Shot", "In edit", "Review", "Delivered"],
 
@@ -22,6 +22,10 @@ window.JOLERO_SEED = {
 
   // Standalone calendar entries (anything not driven by a project)
   eventTypes: ["Shoot", "Meeting", "Content day", "Edit day", "Personal", "Other"],
+
+  // Content planner
+  postPlatforms: ["Instagram Reel", "Instagram Post", "Instagram Story", "TikTok", "YouTube", "Other"],
+  postStatuses: ["Idea", "Drafted", "Ready", "Posted"],
 
   // Ledger categories — expense list loosely follows the HMRC self-assessment
   // buckets so year-end mapping is painless. Edit freely.
@@ -165,6 +169,17 @@ window.JOLERO_SEED = {
     { id: "tx4", kind: "expense", date: "2026-07-12", description: "Public liability insurance",    category: "Insurance",                amount: 14.75,  clientId: "" },
     { id: "tx5", kind: "income",  date: "2026-07-18", description: "Matchday print sales",          category: "Print & product sales",    amount: 85.00,  clientId: "c1" },
     { id: "tx6", kind: "expense", date: "2026-07-21", description: "SD cards x2",                   category: "Equipment",                amount: 43.98,  clientId: "" }
+  ],
+
+  /* ---- Content planner: what we're posting and when ----
+     mediaLink points at the asset (Google Drive etc). Posts appear on
+     the calendar and in the Google Calendar / .ics exports. ---- */
+
+  posts: [
+    { id: "po1", title: "Lancing matchday reel",       platform: "Instagram Reel", date: "2026-07-28", time: "18:00", status: "Ready",   mediaLink: "https://drive.google.com/drive/folders/DEMO-po1-lancing-reel", projectId: "p1", notes: "Post at 6pm peak. Tag @worthingtownfc." },
+    { id: "po2", title: "Fight Night walkout teaser",  platform: "TikTok",         date: "2026-08-03", time: "",      status: "Drafted", mediaLink: "https://drive.google.com/drive/folders/DEMO-po2-walkouts",     projectId: "p4", notes: "" },
+    { id: "po3", title: "August gym promo carousel",   platform: "Instagram Post", date: "2026-08-07", time: "",      status: "Idea",    mediaLink: "",                                                             projectId: "p5", notes: "Needs training-block shots first." },
+    { id: "po4", title: "Amara highlight teaser",      platform: "Instagram Reel", date: "2026-07-20", time: "",      status: "Posted",  mediaLink: "https://drive.google.com/drive/folders/DEMO-po4-amara",        projectId: "p6", notes: "" }
   ],
 
   /* ---- Schedule: standalone events (added straight from the calendar) ----

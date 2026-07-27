@@ -54,6 +54,9 @@
       .concat(data.projects.filter(function (p) { return p.shootDate; }).map(function (p) {
         return { date: p.shootDate, time: "", text: p.title, tag: "Shoot" };
       }))
+      .concat((data.posts || []).filter(function (po) { return po.status !== "Posted"; }).map(function (po) {
+        return { date: po.date, time: po.time || "", text: po.title, tag: po.platform };
+      }))
       .filter(function (x) { return x.date >= todayISO(); })
       .sort(function (a, b) { return a.date === b.date ? (a.time > b.time ? 1 : -1) : (a.date < b.date ? -1 : 1); })
       .slice(0, 4);
@@ -79,7 +82,7 @@
             }).join("<br>")
           : "Nothing coming up") +
 
-      card("tasks.html", "Tasks", openTasks.length,
+      card("schedule.html", "Tasks", openTasks.length,
         overdueTasks.length ? overdueTasks.length + " overdue" : "None overdue",
         overdueTasks.length > 0) +
 
@@ -553,6 +556,122 @@
     if (el("tasks-count")) el("tasks-count").textContent = open.length ? "(" + open.length + " open)" : "";
   }
 
+  /* ================= CONTENT PLANNER ================= */
+
+  function renderPosts(data) {
+    var host = el("post-list");
+    if (!host) return;
+
+    var projectTitle = {};
+    data.projects.forEach(function (p) { projectTitle[p.id] = p.title; });
+
+    var posts = (data.posts || []).slice().sort(function (a, b) {
+      return (a.date || "9999") < (b.date || "9999") ? -1 : 1;
+    });
+    var live = posts.filter(function (p) { return p.status !== "Posted"; });
+    var posted = posts.filter(function (p) { return p.status === "Posted"; });
+
+    function row(po) {
+      var statusSel = '<select class="post-status" data-post-status="' + esc(po.id) + '" aria-label="Status of ' + esc(po.title) + '">' +
+        PortalStore.POST_STATUSES.map(function (s) {
+          return "<option" + (s === po.status ? " selected" : "") + ">" + esc(s) + "</option>";
+        }).join("") + "</select>";
+      var media = po.mediaLink
+        ? '<a class="btn btn-ghost btn-mini" href="' + esc(po.mediaLink) + '" target="_blank" rel="noopener">Open media</a>'
+        : '<span class="t-meta">no media yet</span>';
+      return '<div class="post-row' + (po.status === "Posted" ? " is-done" : "") + '">' +
+        '<span class="post-when">' + fmtDate(po.date) + (po.time ? " · " + esc(po.time) : "") + "</span>" +
+        "<div><button class='row-btn t-title' type='button' data-edit-post='" + esc(po.id) + "'>" +
+        esc(po.title) + "</button>" +
+        '<div class="t-meta">' + esc(po.platform) +
+        (po.projectId && projectTitle[po.projectId] ? " · " + esc(projectTitle[po.projectId]) : "") +
+        (po.notes ? " · " + esc(po.notes) : "") + "</div></div>" +
+        '<div class="post-actions">' + media + statusSel + "</div>" +
+        "</div>";
+    }
+
+    host.innerHTML = (live.map(row).join("") + posted.map(row).join("")) ||
+      '<p class="empty-note">Nothing planned yet — add your first post below.</p>';
+    if (el("posts-count")) {
+      var ready = live.filter(function (p) { return p.status === "Ready"; }).length;
+      el("posts-count").textContent = live.length
+        ? "(" + live.length + " planned" + (ready ? " · " + ready + " ready" : "") + ")"
+        : "";
+    }
+  }
+
+  var postDialog = el("post-dialog");
+  var postForm = el("post-form");
+
+  window.AdminEditPost = async function (postId) {
+    if (!postDialog) return;
+    var po = await PortalStore.getPost(postId);
+    if (!po) return;
+    var f = postForm;
+    el("pod-title").textContent = "Edit post";
+    f.elements.id.value = po.id;
+    f.elements.title.value = po.title;
+    f.elements.platform.value = po.platform;
+    f.elements.date.value = po.date;
+    f.elements.time.value = po.time || "";
+    f.elements.status.value = po.status;
+    f.elements.mediaLink.value = po.mediaLink || "";
+    f.elements.projectId.value = po.projectId || "";
+    f.elements.notes.value = po.notes || "";
+    el("pod-delete").hidden = false;
+    postDialog.showModal();
+  };
+
+  window.AdminAddPost = function (dateISO) {
+    if (!postDialog) return;
+    postForm.reset();
+    el("pod-title").textContent = "Plan a post";
+    postForm.elements.id.value = "";
+    postForm.elements.date.value = dateISO || todayISO();
+    el("pod-delete").hidden = true;
+    postDialog.showModal();
+  };
+
+  if (postForm) {
+    postForm.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      var f = postForm;
+      var fields = {
+        title: f.elements.title.value.trim(),
+        platform: f.elements.platform.value,
+        date: f.elements.date.value,
+        time: f.elements.time.value,
+        status: f.elements.status.value,
+        mediaLink: f.elements.mediaLink.value.trim(),
+        projectId: f.elements.projectId.value,
+        notes: f.elements.notes.value.trim()
+      };
+      if (f.elements.id.value) await PortalStore.updatePost(f.elements.id.value, fields);
+      else await PortalStore.addPost(fields);
+      postDialog.close();
+      renderAll();
+      if (window.ScheduleRefresh) window.ScheduleRefresh();
+    });
+    on("pod-delete", "click", async function () {
+      var id = postForm.elements.id.value;
+      if (id && confirm("Delete this planned post?")) {
+        await PortalStore.deletePost(id);
+        postDialog.close();
+        renderAll();
+        if (window.ScheduleRefresh) window.ScheduleRefresh();
+      }
+    });
+  }
+
+  // Inline status change from the planner list
+  document.addEventListener("change", async function (e) {
+    var sel = e.target.closest("[data-post-status]");
+    if (!sel) return;
+    await PortalStore.updatePost(sel.dataset.postStatus, { status: sel.value });
+    renderAll();
+    if (window.ScheduleRefresh) window.ScheduleRefresh();
+  });
+
   /* ================= NOTIFICATION BELL ================= */
 
   async function renderBell() {
@@ -579,6 +698,7 @@
     renderContracts(data);
     renderTestimonials(data);
     renderTasks(data);
+    renderPosts(data);
     renderBell();
     await renderLedger();
     syncDropdowns(data);
@@ -600,7 +720,7 @@
     var projectOpts = '<option value="">— none —</option>' + data.projects.map(function (p) {
       return '<option value="' + esc(p.id) + '">' + esc(p.title) + "</option>";
     }).join("");
-    ["nt-project", "td-project"].forEach(function (id) {
+    ["nt-project", "td-project", "pod-project"].forEach(function (id) {
       var sel = el(id);
       if (!sel) return;
       var current = sel.value;
@@ -762,6 +882,7 @@
     }
 
     if ((btn = e.target.closest("[data-edit-task]"))) { window.AdminEditTask(btn.dataset.editTask); return; }
+    if ((btn = e.target.closest("[data-edit-post]"))) { window.AdminEditPost(btn.dataset.editPost); return; }
 
     if ((btn = e.target.closest("[data-edit-tx]"))) {
       var tx = await PortalStore.getTransaction(btn.dataset.editTx);
@@ -1042,6 +1163,11 @@
 
     var taskOpts = PortalStore.TASK_TYPES.map(function (t) { return "<option>" + esc(t) + "</option>"; }).join("");
     ["nt-type", "td-type"].forEach(function (id) { if (el(id)) el(id).innerHTML = taskOpts; });
+
+    if (el("pod-platform")) {
+      el("pod-platform").innerHTML = PortalStore.POST_PLATFORMS.map(function (x) { return "<option>" + esc(x) + "</option>"; }).join("");
+      el("pod-status").innerHTML = PortalStore.POST_STATUSES.map(function (x) { return "<option>" + esc(x) + "</option>"; }).join("");
+    }
 
     // Ledger form defaults
     fillTxCategories("ntx-kind", "ntx-cat");

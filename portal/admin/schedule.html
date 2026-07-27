@@ -21,7 +21,6 @@
         <a href="index.html">Dashboard</a>
         <a href="projects.html">Projects</a>
         <a href="schedule.html" aria-current="page">Schedule</a>
-        <a href="tasks.html">Tasks</a>
         <a href="invoices.html">Accounting</a>
         <a href="contracts.html">Contracts</a>
         <a href="clients.html">Clients</a>
@@ -48,7 +47,7 @@
   <main class="portal-shell">
     <header>
       <h1 class="portal-h1">Schedule</h1>
-      <p class="portal-sub">Shoot days, deadlines, invoices and tasks — one view. Pulled live from the board, so nothing is entered twice.</p>
+      <p class="portal-sub">Shoot days, deadlines, content, invoices and tasks — one view. Pulled live from the board, so nothing is entered twice.</p>
     </header>
 
     <section class="portal-section" aria-labelledby="cal-h">
@@ -73,6 +72,7 @@
 
       <div class="cal-legend" aria-hidden="true">
         <span><i style="background:#35C46A"></i>Event</span>
+        <span><i style="background:#FF6FB5"></i>Content</span>
         <span><i style="background:#FF3B30"></i>Shoot</span>
         <span><i style="background:#FFB020"></i>Delivery due</span>
         <span><i style="background:#4FA3FF"></i>Task</span>
@@ -92,6 +92,48 @@
       <div class="day-list" id="day-list"></div>
     </section>
 
+    <!-- ================= CONTENT PLANNER ================= -->
+    <section class="portal-section" aria-labelledby="posts-h">
+      <h2 id="posts-h">Content planner<span class="count" id="posts-count"></span></h2>
+      <div class="post-list" id="post-list"></div>
+      <div class="form-actions">
+        <button class="btn btn-primary" type="button" id="add-post-btn">Plan a post</button>
+      </div>
+      <p class="preview-note"><strong>How it flows.</strong> Planned posts show on the calendar
+      (pink) and in the Google Calendar / .ics exports. Link the media from Google Drive so
+      posting day is grab-and-go, and move the status along as it gets made:
+      Idea → Drafted → Ready → Posted.</p>
+    </section>
+
+    <!-- ================= TASKS ================= -->
+    <section class="portal-section" aria-labelledby="tasks-h">
+      <h2 id="tasks-h">Tasks<span class="count" id="tasks-count"></span></h2>
+      <div class="task-list" id="task-list"></div>
+      <details class="adder">
+        <summary>Add task</summary>
+        <div class="adder-body">
+          <form class="portal-form" id="add-task">
+            <div class="field field-wide">
+              <label for="nt-title">What needs doing?</label>
+              <input id="nt-title" name="title" type="text" placeholder="e.g. Post matchday reel" required>
+            </div>
+            <div class="field">
+              <label for="nt-type">Type</label>
+              <select id="nt-type" name="type" required></select>
+            </div>
+            <div class="field">
+              <label for="nt-due">Due</label>
+              <input id="nt-due" name="due" type="date" required>
+            </div>
+            <div class="field field-wide">
+              <label for="nt-project">Linked project <span class="optional">(optional)</span></label>
+              <select id="nt-project" name="projectId"></select>
+            </div>
+            <div class="form-actions"><button class="btn btn-primary" type="submit">Add task</button></div>
+          </form>
+        </div>
+      </details>
+    </section>
   </main>
 
   <!-- Add / edit a standalone calendar event -->
@@ -162,6 +204,57 @@
           <button class="btn btn-primary" type="submit">Save date</button>
           <button class="btn btn-ghost" type="button" data-close="pdate-dialog">Cancel</button>
           <a class="btn btn-ghost" id="pd2-open" href="index.html">Open on board</a>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+
+  <!-- Plan / edit a content post -->
+  <dialog class="pdialog" id="post-dialog" aria-labelledby="pod-title">
+    <div class="pdialog-head">
+      <h3 id="pod-title">Plan a post</h3>
+      <button class="pdialog-close" type="button" data-close="post-dialog" aria-label="Close">&times;</button>
+    </div>
+    <div class="pdialog-body">
+      <form class="portal-form" id="post-form">
+        <input type="hidden" name="id">
+        <div class="field field-wide">
+          <label for="pod-name">What's the post?</label>
+          <input id="pod-name" name="title" type="text" placeholder="e.g. Matchday reel — vs Horsham" required>
+        </div>
+        <div class="field">
+          <label for="pod-platform">Platform</label>
+          <select id="pod-platform" name="platform"></select>
+        </div>
+        <div class="field">
+          <label for="pod-status">Status</label>
+          <select id="pod-status" name="status"></select>
+        </div>
+        <div class="field">
+          <label for="pod-date">Post date</label>
+          <input id="pod-date" name="date" type="date" required>
+        </div>
+        <div class="field">
+          <label for="pod-time">Time <span class="optional">(optional)</span></label>
+          <input id="pod-time" name="time" type="time">
+        </div>
+        <div class="field field-wide">
+          <label for="pod-media">Media link <span class="optional">(Google Drive etc)</span></label>
+          <input id="pod-media" name="mediaLink" type="url" placeholder="https://drive.google.com/…">
+        </div>
+        <div class="field field-wide">
+          <label for="pod-project">Linked project <span class="optional">(optional)</span></label>
+          <select id="pod-project" name="projectId"></select>
+        </div>
+        <div class="field field-wide">
+          <label for="pod-notes">Notes <span class="optional">(caption ideas, tags…)</span></label>
+          <textarea id="pod-notes" name="notes" rows="2"></textarea>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">Save post</button>
+          <button class="btn btn-ghost" type="button" data-close="post-dialog">Cancel</button>
+          <button class="btn btn-ghost" type="button" id="pod-delete" hidden>Delete</button>
         </div>
       </form>
     </div>
