@@ -74,6 +74,7 @@
         '<span class="contract-title">' + esc(ct.title) + "</span>" +
         '<span class="contract-sub">Signed by ' + esc(ct.signerName) + " · " + fmtDate(ct.signedDate) + "</span>" +
         '<span class="pbadge">Signed</span>' +
+        '<button class="btn btn-ghost btn-mini" type="button" data-contract-pdf="' + esc(ct.id) + '">Download PDF</button>' +
         "</article>";
     }
     return '<article class="panel contract-row">' +
@@ -139,6 +140,14 @@
     try { sessionStorage.setItem(VIEW_KEY, clientId); } catch (e) {}
     render(bundle);
   }
+
+  // Signed contracts download as a real PDF (built in pdf.js, no server)
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-contract-pdf]");
+    if (!b || !window.ContractPDF || !currentBundle) return;
+    var ct = currentBundle.contracts.find(function (x) { return x.id === b.dataset.contractPdf; });
+    if (ct) window.ContractPDF.download(ct, currentBundle.client ? currentBundle.client.name : "");
+  });
 
   /* ---------- Phase 4: dialogs ---------- */
 

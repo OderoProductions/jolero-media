@@ -59,6 +59,16 @@ there's an "Export .ics" download to import everything in one go. Automatic
 two-way sync needs OAuth + a backend and arrives with Phase 2 — it plugs into
 `PortalStore.getScheduleEvents()`, so no view code changes.
 
+The portal has **light and dark modes** — a sun/moon toggle in every portal
+header, persisted in localStorage, applied before first paint (no flash). The
+marketing site intentionally stays dark; it's the brand. In light mode the
+accent deepens to `#D62A20` to keep AA contrast.
+
+**Signed contracts download as real PDFs** on both the client and admin side —
+generated entirely in the browser by `portal/pdf.js` (hand-assembled PDF 1.4,
+no libraries): branded header, agreement text, signature block, pagination and
+page numbers.
+
 Phase 4 extras are built in the same mock style: contract sending + client
 signing (typed-name signature for now), pre-shoot brief request/submit flow,
 post-delivery review collection (star rating + quote + usage permission), and

@@ -483,7 +483,8 @@
         '<span class="contract-title">' + esc(ct.title) + "</span>" +
         '<span class="contract-sub">' + esc(clientName[ct.clientId] || "—") + " · sent " + fmtDate(ct.sentDate) + "</span>" +
         (ct.status === "signed"
-          ? '<span class="pbadge">Signed by ' + esc(ct.signerName) + " · " + fmtDate(ct.signedDate) + "</span>"
+          ? '<span class="pbadge">Signed by ' + esc(ct.signerName) + " · " + fmtDate(ct.signedDate) + "</span>" +
+            '<button class="btn btn-ghost btn-mini" type="button" data-contract-pdf="' + esc(ct.id) + '">Download PDF</button>'
           : '<span class="pbadge pbadge-accent">Awaiting signature</span>') +
         "</article>";
     }).join("") || '<p class="empty-note">No contracts yet — send one below.</p>';
@@ -882,6 +883,18 @@
     }
 
     if ((btn = e.target.closest("[data-edit-task]"))) { window.AdminEditTask(btn.dataset.editTask); return; }
+    if ((btn = e.target.closest("[data-contract-pdf]"))) {
+      if (window.ContractPDF) {
+        var cdata = await PortalStore.getData();
+        var ct = (cdata.contracts || []).find(function (x) { return x.id === btn.dataset.contractPdf; });
+        if (ct) {
+          var cclient = cdata.clients.find(function (c) { return c.id === ct.clientId; });
+          window.ContractPDF.download(ct, cclient ? cclient.name : "");
+        }
+      }
+      return;
+    }
+
     if ((btn = e.target.closest("[data-edit-post]"))) { window.AdminEditPost(btn.dataset.editPost); return; }
 
     if ((btn = e.target.closest("[data-edit-tx]"))) {
