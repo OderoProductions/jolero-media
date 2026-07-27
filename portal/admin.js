@@ -311,6 +311,8 @@
       .reduce(function (t, r) { return t + r.amount; }, 0);
     var profit = income - expenses;
 
+    renderMonthly(visible);
+
     el("ledger-totals").innerHTML =
       '<div class="stat"><span class="stat-label">Income</span><span class="stat-value">' +
       money2(income) + '</span><span class="stat-sub">' +
@@ -321,6 +323,55 @@
       '<div class="stat"><span class="stat-label">Profit</span><span class="stat-value' +
       (profit < 0 ? " accent" : "") + '">' + money2(profit) +
       '</span><span class="stat-sub">income minus expenses</span></div>';
+  }
+
+  // Month-by-month: income vs expense bars + profit, oldest first so the
+  // trend reads left-to-right like a season.
+  function renderMonthly(rows) {
+    var panel = el("monthly-panel");
+    if (!panel) return;
+
+    var months = {};
+    rows.forEach(function (r) {
+      var key = r.date.slice(0, 7);                     // YYYY-MM
+      if (!months[key]) months[key] = { income: 0, expense: 0 };
+      months[key][r.kind === "income" ? "income" : "expense"] += r.amount;
+    });
+
+    var keys = Object.keys(months).sort();
+    panel.hidden = keys.length === 0;
+    if (!keys.length) return;
+
+    var max = 0;
+    keys.forEach(function (k) {
+      max = Math.max(max, months[k].income, months[k].expense);
+    });
+
+    var bestKey = null, bestProfit = -Infinity;
+    keys.forEach(function (k) {
+      var profit = months[k].income - months[k].expense;
+      if (profit > bestProfit) { bestProfit = profit; bestKey = k; }
+    });
+
+    var MN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+    el("monthly-breakdown").innerHTML = keys.map(function (k) {
+      var m = months[k];
+      var profit = m.income - m.expense;
+      var label = MN[Number(k.slice(5, 7)) - 1] + " " + k.slice(0, 4);
+      return '<div class="month-row">' +
+        '<span class="month-name">' + label +
+        (keys.length > 1 && k === bestKey ? ' <span class="pbadge">Best</span>' : "") + "</span>" +
+        '<div class="month-bars" aria-hidden="true">' +
+        '<div class="mbar mbar-in" style="width:' + (max ? (m.income / max * 100).toFixed(1) : 0) + '%"></div>' +
+        '<div class="mbar mbar-out" style="width:' + (max ? (m.expense / max * 100).toFixed(1) : 0) + '%"></div>' +
+        "</div>" +
+        '<div class="month-nums">' +
+        '<span class="m-in">+' + money2(m.income) + "</span>" +
+        '<span class="m-out">−' + money2(m.expense) + "</span>" +
+        '<strong class="m-profit' + (profit < 0 ? " is-loss" : "") + '">' + money2(profit) + "</strong>" +
+        "</div></div>";
+    }).join("");
   }
 
   /* ---- CSV: parse, import, export ---- */

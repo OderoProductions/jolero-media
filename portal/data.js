@@ -11,7 +11,7 @@
 
 window.JOLERO_SEED = {
   // Bump this when you edit the seed — stale localStorage copies re-seed
-  version: 5,
+  version: 6,
 
   statuses: ["Booked", "Shoot scheduled", "Shot", "In edit", "Review", "Delivered"],
 
@@ -157,6 +157,8 @@ window.JOLERO_SEED = {
      an invoice here too, or it will be counted twice. ---- */
 
   transactions: [
+    { id: "tx0a", kind: "expense", date: "2026-06-12", description: "Public liability insurance",    category: "Insurance",                amount: 14.75,  clientId: "" },
+    { id: "tx0b", kind: "income",  date: "2026-06-18", description: "Preset pack sales",             category: "Print & product sales",    amount: 40.00,  clientId: "" },
     { id: "tx1", kind: "expense", date: "2026-07-03", description: "Adobe Creative Cloud",          category: "Software & subscriptions", amount: 59.98,  clientId: "" },
     { id: "tx2", kind: "expense", date: "2026-07-05", description: "Fuel — Lancing away day",       category: "Travel & fuel",            amount: 28.40,  clientId: "c1" },
     { id: "tx3", kind: "expense", date: "2026-07-10", description: "70-200mm lens hire (2 days)",   category: "Equipment hire",           amount: 96.00,  clientId: "c2" },

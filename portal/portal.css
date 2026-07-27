@@ -135,6 +135,55 @@
 .tx-in  { font-variant-numeric: tabular-nums; }
 .tx-out { font-variant-numeric: tabular-nums; color: var(--accent); }
 
+/* Month-by-month breakdown */
+.monthly-title {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--paper-40);
+  margin-bottom: 16px;
+}
+.month-list { display: grid; gap: 14px; }
+.month-row {
+  display: grid;
+  grid-template-columns: minmax(96px, auto) 1fr auto;
+  gap: 8px 16px;
+  align-items: center;
+}
+.month-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.month-name .pbadge { margin-left: 6px; }
+.month-bars { display: grid; gap: 4px; min-width: 60px; }
+.mbar {
+  height: 6px;
+  border-radius: 1px;
+  min-width: 2px;
+  transition: width 0.4s ease;
+}
+.mbar-in  { background: rgba(255, 255, 255, 0.55); }
+.mbar-out { background: var(--accent); opacity: 0.85; }
+.month-nums {
+  display: flex;
+  gap: 14px;
+  align-items: baseline;
+  font-size: 0.84rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.m-in  { color: var(--paper-60); }
+.m-out { color: var(--accent); }
+.m-profit { min-width: 76px; text-align: right; font-size: 0.92rem; }
+.m-profit.is-loss { color: var(--accent); }
+
+@media (max-width: 560px) {
+  .month-row { grid-template-columns: minmax(84px, auto) 1fr; }
+  .month-nums { grid-column: 1 / -1; justify-content: flex-end; }
+}
+
 /* File input styled like the other fields */
 .field input[type="file"] {
   padding: 10px 14px;
