@@ -1129,3 +1129,116 @@ details.adder .adder-body { padding: 18px; }
 @media (prefers-reduced-motion: no-preference) {
   body[class*="dragging-"] .cal-cell { transition: background-color 120ms; }
 }
+
+/* ============================================================
+   MOTION POLISH — client view entrances (feat/polish)
+   Driven by portal.js: it adds .will-anim to each .panel right
+   before observing it, then an IntersectionObserver adds
+   .anim-ready when the panel scrolls into view (threshold .35,
+   once per element). Stagger indices arrive as custom properties:
+   --p per panel (inline, 60ms steps) and --i per stepper li
+   (inline, 70ms steps).
+
+   Two hard guarantees, by construction:
+   1. No JS / no IntersectionObserver -> .will-anim never exists,
+      so nothing in this section matches and the page renders in
+      its normal, fully visible final state.
+   2. Reduced motion -> everything sits inside
+      @media (prefers-reduced-motion: no-preference), so hidden
+      initial states and animations don't exist at all: content is
+      fully visible with zero animation. (portal.js also skips
+      arming when the user prefers reduced motion, and the global
+      block in styles.css zeroes any stray durations.)
+   ============================================================ */
+
+/* Halo colour for the animated current-step ring — same value the static
+   .stepper li.current .step-dot box-shadow uses, tokenised for both themes. */
+:root { --halo: rgba(255, 59, 48, 0.18); }
+html.theme-light { --halo: rgba(255, 59, 48, 0.18); }
+
+@media (prefers-reduced-motion: no-preference) {
+
+  /* ----- Panel entrance: fade + 14px rise, 60ms stagger via --p ----- */
+
+  .will-anim:not(.anim-ready) { opacity: 0; transform: translateY(14px); }
+
+  .will-anim.anim-ready {
+    animation: jm-panel-rise 460ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: calc(var(--p, 0) * 60ms);
+  }
+
+  @keyframes jm-panel-rise {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ----- "What's new" feed: tiny slide-in stagger, 40ms apart.
+     CSS-only — keyed off .anim-ready on the containing panel and
+     offset past the panel's own entrance (--p inherits to the li). ----- */
+
+  .will-anim:not(.anim-ready) .feed li { opacity: 0; transform: translateX(-6px); }
+
+  .will-anim.anim-ready .feed li {
+    animation: jm-feed-in 280ms ease-out both;
+    animation-delay: calc(var(--p, 0) * 60ms + 120ms);
+  }
+  .will-anim.anim-ready .feed li:nth-child(2)     { animation-delay: calc(var(--p, 0) * 60ms + 160ms); }
+  .will-anim.anim-ready .feed li:nth-child(3)     { animation-delay: calc(var(--p, 0) * 60ms + 200ms); }
+  .will-anim.anim-ready .feed li:nth-child(4)     { animation-delay: calc(var(--p, 0) * 60ms + 240ms); }
+  .will-anim.anim-ready .feed li:nth-child(n + 5) { animation-delay: calc(var(--p, 0) * 60ms + 280ms); }
+
+  @keyframes jm-feed-in {
+    from { opacity: 0; transform: translateX(-6px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  /* ----- Stepper draw-in (project cards) -----
+     Connectors are the li ::before, so the sweep is keyed off the li's
+     class and --i rather than the pseudo-element itself. Only the accent
+     connectors (done/current) animate; the grey track stays put. */
+
+  /* initial hidden states — only while armed and not yet in view */
+  .will-anim:not(.anim-ready) .stepper li.done .step-dot,
+  .will-anim:not(.anim-ready) .stepper li.current .step-dot { transform: scale(0); }
+  .will-anim:not(.anim-ready) .stepper li.done:not(:first-child)::before,
+  .will-anim:not(.anim-ready) .stepper li.current:not(:first-child)::before { transform: scaleX(0); }
+
+  /* connector sweep: left -> right, one beat ahead of its dot */
+  .will-anim.anim-ready .stepper li.done:not(:first-child)::before,
+  .will-anim.anim-ready .stepper li.current:not(:first-child)::before {
+    transform-origin: 0 50%;
+    animation: jm-sweep 140ms ease-out both;
+    animation-delay: calc((var(--i, 1) - 1) * 70ms);
+  }
+
+  /* done dots + ticks pop in sequence, 70ms apart */
+  .will-anim.anim-ready .stepper li.done .step-dot {
+    animation: jm-pop 300ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    animation-delay: calc(var(--i, 0) * 70ms);
+  }
+
+  /* current dot pops in turn, then its halo (the existing box-shadow)
+     fades in last, once the sequence has finished */
+  .will-anim.anim-ready .stepper li.current .step-dot {
+    animation: jm-pop 300ms cubic-bezier(0.34, 1.56, 0.64, 1) both,
+               jm-halo-in 260ms ease-out both;
+    animation-delay: calc(var(--i, 0) * 70ms),
+                     calc(var(--i, 0) * 70ms + 350ms);
+  }
+
+  @keyframes jm-sweep {
+    from { transform: scaleX(0); }
+    to   { transform: scaleX(1); }
+  }
+
+  @keyframes jm-pop {
+    0%   { transform: scale(0); }
+    70%  { transform: scale(1.15); }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes jm-halo-in {
+    from { box-shadow: 0 0 0 0 var(--halo); }
+    to   { box-shadow: 0 0 0 4px var(--halo); }
+  }
+}
