@@ -301,7 +301,7 @@
     //      details (account name, sort code, account number) before
     //      sending invoices to clients. -->
     doc.push("0.55 0.55 0.55 rg BT /F1 8 Tf " + M + " 56 Td (" +
-      escText("Jolero Media - Worthing, West Sussex - info@joleromedia.com") + ") Tj ET");
+      escText("Jolero Media - West Sussex - info@joleromedia.com") + ") Tj ET");
     doc.push("0.55 0.55 0.55 rg BT /F1 8 Tf " + M + " 44 Td (Payment details on request.) Tj ET");
 
     return serialize(doc.pages);
