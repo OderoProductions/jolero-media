@@ -175,18 +175,22 @@ h3 { font-size: clamp(1.35rem, 2.6vw, 1.7rem); }
   letter-spacing: 0.04em;
   text-decoration: none;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.46em;
 }
 
-/* LOGO SWAP: drop an <img> inside .wordmark and it sizes itself — height
-   scales with each wordmark's font-size, so nav/footer/portal stay in
-   proportion automatically. Nothing else needs changing. */
-.wordmark img {
-  display: block;
-  height: 1.6em;
+/* Lockup: the J•D mark carries the red dot, so the name beside it doesn't
+   repeat the device — one dot shared between mark and wordmark. */
+.wordmark .logo-mark {
+  height: 1.62em;
   width: auto;
+  flex: none;
 }
+.wordmark-text { line-height: 1; }
 
-/* The dot in JOLERO●MEDIA — raised to sit mid-height between the letters */
+
+/* Text-only wordmark fallback (unused while the logo lockup is in place) */
 .wordmark-dot {
   display: inline-block;
   width: 0.28em;

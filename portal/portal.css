@@ -55,6 +55,12 @@ html.theme-light .field select {
 }
 html.theme-light .bell-panel { box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18); }
 
+/* Logo lockup: the cream mark is default; light mode swaps to the ink mark.
+   Both files ship so the swap needs no JS and no flash. */
+.wordmark .logo-mark-dark { display: none; }
+html.theme-light .wordmark .logo-mark { display: none; }
+html.theme-light .wordmark .logo-mark-dark { display: inline-block; }
+
 /* ---------- Theme toggle button ---------- */
 
 .theme-toggle {
