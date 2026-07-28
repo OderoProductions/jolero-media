@@ -822,12 +822,19 @@ html.theme-light .nav:not(.is-scrolled):not(.is-menu-open) .logo-mark-dark { dis
 }
 
 .founder img {
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 2 / 3;
   width: 100%;
   object-fit: cover;
   border-radius: var(--radius);
   background: var(--ink-2);
 }
+/* Drop the second portrait so the pair reads as a contact sheet rather than
+   a pair of passport photos — and so the column carries more of the copy's
+   height beside it. Desktop only: side by side on mobile they'd just misalign. */
+@media (min-width: 900px) {
+  .founders .founder:nth-child(2) { margin-top: clamp(32px, 7vw, 88px); }
+}
+
 .founder figcaption {
   margin-top: 12px;
   display: grid;
