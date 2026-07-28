@@ -620,33 +620,7 @@
     },
     fmtMoney: function (n) {
       return "£" + Number(n).toLocaleString("en-GB");
-    },
-
-    /* Light/dark toggle. The <head> of each portal page applies the saved
-       class before first paint (no flash); this wires the header button. */
-    initTheme: function () {
-      var btn = document.getElementById("theme-toggle");
-      if (!btn) return;
-      var root = document.documentElement;
-      function label() {
-        btn.setAttribute("aria-label",
-          root.classList.contains("theme-light") ? "Switch to dark mode" : "Switch to light mode");
-      }
-      btn.addEventListener("click", function () {
-        root.classList.toggle("theme-light");
-        try {
-          localStorage.setItem("jolero_theme",
-            root.classList.contains("theme-light") ? "light" : "dark");
-        } catch (e) {}
-        label();
-      });
-      label();
     }
   };
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", window.PortalUtil.initTheme);
-  } else {
-    window.PortalUtil.initTheme();
-  }
 })();

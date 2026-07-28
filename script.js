@@ -47,6 +47,9 @@
   var menu = document.getElementById("mobile-menu");
 
   function setMenu(open) {
+    // The nav floats above the menu overlay, so tell CSS the hero photo is
+    // no longer behind it — otherwise the cream logo sits on a light sheet.
+    nav.classList.toggle("is-menu-open", open);
     toggle.setAttribute("aria-expanded", String(open));
     toggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
     menu.hidden = !open;

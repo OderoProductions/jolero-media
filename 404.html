@@ -13,8 +13,9 @@
        lives in a subfolder (like the GitHub Pages preview), the inline
        fallback below keeps it presentable even if the stylesheet 404s. -->
   <link rel="stylesheet" href="/styles.css">
+  <script>/* theme before first paint: saved choice, else OS, else dark */try{var s=localStorage.getItem("jolero_theme");if(s?s==="light":matchMedia("(prefers-color-scheme: light)").matches)document.documentElement.classList.add("theme-light")}catch(e){}</script>
   <style>
-    body { background: #0A0A0A; color: #fff; }
+    body { background: var(--ink); color: var(--paper); }
     .nf {
       min-height: 100svh;
       display: flex;
@@ -30,7 +31,7 @@
       font-size: 0.72rem;
       letter-spacing: 0.3em;
       text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.5);
+      color: var(--paper-40);
     }
     /* Slow signal blink — motion-gated here so it's off for reduced
        motion even if /styles.css (and its global kill switch) 404s. */
@@ -48,15 +49,15 @@
       text-transform: uppercase;
       line-height: 0.98;
     }
-    .nf h1 .dot { color: #FF3B30; }
-    .nf p { color: rgba(255, 255, 255, 0.64); max-width: 40ch; }
+    .nf h1 .dot { color: var(--accent); }
+    .nf p { color: var(--paper-60); max-width: 40ch; }
     .nf a.home {
       display: inline-flex;
       align-items: center;
       min-height: 48px;
       padding: 12px 28px;
-      background: #FF3B30;
-      color: #0A0A0A;
+      background: var(--accent);
+      color: var(--accent-ink);
       font-weight: 600;
       font-size: 0.92rem;
       letter-spacing: 0.04em;

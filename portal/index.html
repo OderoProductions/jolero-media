@@ -22,7 +22,7 @@
 
   <link rel="stylesheet" href="../styles.css">
   <link rel="stylesheet" href="portal.css">
-  <script>/* apply saved theme before first paint */try{if(localStorage.getItem('jolero_theme')==='light')document.documentElement.classList.add('theme-light')}catch(e){}</script>
+  <script>/* theme before first paint: saved choice, else OS, else dark */try{var s=localStorage.getItem("jolero_theme");if(s?s==="light":matchMedia("(prefers-color-scheme: light)").matches)document.documentElement.classList.add("theme-light")}catch(e){}</script>
 </head>
 <body>
 
@@ -179,6 +179,7 @@
     </div>
   </dialog>
 
+  <script src="../theme.js"></script>
   <script src="data.js"></script>
   <script src="store.js"></script>
   <script src="pdf.js"></script>

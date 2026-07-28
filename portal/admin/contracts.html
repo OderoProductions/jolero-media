@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../styles.css">
   <link rel="stylesheet" href="../portal.css">
-  <script>/* apply saved theme before first paint */try{if(localStorage.getItem('jolero_theme')==='light')document.documentElement.classList.add('theme-light')}catch(e){}</script>
+  <script>/* theme before first paint: saved choice, else OS, else dark */try{var s=localStorage.getItem("jolero_theme");if(s?s==="light":matchMedia("(prefers-color-scheme: light)").matches)document.documentElement.classList.add("theme-light")}catch(e){}</script>
 </head>
 <body>
 
@@ -86,6 +86,7 @@
 
   <footer class="portal-foot">Jolero Media · internal — Phase 1/4 preview running on mock data</footer>
 
+  <script src="../../theme.js"></script>
   <script src="../data.js"></script>
   <script src="../store.js"></script>
   <script src="../pdf.js"></script>
