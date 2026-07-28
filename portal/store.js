@@ -620,6 +620,13 @@
     },
     fmtMoney: function (n) {
       return "£" + Number(n).toLocaleString("en-GB");
+    },
+    safeUrl: function (url) {
+      /* esc() stops HTML injection but NOT javascript: hrefs — any
+         stored link goes through this before it becomes an <a href>.
+         Web URLs only; anything else renders as no-link. */
+      var s = String(url == null ? "" : url).trim();
+      return /^https?:\/\//i.test(s) ? s : "";
     }
   };
 

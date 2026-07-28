@@ -13,6 +13,7 @@
   "use strict";
 
   var esc = PortalUtil.esc;
+  var safeUrl = PortalUtil.safeUrl;
   var fmtDate = PortalUtil.fmtDate;
   var fmtMoney = PortalUtil.fmtMoney;
   var STATUSES = PortalStore.STATUSES;
@@ -579,8 +580,8 @@
         PortalStore.POST_STATUSES.map(function (s) {
           return "<option" + (s === po.status ? " selected" : "") + ">" + esc(s) + "</option>";
         }).join("") + "</select>";
-      var media = po.mediaLink
-        ? '<a class="btn btn-ghost btn-mini" href="' + esc(po.mediaLink) + '" target="_blank" rel="noopener">Open media</a>'
+      var media = safeUrl(po.mediaLink)
+        ? '<a class="btn btn-ghost btn-mini" href="' + esc(safeUrl(po.mediaLink)) + '" target="_blank" rel="noopener">Open media</a>'
         : '<span class="t-meta">no media yet</span>';
       return '<div class="post-row' + (po.status === "Posted" ? " is-done" : "") + '">' +
         '<span class="post-when">' + fmtDate(po.date) + (po.time ? " · " + esc(po.time) : "") + "</span>" +

@@ -8,6 +8,7 @@
   "use strict";
 
   var esc = PortalUtil.esc;
+  var safeUrl = PortalUtil.safeUrl;
   var fmtDate = PortalUtil.fmtDate;
   var fmtMoney = PortalUtil.fmtMoney;
   var STATUSES = PortalStore.STATUSES;
@@ -31,10 +32,10 @@
 
   function projectCard(p, bundle) {
     var cta = "";
-    if (p.status === "Delivered" && p.deliveryLink) {
-      cta = '<a class="btn btn-primary" href="' + esc(p.deliveryLink) + '" target="_blank" rel="noopener">Access your content</a>';
-    } else if (p.status === "Review" && p.reviewLink) {
-      cta = '<a class="btn btn-primary" href="' + esc(p.reviewLink) + '" target="_blank" rel="noopener">Review your edit</a>';
+    if (p.status === "Delivered" && safeUrl(p.deliveryLink)) {
+      cta = '<a class="btn btn-primary" href="' + esc(safeUrl(p.deliveryLink)) + '" target="_blank" rel="noopener">Access your content</a>';
+    } else if (p.status === "Review" && safeUrl(p.reviewLink)) {
+      cta = '<a class="btn btn-primary" href="' + esc(safeUrl(p.reviewLink)) + '" target="_blank" rel="noopener">Review your edit</a>';
     }
 
     // Phase 4: pre-shoot brief prompt

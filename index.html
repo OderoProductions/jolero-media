@@ -3,6 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Security policy. GitHub Pages cannot send real HTTP headers, so this
+       meta tag is the enforcement point. Scripts are allowed by SHA-256 hash:
+       if you EDIT ANY INLINE <script> on this page you must recompute its
+       hash (shasum -a 256 of the exact script contents, base64) or the
+       script silently stops running. External scripts: same-origin only. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9hUOTyB0SoibSiWOZkJw2eqQFml00iDkRip2DzmnPus=' 'sha256-JssKZq7Zz1tMpFd4T9itCjnPwy3MNAE7DIQFnyVS3Ec='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://formspree.io; form-action 'self' https://formspree.io; object-src 'none'; base-uri 'self'; upgrade-insecure-requests">
 
   <!-- ============================================================
        JOLERO MEDIA — joleromedia.com
