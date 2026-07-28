@@ -1123,3 +1123,58 @@ html.theme-light .theme-btn .icon-sun { display: none; }
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
+
+/* ---------- Print ----------
+   Browsers strip background colours when printing, so dark mode would
+   put near-white text on white paper. Force the light palette on paper
+   and drop the screen chrome. Selector doubles with .theme-light so it
+   outranks the light block by document order in both themes. */
+@media print {
+  :root,
+  html.theme-light {
+    color-scheme: light;
+    --accent: #D62A20;
+    --accent-ink: #FFFFFF;
+    --ink: #FFFFFF;
+    --ink-2: #FFFFFF;
+    --ink-3: #FFFFFF;
+    --paper: #111114;
+    --paper-60: rgba(17, 17, 20, 0.68);
+    --paper-40: rgba(17, 17, 20, 0.52);
+    --line: rgba(17, 17, 20, 0.20);
+    --glass: #FFFFFF;
+    --glass-solid: #FFFFFF;
+    --soft: transparent;
+    --soft-strong: rgba(17, 17, 20, 0.10);
+    --hover-line: rgba(17, 17, 20, 0.35);
+    --line-strong: rgba(17, 17, 20, 0.25);
+    --ghost-border: rgba(17, 17, 20, 0.40);
+    --bar-neutral: rgba(17, 17, 20, 0.55);
+    --dim: rgba(17, 17, 20, 0.30);
+    --ink-off: #FFFFFF;
+    --halo: transparent;
+    --section-tint: transparent;
+    --frame-line: rgba(17, 17, 20, 0.30);
+  }
+
+  /* Photo zones lose their photo in print, so they lose their
+     light-on-dark treatment with it */
+  .hero,
+  .nav:not(.is-scrolled):not(.is-menu-open) {
+    color: var(--paper);
+    --paper: #111114;
+    --paper-60: rgba(17, 17, 20, 0.68);
+    --paper-40: rgba(17, 17, 20, 0.52);
+    --line: rgba(17, 17, 20, 0.20);
+    --ghost-border: rgba(17, 17, 20, 0.40);
+    --soft: transparent;
+    --hover-line: rgba(17, 17, 20, 0.35);
+  }
+
+  .wordmark .logo-mark { display: none !important; }
+  .wordmark .logo-mark-dark { display: inline-block !important; }
+
+  .theme-btn,
+  .nav-toggle,
+  .mobile-menu { display: none !important; }
+}

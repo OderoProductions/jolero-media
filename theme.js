@@ -3,7 +3,8 @@
 
    Wires the light/dark toggles. Applying the theme already happened
    in the inline <head> bootstrap (before first paint, so no flash);
-   this handles clicks and live OS changes.
+   this handles clicks, live OS changes, other open tabs, and the
+   browser-chrome colour on phones.
 
    Precedence:
      1. an explicit choice the visitor made  (localStorage jolero_theme)
@@ -27,6 +28,18 @@
 
   function isLight() { return root.classList.contains("theme-light"); }
 
+  /* Address-bar / status-bar colour on phones. The HTML ships a
+     media-attribute pair for the no-JS case; once we know the real
+     resolved theme we pin both tags to it. */
+  function syncMeta() {
+    var col = isLight() ? "#F5F5F3" : "#0A0A0A";
+    var metas = document.querySelectorAll('meta[name="theme-color"]');
+    for (var i = 0; i < metas.length; i++) {
+      metas[i].setAttribute("content", col);
+      metas[i].removeAttribute("media");
+    }
+  }
+
   function relabel() {
     var btns = document.querySelectorAll(SELECTOR);
     for (var i = 0; i < btns.length; i++) {
@@ -38,6 +51,7 @@
   function apply(light) {
     root.classList.toggle("theme-light", light);
     relabel();
+    syncMeta();
   }
 
   document.addEventListener("click", function (e) {
@@ -51,14 +65,25 @@
   // Follow the OS live, but only while the visitor hasn't chosen for themselves
   try {
     var mq = window.matchMedia("(prefers-color-scheme: light)");
-    var onChange = function (e) {
+    var onOs = function (e) {
       var saved = null;
       try { saved = localStorage.getItem(KEY); } catch (err) {}
       if (!saved) apply(e.matches);
     };
-    if (mq.addEventListener) mq.addEventListener("change", onChange);
-    else if (mq.addListener) mq.addListener(onChange);
+    if (mq.addEventListener) mq.addEventListener("change", onOs);
+    else if (mq.addListener) mq.addListener(onOs);
+  } catch (e) {}
+
+  // A toggle in one tab updates every other open tab; storage events
+  // only fire in the tabs that didn't make the change.
+  try {
+    window.addEventListener("storage", function (e) {
+      if (e.key !== KEY) return;
+      if (e.newValue) apply(e.newValue === "light");
+      else apply(window.matchMedia("(prefers-color-scheme: light)").matches);
+    });
   } catch (e) {}
 
   relabel();
+  syncMeta();
 })();
