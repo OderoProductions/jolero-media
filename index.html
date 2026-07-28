@@ -33,12 +33,10 @@
   <meta name="twitter:card" content="summary_large_image">
 
   <!-- Favicon (placeholder — replace assets/favicon.svg with final mark; optionally add favicon.ico + apple-touch-icon.png) -->
+    <link rel="preload" href="assets/fonts/inter-var-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/anton-400-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 
-  <!-- Fonts: Anton (display) + Inter (body) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="styles.css">
   <script>/* theme before first paint: saved choice, else OS, else dark */try{var s=localStorage.getItem("jolero_theme");if(s?s==="light":matchMedia("(prefers-color-scheme: light)").matches)document.documentElement.classList.add("theme-light")}catch(e){}</script>
@@ -592,6 +590,7 @@
       </div>
       <p class="footer-loc">Sports media agency · West Sussex</p>
       <div class="footer-right">
+        <a class="footer-portal" href="privacy.html">Privacy</a>
         <a class="footer-portal" href="portal/">Client Portal</a>
         <a class="footer-ig" href="https://www.instagram.com/joleromedia/" target="_blank" rel="noopener" aria-label="Jolero Media on Instagram">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none"/></svg>

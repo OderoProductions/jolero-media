@@ -1,3 +1,51 @@
+/* ---------- Fonts (self-hosted) ----------
+   Served from our own domain rather than Google's, so no visitor IP is
+   handed to a third party just to render type — and one less DNS lookup
+   and TLS handshake before first paint.
+
+   Inter is the VARIABLE font: one 47 KB file covers every weight we use
+   (400-700), against 189 KB for the four static cuts it replaces.
+   unicode-range means latin-ext only downloads if a page actually uses
+   those characters, which for an English site is essentially never.
+
+   Both faces are SIL Open Font License 1.1 — see assets/fonts/OFL.txt. */
+
+@font-face {
+  font-family: 'Anton';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('assets/fonts/anton-400-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Anton';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('assets/fonts/anton-400-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('assets/fonts/inter-var-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('assets/fonts/inter-var-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
 /* ============================================================
    JOLERO MEDIA — styles.css
    ACCENT COLOUR: change --accent below and the whole site follows.
@@ -1185,3 +1233,57 @@ html.theme-light .theme-btn .icon-sun { display: none; }
   .nav-toggle,
   .mobile-menu { display: none !important; }
 }
+
+/* ---------- Legal pages (privacy) ----------
+   Long-form prose, so it gets a measure and a rhythm the marketing
+   sections don't need. The header is .is-scrolled from the start —
+   there's no hero photo behind it here. */
+.legal-nav { position: sticky; }
+
+/* the sticky header is in flow here, so no nav-h compensation needed */
+.legal { padding-top: clamp(48px, 8vw, 96px); padding-bottom: var(--section-y); }
+.legal-inner { max-width: 720px; }
+
+.legal h1 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2.1rem, 6vw, 3.4rem);
+  line-height: 1.02;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  margin-top: 10px;
+}
+.legal-lede {
+  margin-top: 22px;
+  font-size: clamp(1.05rem, 1.8vw, 1.22rem);
+  line-height: 1.6;
+  color: var(--paper);
+}
+.legal-updated {
+  margin-top: 14px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--paper-40);
+}
+
+.legal h2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(1.15rem, 2.4vw, 1.5rem);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  margin-top: clamp(40px, 6vw, 60px);
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+}
+.legal p, .legal li { margin-top: 14px; color: var(--paper-60); line-height: 1.7; }
+.legal strong { color: var(--paper); font-weight: 600; }
+.legal ul { margin-top: 6px; padding-left: 20px; }
+.legal li { margin-top: 8px; }
+.legal li::marker { color: var(--accent); }
+.legal a { color: var(--paper); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--accent); }
+.legal a:hover { color: var(--accent); }
+.legal-back { margin-top: clamp(44px, 7vw, 64px); }
+.legal-back a { text-decoration: none; }
