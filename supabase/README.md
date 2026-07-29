@@ -1,5 +1,25 @@
 # Turning on portal logins
 
+## STATUS: steps 1–5 are DONE (29 July 2026)
+
+The project exists and is wired up. Verified from outside:
+
+- Project **Jolero Media Website**, org **Jolero Media**, owned by
+  info@joleromedia.com, AWS eu-west-1 (Ireland).
+- Schema run: 14 tables, RLS on all 14, 22 policies, 6 security-definer
+  functions, signup trigger live, **0 unprotected tables**.
+- Redirect URLs and Site URL set.
+- `portal/supabase-config.js` filled in with the Project URL and the
+  publishable key.
+- Anonymous callers holding the publishable key get HTTP 401 on every
+  table — confirming the key alone grants nothing.
+
+**What is left is section 6 and 7 below** — making yourselves admins,
+and inviting a client. Everything above them is history, kept so the
+setup can be repeated on a new project if it ever needs to be.
+
+---
+
 Roughly 15 minutes. Do steps 1–5, send Christopher's two values back, and
 the rest of the wiring gets finished on this end.
 
