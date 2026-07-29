@@ -49,7 +49,10 @@
           </div>
         </div>
         <a href="../">Client view</a>
-        <button class="link-quiet" id="reset-demo" type="button" style="font-size:0.8rem;">Reset demo</button>
+        <button class="link-quiet" id="export-data" type="button" style="font-size:0.8rem;">Back up</button>
+        <button class="link-quiet" id="import-data" type="button" style="font-size:0.8rem;">Restore</button>
+        <input type="file" id="import-file" accept="application/json,.json" hidden>
+        <button class="link-quiet" id="reset-all" type="button" style="font-size:0.8rem;">Erase all</button>
       </div>
     </div>
   </header>
@@ -74,6 +77,14 @@
           <button class="btn btn-primary" type="button" id="add-event-btn">Add event</button>
           <button class="btn btn-ghost" type="button" id="export-ics">Export .ics</button>
         </div>
+      </div>
+
+      <!-- Which Google account the calendar links open in. Without this,
+           Google picks whichever account the browser signed into first. -->
+      <div class="cal-gsettings">
+        <label for="gcal-account">Add to Google Calendar opens in</label>
+        <input type="email" id="gcal-account" placeholder="you@yourdomain.com" autocomplete="off" spellcheck="false">
+        <span class="gcal-saved" id="gcal-saved" hidden>Saved</span>
       </div>
 
       <div class="cal-scroll">

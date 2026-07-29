@@ -342,13 +342,39 @@
   async function init() {
     var clients = await PortalStore.getClients();
     var select = document.getElementById("client-switch");
+    var shell = document.querySelector(".portal-shell");
+
+    // No clients yet: say so plainly instead of throwing on clients[0].
+    if (!clients.length) {
+      var sw = document.querySelector(".switcher");
+      if (sw) sw.hidden = true;
+      if (shell) {
+        shell.innerHTML =
+          '<div class="panel empty-shell">' +
+          "<h1 class=\"portal-h1\">Nothing to show yet</h1>" +
+          '<p class="portal-sub">This is what a client sees before any work is added. ' +
+          "Add a client in the admin area and their projects, contracts and invoices " +
+          "will appear here.</p>" +
+          '<p><a class="btn btn-primary" href="admin/clients.html">Add your first client</a></p>' +
+          "</div>";
+      }
+      return;
+    }
+
     select.innerHTML = clients.map(function (c) {
       return '<option value="' + esc(c.id) + '">' + esc(c.name) + "</option>";
     }).join("");
 
+    // ?client=<id> wins (that's the admin's "See their view" link), then the
+    // last preview this tab looked at, then the first client on the books.
+    var asked = null;
+    try { asked = new URLSearchParams(location.search).get("client"); } catch (e) {}
     var saved = null;
     try { saved = sessionStorage.getItem(VIEW_KEY); } catch (e) {}
-    var current = clients.some(function (c) { return c.id === saved; }) ? saved : clients[0].id;
+
+    var current = clients.some(function (c) { return c.id === asked; }) ? asked
+      : clients.some(function (c) { return c.id === saved; }) ? saved
+      : clients[0].id;
     select.value = current;
 
     select.addEventListener("change", function () { show(select.value); });

@@ -71,6 +71,11 @@
   }
 
   // Single event → Google's prefilled "create event" screen.
+  /* The account these links open in. Google otherwise uses whichever
+     account the browser signed into first, which for anyone with a
+     personal Gmail is usually the wrong one. Kept in sync by initGcalAccount. */
+  var gcalAccount = "";
+
   function gcalUrl(ev) {
     var r = rangeFor(ev);
     var params = new URLSearchParams({
@@ -79,7 +84,32 @@
       dates: r.start + "/" + r.end,
       details: (ev.sub ? ev.sub + "\n" : "") + "Added from the Jolero Media portal."
     });
+    // authuser takes an address and picks that account (or prompts to add it)
+    if (gcalAccount) params.set("authuser", gcalAccount);
     return "https://calendar.google.com/calendar/render?" + params.toString();
+  }
+
+  async function initGcalAccount() {
+    var input = document.getElementById("gcal-account");
+    var saved = document.getElementById("gcal-saved");
+    var settings = await PortalStore.getSettings();
+    gcalAccount = settings.googleAccount || "";
+    if (!input) return;
+    input.value = gcalAccount;
+
+    var timer = null;
+    input.addEventListener("input", function () {
+      clearTimeout(timer);
+      timer = setTimeout(async function () {
+        gcalAccount = input.value.trim();
+        await PortalStore.updateSettings({ googleAccount: gcalAccount });
+        if (saved) {
+          saved.hidden = false;
+          setTimeout(function () { saved.hidden = true; }, 1600);
+        }
+        if (window.ScheduleRefresh) window.ScheduleRefresh();
+      }, 500);
+    });
   }
 
   function icsEscape(s) {
@@ -490,6 +520,7 @@
         return '<option value="' + esc(c.id) + '">' + esc(c.name) + "</option>";
       }).join("");
 
+    await initGcalAccount();      // before first render: links need the account
     selected = todayISO;
     await refresh();
   })();

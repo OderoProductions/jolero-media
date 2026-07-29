@@ -1195,3 +1195,34 @@ html.theme-light { --halo: rgba(214, 42, 32, 0.18); }   /* tracks the light acce
     to   { box-shadow: 0 0 0 4px var(--halo); }
   }
 }
+
+/* ---------- Google-account control on the schedule ---------- */
+.cal-gsettings {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 0 0 18px;
+  font-size: 0.85rem;
+  color: var(--paper-60);
+}
+.cal-gsettings label { white-space: nowrap; }
+.cal-gsettings input {
+  flex: 1 1 260px;
+  max-width: 340px;
+  padding: 8px 12px;
+  background: var(--ink-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--paper);
+  font: inherit;
+}
+.cal-gsettings input:focus-visible { border-color: var(--accent); }
+.gcal-saved { color: var(--accent); font-weight: 600; }
+
+/* "See their view" sits on the client card head */
+.client-block-head .view-as { margin-left: auto; }
+
+/* Client portal with nothing in it yet */
+.empty-shell { padding: clamp(28px, 6vw, 56px); text-align: center; }
+.empty-shell .portal-sub { max-width: 46ch; margin: 12px auto 22px; }

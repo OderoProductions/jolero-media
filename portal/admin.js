@@ -193,7 +193,9 @@
       }).join("");
 
       return '<article class="panel client-block">' +
-        '<div class="client-block-head"><h3>' + esc(c.name) + '</h3><span class="project-type">' + esc(c.kind) + "</span></div>" +
+        '<div class="client-block-head"><h3>' + esc(c.name) + '</h3><span class="project-type">' + esc(c.kind) + "</span>" +
+        '<a class="btn btn-ghost btn-mini view-as" href="../index.html?client=' + encodeURIComponent(c.id) +
+        '">See their view</a></div>' +
         '<p class="client-contact">' + esc(c.contactName) + (c.email ? " · " + esc(c.email) : "") + (c.phone ? " · " + esc(c.phone) : "") + "</p>" +
         '<div class="client-lines">' + plines + "</div>" +
         '<div class="client-lines">' + ilines + "</div>" +
@@ -1173,11 +1175,52 @@
     });
   }
 
-  on("reset-demo", "click", async function () {
-    if (confirm("Reset the demo? This wipes your local edits and restores the sample data.")) {
-      await PortalStore.resetDemo();
+  /* Backup lives here because everything is in this browser's storage until
+     Phase 2 — clearing site data or switching browser loses the lot. */
+  on("export-data", "click", async function () {
+    var json = await PortalStore.exportAll();
+    var blob = new Blob([json], { type: "application/json" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    var d = new Date();
+    var stamp = d.getFullYear() + "-" +
+      String(d.getMonth() + 1).padStart(2, "0") + "-" +
+      String(d.getDate()).padStart(2, "0");
+    a.href = url;
+    a.download = "jolero-portal-backup-" + stamp + ".json";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  });
+
+  on("import-data", "click", function () {
+    var input = el("import-file");
+    if (input) input.click();
+  });
+
+  on("import-file", "change", async function (e) {
+    var file = e.target.files && e.target.files[0];
+    if (!file) return;
+    e.target.value = "";                       // let the same file be picked twice
+    if (!confirm("Restore from " + file.name + "?\n\nThis REPLACES everything currently in the portal.")) return;
+    try {
+      await PortalStore.importAll(await file.text());
+      alert("Restored. Reloading.");
       location.reload();
+    } catch (err) {
+      alert("Couldn't restore that file.\n\n" + err.message);
     }
+  });
+
+  on("reset-all", "click", async function () {
+    var typed = prompt(
+      "This deletes EVERYTHING in the portal — clients, projects, invoices, " +
+      "accounting, calendar and content.\n\nExport a backup first if you want one.\n\n" +
+      "Type ERASE to confirm:");
+    if (typed !== "ERASE") return;
+    await PortalStore.resetAll();
+    location.reload();
   });
 
   /* ================= INIT ================= */

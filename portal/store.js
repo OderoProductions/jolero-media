@@ -591,7 +591,40 @@
     },
 
     // Wipe local edits and go back to the seed data
-    resetDemo: async function () {
+    /* ---------- settings ---------- */
+
+    getSettings: async function () {
+      var d = load();
+      return Object.assign({ googleAccount: "" }, d.settings || {});
+    },
+
+    updateSettings: async function (patch) {
+      var d = load();
+      d.settings = Object.assign({}, d.settings || {}, patch);
+      save(d);
+      return d.settings;
+    },
+
+    /* ---------- backup ----------
+       Everything lives in this browser's localStorage, so a cleared
+       browser or a new device means the portal starts empty. These two
+       are the safety net until Phase 2 puts it on a real server. */
+
+    exportAll: async function () {
+      return JSON.stringify(load(), null, 2);
+    },
+
+    importAll: async function (json) {
+      var incoming = JSON.parse(json);              // throws on malformed input
+      if (!incoming || typeof incoming !== "object" || !Array.isArray(incoming.clients)) {
+        throw new Error("That doesn't look like a Jolero portal backup.");
+      }
+      incoming.version = seed.version;              // adopt the current shape
+      save(incoming);
+      return incoming;
+    },
+
+    resetAll: async function () {
       try { localStorage.removeItem(KEY); } catch (e) {}
       return load();
     }
