@@ -1,0 +1,6 @@
+# Never commit the Supabase service_role key or any local secret.
+# supabase-config.js holds only the PUBLIC anon key and is committed
+# deliberately — but keep any personal override out of the repo.
+portal/supabase-config.local.js
+.env
+.env.*

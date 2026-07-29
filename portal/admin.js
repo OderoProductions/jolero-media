@@ -1246,4 +1246,15 @@
 
     renderAll();
   })();
+
+  /* Sign out — auth.js reveals this button only when a session exists. */
+  (function () {
+    var btn = document.getElementById("sign-out");
+    if (!btn || !window.PortalAuth) return;
+    btn.addEventListener("click", async function () {
+      await PortalAuth.signOut();
+      location.replace(location.pathname.indexOf("/admin/") !== -1 ? "../login.html" : "login.html");
+    });
+  })();
+
 })();

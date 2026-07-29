@@ -1226,3 +1226,46 @@ html.theme-light { --halo: rgba(214, 42, 32, 0.18); }   /* tracks the light acce
 /* Client portal with nothing in it yet */
 .empty-shell { padding: clamp(28px, 6vw, 56px); text-align: center; }
 .empty-shell .portal-sub { max-width: 46ch; margin: 12px auto 22px; }
+
+/* ---------- Sign in ---------- */
+.login-shell { max-width: 520px; }
+.login-panel { padding: clamp(28px, 5vw, 44px); }
+.login-panel .portal-sub { margin-top: 10px; }
+.login-panel form { margin-top: 26px; display: grid; gap: 18px; }
+.login-panel .field { display: grid; gap: 8px; }
+.login-panel .field span {
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--paper-40);
+}
+.login-panel input {
+  padding: 13px 14px;
+  background: var(--ink-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--paper);
+  font: inherit;
+}
+.login-panel input:focus-visible { border-color: var(--accent); }
+.login-panel .btn { justify-self: start; }
+
+.login-msg {
+  margin-top: 22px;
+  padding: 14px 16px;
+  border-left: 2px solid var(--dim);
+  background: var(--soft);
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--paper-60);
+}
+.login-msg.is-ok    { border-left-color: #35C46A; color: var(--paper); }
+.login-msg.is-warn  { border-left-color: #E8B93B; }
+.login-msg.is-error { border-left-color: var(--accent); }
+
+.login-foot { margin-top: 26px; font-size: 0.86rem; color: var(--paper-40); }
+.login-foot a { color: var(--paper-60); }
+
+/* Sign out only appears once there's actually a session to end */
+#sign-out { display: none; }
+html.is-authed #sign-out { display: inline; }
