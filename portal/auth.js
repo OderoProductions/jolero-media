@@ -154,8 +154,12 @@
   async function signIn(email, redirectTo) {
     if (!configured()) throw new Error("Supabase isn't connected yet — fill in portal/supabase-config.js.");
     var target = redirectTo || (location.origin + location.pathname);
-    await authFetch("/otp", {
-      body: { email: String(email).trim(), create_user: true, options: { email_redirect_to: target } }
+    // redirect_to is a QUERY parameter on this endpoint. Nesting it in
+    // the body as options.email_redirect_to is the JS SDK's shape, not
+    // the REST API's — it gets ignored, and the emailed link silently
+    // falls back to the project's Site URL instead of coming back here.
+    await authFetch("/otp?redirect_to=" + encodeURIComponent(target), {
+      body: { email: String(email).trim(), create_user: true }
     });
     return true;
   }
