@@ -434,6 +434,31 @@ begin
 end;
 $$;
 
+-- =============================================================
+-- 6. SHARED SETTINGS
+--
+-- Business-wide preferences that both admins should see the same
+-- way, rather than each browser keeping its own. Admin-only: a
+-- client has no policy here, so it is invisible to them.
+-- =============================================================
+
+create table if not exists public.settings (
+  key        text primary key,
+  value      text not null default '',
+  updated_at timestamptz not null default now()
+);
+
+alter table public.settings enable row level security;
+
+drop policy if exists settings_admin_all on public.settings;
+create policy settings_admin_all on public.settings
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
+
+-- which Google account "Add to Google Calendar" links open in
+insert into public.settings (key, value)
+values ('google_account', 'info@joleromedia.com')
+on conflict (key) do nothing;
+
 -- Anonymous visitors get nothing anywhere. Everything above is
 -- granted to 'authenticated' only; this makes that explicit.
 revoke all on all tables in schema public from anon;

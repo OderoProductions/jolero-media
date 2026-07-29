@@ -222,6 +222,18 @@
     document.documentElement.classList.add("is-authed");
   }
 
+  /* If a page starts loading data before the guard has finished
+     redirecting, store.js throws "Not signed in." Rather than let that
+     surface as an unhandled rejection and a blank page, treat it as
+     what it is: go and sign in. */
+  window.addEventListener("unhandledrejection", function (e) {
+    var msg = e && e.reason && e.reason.message;
+    if (msg === "Not signed in." && pageRole()) {
+      e.preventDefault();
+      location.replace(loginUrl());
+    }
+  });
+
   window.PortalAuth = {
     configured: configured,
     signIn: signIn,

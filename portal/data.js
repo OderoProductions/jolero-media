@@ -1,25 +1,24 @@
 /* ============================================================
-   JOLERO MEDIA PORTAL — data.js (starting state)
+   JOLERO MEDIA PORTAL — data.js (configuration)
 
-   The lists below are the EMPTY starting state — real work gets
-   added through the portal itself, not by editing this file. What
-   stays here is configuration: the status pipeline, project and
-   task types, content platforms and the accounting categories.
-   Edit those lists to change the dropdowns across the portal.
+   The dropdown lists used across the portal. These are settings,
+   not records: changing a word here changes it everywhere, with no
+   database migration and no round trip.
 
-   Every page reads this through store.js, never directly, so
-   Phase 2 only has to replace store.js with real API calls.
+   The actual records — clients, projects, invoices, accounting,
+   calendar, contracts — live in Postgres and are reached through
+   store.js. Nothing in this file affects them, so editing it can
+   never lose data. (It used to. It doesn't now.)
 
-   IMPORTANT: bump `version` below after editing anything here.
-   Browsers hold their own copy in localStorage and only take a
-   fresh one when the version number changes — which also means
-   bumping it WIPES any data already entered in the portal.
+   Editing a list below only changes what future dropdowns offer;
+   records already saved with an old value keep it and still display
+   correctly.
    ============================================================ */
 
 window.JOLERO_SEED = {
-  // Bump this when you edit the seed — stale localStorage copies re-seed
-  version: 8,
 
+  // The project pipeline, in order. The client's progress stepper
+  // walks these left to right, so order is meaningful.
   statuses: ["Booked", "Shoot scheduled", "Shot", "In edit", "Review", "Delivered"],
 
   projectTypes: ["Matchday shoot", "Highlight reel", "Training content", "Event coverage"],
@@ -34,58 +33,12 @@ window.JOLERO_SEED = {
   postPlatforms: ["Instagram Reel", "Instagram Post", "Instagram Story", "TikTok", "YouTube", "Other"],
   postStatuses: ["Idea", "Drafted", "Ready", "Posted"],
 
-  // Ledger categories — expense list loosely follows the HMRC self-assessment
-  // buckets so year-end mapping is painless. Edit freely.
+  // Ledger categories — the expense list loosely follows the HMRC
+  // self-assessment headings, so the yearly total maps onto the form.
   txCategories: {
     income: ["Shoots & retainers", "Print & product sales", "Licensing", "Other income"],
-    expense: ["Equipment", "Equipment hire", "Software & subscriptions", "Travel & fuel", "Insurance", "Marketing", "Phone & internet", "Training", "Fees & admin", "Other expense"]
-  },
-  /* Portal settings. googleAccount pins "Add to Google Calendar" links to
-     a specific signed-in account — without it Google uses whichever account
-     the browser happens to be signed into first, which is rarely the
-     business one. Editable from the Schedule page. */
-  settings: {
-    googleAccount: "info@joleromedia.com"
-  },
-
-
-  clients: [],
-
-  projects: [],
-
-  invoices: [],
-
-  /* ---- Accounting: manual/imported income & expenses ----
-     Paid invoices join these automatically in the ledger — never enter
-     an invoice here too, or it will be counted twice. ---- */
-
-  transactions: [],
-
-  /* ---- Content planner: what we're posting and when ----
-     mediaLink points at the asset (Google Drive etc). Posts appear on
-     the calendar and in the Google Calendar / .ics exports. ---- */
-
-  posts: [],
-
-  /* ---- Schedule: standalone events (added straight from the calendar) ----
-     time/endTime are optional — leave blank for an all-day entry. */
-
-  events: [],
-
-  /* ---- Schedule: tasks (feed the calendar alongside shoots/deadlines) ---- */
-
-  tasks: [],
-
-  /* ---- Phase 4 collections ---- */
-
-  contracts: [],
-
-  briefs: [],
-
-  testimonials: [],
-
-  // Admin-side notifications (client actions land here)
-  notifications: [],
-
-  activity: []
+    expense: ["Equipment", "Equipment hire", "Software & subscriptions", "Travel & fuel",
+              "Insurance", "Marketing", "Phone & internet", "Training", "Fees & admin",
+              "Other expense"]
+  }
 };
