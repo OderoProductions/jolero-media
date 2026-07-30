@@ -1269,3 +1269,15 @@ html.theme-light { --halo: rgba(214, 42, 32, 0.18); }   /* tracks the light acce
 /* Sign out only appears once there's actually a session to end */
 #sign-out { display: none; }
 html.is-authed #sign-out { display: inline; }
+
+/* Admin way in — deliberately quiet, below the client form */
+.login-switch {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+.login-switch .link-quiet {
+  font-size: 0.82rem;
+  color: var(--paper-40);
+}
+.login-switch .link-quiet:hover { color: var(--paper); }

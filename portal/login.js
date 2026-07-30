@@ -14,6 +14,52 @@
   var submit = document.getElementById("login-submit");
   var msg = document.getElementById("login-msg");
   var intro = document.getElementById("login-intro");
+  var title = document.getElementById("login-title");
+  var label = document.getElementById("login-label");
+  var toAdmin = document.getElementById("to-admin");
+  var toClient = document.getElementById("to-client");
+
+  /* ---------- the two modes ----------
+     Cosmetic only. Nothing here grants anything: after the emailed link is
+     clicked, routeIn() reads the role from the database and sends the person
+     wherever they actually belong. Using the team form does not make you an
+     admin, and using the client form does not stop you being one. */
+
+  var COPY = {
+    client: {
+      title: "Client portal",
+      intro: "Enter the email address we set your account up with. We'll send you a " +
+             "link that signs you straight in — there's no password to remember.",
+      label: "Email address",
+      placeholder: "you@yourclub.com"
+    },
+    team: {
+      title: "Admin login",
+      intro: "Jolero Media team only. Same one-time link, no password.",
+      label: "Work email",
+      placeholder: "you@joleromedia.com"
+    }
+  };
+
+  function setMode(mode, pushUrl) {
+    var c = COPY[mode] || COPY.client;
+    title.textContent = c.title;
+    intro.textContent = c.intro;
+    label.textContent = c.label;
+    email.placeholder = c.placeholder;
+    toAdmin.hidden = mode === "team";
+    toClient.hidden = mode !== "team";
+    document.title = c.title + " — Jolero Media Portal";
+    if (pushUrl) {
+      // keep it bookmarkable without a reload
+      history.replaceState(null, "", mode === "team" ? "?admin=1" : location.pathname);
+    }
+  }
+
+  function currentMode() {
+    try { return new URLSearchParams(location.search).get("admin") ? "team" : "client"; }
+    catch (e) { return "client"; }
+  }
 
   function say(text, kind) {
     msg.textContent = text;
@@ -40,7 +86,12 @@
     return false;
   }
 
+  toAdmin.addEventListener("click", function () { setMode("team", true); email.focus(); });
+  toClient.addEventListener("click", function () { setMode("client", true); email.focus(); });
+
   (async function init() {
+    setMode(currentMode(), false);
+
     if (!PortalAuth.configured()) {
       form.hidden = true;
       intro.textContent = "";

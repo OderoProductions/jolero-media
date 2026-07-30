@@ -43,7 +43,15 @@
   <main class="portal-shell login-shell">
     <div class="panel login-panel">
 
-      <h1 class="portal-h1">Sign in</h1>
+      <!-- Two modes, one page. Clients get the front door; the team's way in
+           is a quiet link at the bottom (?admin=1). login.js swaps the wording.
+
+           The split is PRESENTATION ONLY. Which form someone uses does not
+           decide what they can see — the role comes from the database after
+           they sign in. An admin using the client form still lands in admin,
+           and a client using the team form still lands on their own page. -->
+
+      <h1 class="portal-h1" id="login-title">Client portal</h1>
       <p class="portal-sub" id="login-intro">
         Enter the email address we set your account up with. We'll send you a
         link that signs you straight in — there's no password to remember.
@@ -51,7 +59,7 @@
 
       <form id="login-form" novalidate>
         <label class="field" for="login-email">
-          <span>Email address</span>
+          <span id="login-label">Email address</span>
           <input type="email" id="login-email" name="email" required autocomplete="email"
                  inputmode="email" spellcheck="false" placeholder="you@yourclub.com">
         </label>
@@ -63,6 +71,11 @@
       <p class="login-foot">
         Trouble getting in? Email
         <a href="mailto:info@joleromedia.com">info@joleromedia.com</a> and we'll sort it.
+      </p>
+
+      <p class="login-switch">
+        <button type="button" class="link-quiet" id="to-admin">Admin login</button>
+        <button type="button" class="link-quiet" id="to-client" hidden>&larr; Client sign-in</button>
       </p>
 
     </div>
