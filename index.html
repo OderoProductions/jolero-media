@@ -151,22 +151,23 @@
     <!-- ================= HERO ================= -->
     <section class="hero" aria-label="Intro">
       <div class="hero-media" aria-hidden="true">
-        <!-- SWAP IMAGE: replace assets/hero-poster.svg with a real match-day frame
-             (JPG/WebP, ~1920×1080, dark or gradable — the overlay handles legibility). -->
-        <img src="assets/hero-poster.svg" alt="" fetchpriority="high">
+        <!-- Still frame from the loop. Shows instantly, covers the moment before
+             the video paints, and is what everyone sees if the video is skipped
+             (reduced motion, save-data, or a browser that blocks autoplay). -->
+        <img src="assets/hero-poster.jpg" alt="" fetchpriority="high" width="1280" height="720">
 
-        <!-- ============ HERO VIDEO (phase 2 — currently disabled) ============
-             When you have a hero reel, uncomment the <video> below and keep the
-             <img> above as the poster/fallback. Notes:
-             · Keep it short (10–20s loop), no audio track needed.
-             · Compress hard: H.264 MP4, 1080p, target under ~6–8 MB.
-             · muted + playsinline are REQUIRED for mobile autoplay.
-             · script.js already pauses it for users with reduced-motion set.
-        <video autoplay muted loop playsinline preload="metadata" poster="assets/hero-poster.svg">
-          <source src="assets/hero-loop.webm" type="video/webm">
+        <!-- ============ HERO VIDEO ============
+             MP4 only, deliberately: VP9/WebM came out LARGER than H.264 for this
+             footage even at aggressive settings, and browsers prefer WebM when
+             offered — so shipping one would have made it slower, not faster.
+             · 1280x720, ~1.9 MB, no audio or timecode track, faststart.
+             · muted + playsinline are REQUIRED for autoplay on mobile.
+             · script.js pauses it for anyone with reduced motion set.
+             · Tune how strongly it reads via --hero-video-opacity in styles.css. -->
+        <video class="hero-video" autoplay muted loop playsinline preload="metadata"
+               poster="assets/hero-poster.jpg">
           <source src="assets/hero-loop.mp4" type="video/mp4">
         </video>
-        ===================================================================== -->
 
         <div class="hero-scrim"></div>
       </div>

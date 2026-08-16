@@ -1287,3 +1287,22 @@ html.theme-light .theme-btn .icon-sun { display: none; }
 .legal a:hover { color: var(--accent); }
 .legal-back { margin-top: clamp(44px, 7vw, 64px); }
 .legal-back a { text-decoration: none; }
+
+/* ---------- Hero background video ----------
+   Sits between the poster still and the scrim. The opacity is a single
+   knob: lower = more subdued, higher = more of the footage. It blends
+   toward the page's own dark ground, so the headline keeps its contrast
+   no matter what the footage is doing underneath. */
+:root { --hero-video-opacity: 0.5; }
+
+.hero-video {
+  opacity: var(--hero-video-opacity);
+  /* the poster still underneath shows through while this loads */
+  background: transparent;
+}
+
+/* Reduced motion: script.js pauses it, and we drop it entirely so the
+   still frame is what remains rather than a frozen half-faded frame. */
+@media (prefers-reduced-motion: reduce) {
+  .hero-video { display: none; }
+}
