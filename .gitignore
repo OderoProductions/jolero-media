@@ -4,3 +4,6 @@
 portal/supabase-config.local.js
 .env
 .env.*
+
+# Client proposals: private documents, never published with the site
+proposals/
