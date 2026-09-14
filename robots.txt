@@ -1,4 +1,5 @@
 User-agent: *
+Disallow: /proposals/
 Disallow: /portal/
 Allow: /
 
