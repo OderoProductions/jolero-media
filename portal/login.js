@@ -18,6 +18,15 @@
   var label = document.getElementById("login-label");
   var toAdmin = document.getElementById("to-admin");
   var toClient = document.getElementById("to-client");
+  var pwField = document.getElementById("password-field");
+  var pw = document.getElementById("login-password");
+  var alt = document.getElementById("login-alt");
+  var useLink = document.getElementById("use-link");
+
+  /* Admins sign in with a password by default; the one-time link stays as a
+     fallback. Clients only ever get the link — no password to forget, no
+     password to leak, and nothing for us to reset at 9pm on a Saturday. */
+  var forceLink = false;
 
   /* ---------- the two modes ----------
      Cosmetic only. Nothing here grants anything: after the emailed link is
@@ -35,7 +44,7 @@
     },
     team: {
       title: "Admin login",
-      intro: "Jolero Media team only. Same one-time link, no password.",
+      intro: "Jolero Media team only.",
       label: "Work email",
       placeholder: "you@joleromedia.com"
     }
@@ -50,6 +59,13 @@
     toAdmin.hidden = mode === "team";
     toClient.hidden = mode !== "team";
     document.title = c.title + " — Jolero Media Portal";
+
+    var usePassword = mode === "team" && !forceLink;
+    pwField.hidden = !usePassword;
+    pw.required = usePassword;
+    if (!usePassword) pw.value = "";
+    alt.hidden = !usePassword;
+    submit.textContent = usePassword ? "Sign in" : "Email me a link";
     if (pushUrl) {
       // keep it bookmarkable without a reload
       history.replaceState(null, "", mode === "team" ? "?admin=1" : location.pathname);
@@ -86,8 +102,15 @@
     return false;
   }
 
-  toAdmin.addEventListener("click", function () { setMode("team", true); email.focus(); });
-  toClient.addEventListener("click", function () { setMode("client", true); email.focus(); });
+  useLink.addEventListener("click", function () {
+    forceLink = true;
+    setMode("team", false);
+    say("No problem — we'll email you a one-time link instead.", "ok");
+    email.focus();
+  });
+
+  toAdmin.addEventListener("click", function () { forceLink = false; setMode("team", true); email.focus(); });
+  toClient.addEventListener("click", function () { forceLink = false; setMode("client", true); email.focus(); });
 
   (async function init() {
     setMode(currentMode(), false);
@@ -129,20 +152,45 @@
       return;
     }
 
+    var usingPassword = !pwField.hidden;
+    if (usingPassword && !pw.value) {
+      say("Enter your password, or use the one-time link below.", "error");
+      pw.focus();
+      return;
+    }
+
     submit.disabled = true;
     var original = submit.textContent;
-    submit.textContent = "Sending…";
+    submit.textContent = usingPassword ? "Signing in…" : "Sending…";
 
     try {
+      if (usingPassword) {
+        await PortalAuth.signInWithPassword(address, pw.value);
+        pw.value = "";                       // don't leave it sitting in the DOM
+        say("Signed in. Taking you through…", "ok");
+        await routeIn();
+        return;
+      }
       await PortalAuth.signIn(address, location.origin + location.pathname);
       form.hidden = true;
+      alt.hidden = true;
       intro.textContent = "";
       say("Check your inbox — we've sent a sign-in link to " + address +
           ". It's good for one use and expires within the hour.", "ok");
     } catch (err) {
-      say(err.message || "Couldn't send that link. Try again in a moment.", "error");
+      // Supabase returns the same message for a wrong password and an unknown
+      // account, which is deliberate — don't dress it up into something that
+      // would confirm whether an address exists.
+      var m = err.message || "";
+      say(usingPassword
+            ? (/invalid/i.test(m)
+                ? "That email and password don't match. Try again, or use the one-time link below."
+                : m || "Couldn't sign you in. Try again in a moment.")
+            : (m || "Couldn't send that link. Try again in a moment."),
+          "error");
       submit.disabled = false;
       submit.textContent = original;
+      if (usingPassword) { pw.value = ""; pw.focus(); }
     }
   });
 })();

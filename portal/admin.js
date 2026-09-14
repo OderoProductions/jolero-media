@@ -1257,4 +1257,53 @@
     });
   })();
 
+
+  /* ---------- Set your own admin password ----------
+     PortalAuth.setPassword acts on the signed-in session, so this can only
+     ever change your own. Nothing is stored or echoed here: the value goes
+     straight to Supabase and the fields are cleared either way. */
+  (function () {
+    var dlg = document.getElementById("pw-dialog");
+    var open = document.getElementById("set-password");
+    if (!dlg || !open || !window.PortalAuth) return;
+
+    var newPw = document.getElementById("pw-new");
+    var confirmPw = document.getElementById("pw-confirm");
+    var msg = document.getElementById("pw-msg");
+    var save = document.getElementById("pw-save");
+
+    function note(text, kind) {
+      msg.textContent = text;
+      msg.className = "login-msg" + (kind ? " is-" + kind : "");
+      msg.hidden = false;
+    }
+    function clear() {
+      newPw.value = ""; confirmPw.value = ""; msg.hidden = true;
+    }
+
+    open.addEventListener("click", function () { clear(); dlg.showModal(); newPw.focus(); });
+    document.getElementById("pw-cancel").addEventListener("click", function () { clear(); dlg.close(); });
+    dlg.addEventListener("close", clear);
+
+    save.addEventListener("click", async function () {
+      var a = newPw.value, b = confirmPw.value;
+      if (a.length < 12) { note("Use at least 12 characters.", "error"); newPw.focus(); return; }
+      if (a !== b) { note("Those two don't match.", "error"); confirmPw.focus(); return; }
+
+      save.disabled = true;
+      var label = save.textContent;
+      save.textContent = "Saving…";
+      try {
+        await PortalAuth.setPassword(a);
+        clear();
+        note("Password set. You can sign in with it from now on.", "ok");
+        setTimeout(function () { dlg.close(); }, 1400);
+      } catch (e) {
+        note(e.message || "Couldn't set that password.", "error");
+      }
+      save.disabled = false;
+      save.textContent = label;
+    });
+  })();
+
 })();

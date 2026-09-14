@@ -63,8 +63,23 @@
           <input type="email" id="login-email" name="email" required autocomplete="email"
                  inputmode="email" spellcheck="false" placeholder="you@yourclub.com">
         </label>
+        <!-- Admin mode only. autocomplete="current-password" lets a password
+             manager fill it; the set-password dialog uses "new-password" so
+             browsers offer to generate a strong one there instead. -->
+        <label class="field" for="login-password" id="password-field" hidden>
+          <span>Password</span>
+          <input type="password" id="login-password" name="password"
+                 autocomplete="current-password" placeholder="Your admin password">
+        </label>
+
         <button class="btn btn-primary" type="submit" id="login-submit">Email me a link</button>
       </form>
+
+      <!-- Escape hatch: a forgotten password must never mean locked out of
+           your own business, so the one-time link stays available. -->
+      <p class="login-alt" id="login-alt" hidden>
+        <button type="button" class="link-quiet" id="use-link">Forgotten it? Email me a one-time link instead</button>
+      </p>
 
       <p class="login-msg" id="login-msg" role="status" aria-live="polite" hidden></p>
 

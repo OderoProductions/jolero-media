@@ -1281,3 +1281,23 @@ html.is-authed #sign-out { display: inline; }
   color: var(--paper-40);
 }
 .login-switch .link-quiet:hover { color: var(--paper); }
+
+/* Fallback link under the admin sign-in form */
+.login-alt { margin-top: 14px; }
+.login-alt .link-quiet { font-size: 0.82rem; color: var(--paper-40); }
+.login-alt .link-quiet:hover { color: var(--paper); }
+
+/* Set-password dialog */
+#pw-dialog .field { display: grid; gap: 8px; margin-top: 16px; }
+#pw-dialog .field span {
+  font-size: 0.78rem; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--paper-40);
+}
+#pw-dialog input {
+  padding: 12px 14px; background: var(--ink-2);
+  border: 1px solid var(--line); border-radius: var(--radius);
+  color: var(--paper); font: inherit;
+}
+#pw-dialog input:focus-visible { border-color: var(--accent); }
+.pdialog-note { margin-top: 10px; font-size: 0.88rem; line-height: 1.6; color: var(--paper-60); }
+.pdialog-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; }

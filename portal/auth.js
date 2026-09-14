@@ -164,6 +164,34 @@
     return true;
   }
 
+  /* Password sign-in. Admins only in practice: clients never get a password
+     set, so this endpoint has nothing to match for them and they stay on
+     magic links. Supabase rate-limits this endpoint, and a wrong password
+     returns the same generic message as an unknown account so it can't be
+     used to discover which addresses exist. */
+  async function signInWithPassword(email, password) {
+    if (!configured()) throw new Error("Supabase isn't connected yet.");
+    var data = await authFetch("/token?grant_type=password", {
+      body: { email: String(email).trim(), password: password }
+    });
+    cachedProfile = null;
+    return storeTokens(data);
+  }
+
+  /* Sets a password on the CURRENTLY SIGNED-IN account. Requires a live
+     session, so it can only ever change your own — there is no way to set
+     someone else's from here. */
+  async function setPassword(password) {
+    var token = await getToken();
+    if (!token) throw new Error("Not signed in.");
+    await authFetch("/user", {
+      method: "PUT",
+      headers: { "Authorization": "Bearer " + token },
+      body: { password: password }
+    });
+    return true;
+  }
+
   async function signOut() {
     var token = await getToken();
     if (token) {
@@ -241,6 +269,8 @@
   window.PortalAuth = {
     configured: configured,
     signIn: signIn,
+    signInWithPassword: signInWithPassword,
+    setPassword: setPassword,
     signOut: signOut,
     getSession: getSession,
     getToken: getToken,
