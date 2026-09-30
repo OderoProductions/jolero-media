@@ -1358,4 +1358,14 @@ html.theme-light .theme-btn .icon-sun { display: none; }
   background: var(--ink-2);
 }
 .video-embed-portrait { aspect-ratio: 9 / 16; max-width: 420px; }
+.video-embed-43 { aspect-ratio: 4 / 3; }
+.project-video { margin: 0; }
+.project-video figcaption {
+  margin-top: 12px;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--paper-40);
+}
 .video-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
