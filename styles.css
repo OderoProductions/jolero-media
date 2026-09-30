@@ -1312,6 +1312,17 @@ html.theme-light .theme-btn .icon-sun { display: none; }
 /* ---------- Project pages (projects/<slug>/) ----------
    Reuse the legal page's header + prose rhythm, with a wider gallery. */
 .project-page .legal-inner { max-width: 760px; }
+/* Desktop: wider text column, and the video breaks out of it to use most
+   of the screen (it stays centred on the text column). */
+@media (min-width: 1000px) {
+  .project-page .legal-inner { max-width: 920px; }
+  .project-page .project-video {
+    width: min(1200px, calc(100vw - 2 * var(--gutter)));
+    margin-left: 50%;
+    transform: translateX(-50%);
+  }
+  .project-page .video-embed-43 { max-height: 82vh; aspect-ratio: 4 / 3; margin-inline: auto; width: min(100%, calc(82vh * 4 / 3)); }
+}
 .project-gallery { margin-top: clamp(40px, 6vw, 64px); }
 .project-gallery .work-tile { aspect-ratio: 4 / 5; }
 .project-next {
