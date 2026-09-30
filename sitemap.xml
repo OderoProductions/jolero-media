@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Single-page site: one URL. Update the domain here (and in robots.txt)
+<!-- Update the domain here (and in robots.txt)
      when the final brand name / domain is decided. -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
@@ -9,5 +9,21 @@
   <url>
     <loc>https://joleromedia.com/privacy.html</loc>
     <lastmod>2026-07-28</lastmod>
+  </url>
+  <url>
+    <loc>https://joleromedia.com/projects/muay-thai-tom/</loc>
+    <lastmod>2026-09-30</lastmod>
+  </url>
+  <url>
+    <loc>https://joleromedia.com/projects/worthing-fc/</loc>
+    <lastmod>2026-09-30</lastmod>
+  </url>
+  <url>
+    <loc>https://joleromedia.com/projects/qlvr/</loc>
+    <lastmod>2026-09-30</lastmod>
+  </url>
+  <url>
+    <loc>https://joleromedia.com/projects/k-all-stars-volleyball/</loc>
+    <lastmod>2026-09-30</lastmod>
   </url>
 </urlset>

@@ -116,7 +116,7 @@
       <a class="wordmark" href="#" aria-label="Jolero Media — back to top"><img class="logo-mark" src="assets/logo.svg" alt="" width="40" height="40"><img class="logo-mark logo-mark-dark" src="assets/logo-dark.svg" alt="" width="40" height="40"><span class="wordmark-text">JOLERO MEDIA</span></a>
 
       <nav class="nav-links" aria-label="Sections">
-        <a href="#work">Work</a>
+        <a href="#work">Projects</a>
         <a href="#packages">Packages</a>
         <a href="#about">About</a>
         <a href="#contact">Contact</a>
@@ -136,7 +136,7 @@
   <!-- Full-screen mobile menu -->
   <div class="mobile-menu" id="mobile-menu" hidden>
     <nav aria-label="Sections (mobile)">
-      <a href="#work">Work</a>
+      <a href="#work">Projects</a>
       <a href="#packages">Packages</a>
       <a href="#about">About</a>
       <a href="#contact">Contact</a>
@@ -193,11 +193,11 @@
         </p>
         <div class="hero-ctas">
           <a class="btn btn-primary" href="#contact">Work with us</a>
-          <a class="btn btn-ghost" href="#work">See our work</a>
+          <a class="btn btn-ghost" href="#work">See our projects</a>
         </div>
       </div>
 
-      <a class="scroll-cue" href="#work" aria-label="Scroll to our work">
+      <a class="scroll-cue" href="#work" aria-label="Scroll to featured projects">
         <span aria-hidden="true">SCROLL</span>
       </a>
     </section>
@@ -207,76 +207,50 @@
       <div class="container">
         <div class="section-head reveal">
           <p class="eyebrow">Sports photography &amp; video</p>
-          <h2 id="work-heading">Our work<span class="dot">.</span></h2>
+          <h2 id="work-heading">Featured projects<span class="dot">.</span></h2>
           <p class="section-sub">
             Match days, showcase tapes and brand shoots — cut for the platforms
             where careers get noticed.
           </p>
         </div>
 
-        <div class="filters reveal" role="group" aria-label="Filter work by sport">
-          <button class="filter-btn is-active" data-filter="all" aria-pressed="true">All</button>
-          <button class="filter-btn" data-filter="football" aria-pressed="false">Football</button>
-          <button class="filter-btn" data-filter="basketball" aria-pressed="false">Basketball</button>
-          <button class="filter-btn" data-filter="other" aria-pressed="false">Other</button>
+        <!-- ============ FEATURED PROJECTS ============
+             Each tile links to its own page in projects/<slug>/index.html.
+             SWAP IMAGE: replace the placeholder src with the project's cover
+             shot (portrait 4:5, e.g. 1600×2000), keep width/height, and write
+             a real alt. To add a project: copy a tile + a project folder, and
+             add the new page to sitemap.xml.
+             ============================================ -->
+        <div class="work-grid project-grid">
+          <a class="work-tile project-tile reveal" href="projects/muay-thai-tom/">
+            <img src="assets/work-06.svg" alt="Placeholder — Muay Thai Tom project cover" loading="lazy" width="800" height="1000">
+            <span class="project-caption">
+              <span class="tag">Muay Thai</span>
+              <span class="project-name">Muay Thai Tom</span>
+            </span>
+          </a>
+          <a class="work-tile project-tile reveal" href="projects/worthing-fc/">
+            <img src="assets/work-01.svg" alt="Placeholder — Worthing FC project cover" loading="lazy" width="800" height="1000">
+            <span class="project-caption">
+              <span class="tag">Football</span>
+              <span class="project-name">Worthing FC</span>
+            </span>
+          </a>
+          <a class="work-tile project-tile reveal" href="projects/qlvr/">
+            <img src="assets/work-09.svg" alt="Placeholder — QLVR project cover" loading="lazy" width="800" height="1000">
+            <span class="project-caption">
+              <span class="tag">Brand Content</span>
+              <span class="project-name">QLVR</span>
+            </span>
+          </a>
+          <a class="work-tile project-tile reveal" href="projects/k-all-stars-volleyball/">
+            <img src="assets/work-05.svg" alt="Placeholder — K-All Stars Volleyball project cover" loading="lazy" width="800" height="1000">
+            <span class="project-caption">
+              <span class="tag">Volleyball</span>
+              <span class="project-name">K-All Stars Volleyball</span>
+            </span>
+          </a>
         </div>
-
-        <!-- ============ PORTFOLIO GRID ============
-             SWAP IMAGE: for each tile, replace the placeholder src with a real
-             shot, e.g.  <img src="assets/work-01.jpg" alt="Striker celebrating a
-             goal at your club" loading="lazy" width="800" height="1000">
-             · Keep width/height (prevents layout shift) and write a real alt.
-             · Portrait 4:5 crops (e.g. 1600×2000) look best in this grid.
-             · data-sport controls the filter: football | basketball | other.
-
-             REPLACING A TILE WITH VIDEO: swap the <img> inside the figure for
-             an inline clip, e.g.
-               <video class="work-video" muted loop playsinline preload="none"
-                      poster="assets/work-03-poster.jpg">
-                 <source src="assets/work-03.mp4" type="video/mp4">
-               </video>
-             (script.js auto-plays .work-video when it scrolls into view),
-             or drop in a YouTube/Vimeo <iframe> with a 4:5 wrapper.
-             ========================================= -->
-        <div class="work-grid" id="work-grid">
-          <figure class="work-tile reveal" data-sport="football">
-            <img src="assets/work-01.svg" alt="Placeholder — grassroots football matchday photography" loading="lazy" width="800" height="1000">
-            <figcaption><span class="tag">Football</span></figcaption>
-          </figure>
-          <figure class="work-tile reveal" data-sport="other">
-            <img src="assets/work-02.svg" alt="Placeholder — American football game-day photography" loading="lazy" width="800" height="1000">
-            <figcaption><span class="tag">American Football</span></figcaption>
-          </figure>
-          <figure class="work-tile reveal" data-sport="basketball">
-            <img src="assets/work-03.svg" alt="Placeholder — basketball game photography" loading="lazy" width="800" height="1000">
-            <figcaption><span class="tag">Basketball</span></figcaption>
-          </figure>
-          <figure class="work-tile reveal" data-sport="football">
-            <img src="assets/work-04.svg" alt="Placeholder — football training-ground photography" loading="lazy" width="800" height="1000">
-            <figcaption><span class="tag">Football</span></figcaption>
-          </figure>
-          <figure class="work-tile reveal" data-sport="other">
-            <img src="assets/work-05.svg" alt="Placeholder — tennis match photography" loading="lazy" width="800" height="1000">
-            <figcaption><span class="tag">Tennis</span></figcaption>
-          </figure>
-          <figure class="work-tile reveal" data-sport="basketball">
-            <img src="assets/work-06.svg" alt="Placeholder — basketball athlete portrait photography" loading="lazy" width="800" height="1000">
-            <figcaption><span class="tag">Basketball</span></figcaption>
-          </figure>
-          <figure class="work-tile reveal" data-sport="other">
-            <img src="assets/work-07.svg" alt="Placeholder — baseball game photography" loading="lazy" width="800" height="1000">
-            <figcaption><span class="tag">Baseball</span></figcaption>
-          </figure>
-          <figure class="work-tile reveal" data-sport="football">
-            <img src="assets/work-08.svg" alt="Placeholder — football club team photography" loading="lazy" width="800" height="1000">
-            <figcaption><span class="tag">Football</span></figcaption>
-          </figure>
-          <figure class="work-tile reveal" data-sport="other">
-            <img src="assets/work-09.svg" alt="Placeholder — sports brand campaign photography" loading="lazy" width="800" height="1000">
-            <figcaption><span class="tag">Brand Content</span></figcaption>
-          </figure>
-        </div>
-        <p class="work-empty" id="work-empty" hidden>Nothing in this sport yet — it's coming.</p>
       </div>
     </section>
 

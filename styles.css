@@ -694,12 +694,33 @@ html.theme-light .nav:not(.is-scrolled):not(.is-menu-open) .logo-mark-dark { dis
   transition: transform 0.25s ease;
 }
 
-.work-tile.is-hidden { display: none; }
-
-.work-empty {
-  margin-top: 26px;
-  color: var(--paper-60);
+/* Featured projects: four big tiles, two across, each linking to a page */
+@media (min-width: 1000px) { .project-grid { grid-template-columns: repeat(2, 1fr); } }
+.project-tile { display: block; color: inherit; text-decoration: none; }
+.project-caption {
+  position: absolute;
+  inset: auto 0 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 64px 20px 20px;
+  background: linear-gradient(to top, rgba(10, 10, 10, 0.85), transparent);
+  pointer-events: none;
 }
+.project-name {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 3.4vw, 2.4rem);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #F5F5F3;                 /* on a photo: always light */
+}
+.project-tile:hover .tag,
+.project-tile:focus-visible .tag { transform: translateY(-2px); }
+.project-tile:hover img,
+.project-tile:focus-visible img { transform: scale(1.04); }
+.project-tile:focus-visible::after { opacity: 1; transform: scale(1); }
 
 /* ---------- Who we shoot ---------- */
 
@@ -1288,6 +1309,23 @@ html.theme-light .theme-btn .icon-sun { display: none; }
 .legal-back { margin-top: clamp(44px, 7vw, 64px); }
 .legal-back a { text-decoration: none; }
 
+/* ---------- Project pages (projects/<slug>/) ----------
+   Reuse the legal page's header + prose rhythm, with a wider gallery. */
+.project-page .legal-inner { max-width: 760px; }
+.project-gallery { margin-top: clamp(40px, 6vw, 64px); }
+.project-gallery .work-tile { aspect-ratio: 4 / 5; }
+.project-next {
+  margin-top: clamp(48px, 8vw, 80px);
+  padding-top: 26px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: space-between;
+  align-items: center;
+}
+.project-next a.btn { text-decoration: none; }
+
 /* ---------- Hero background video ----------
    Sits between the poster still and the scrim. The opacity is a single
    knob: lower = more subdued, higher = more of the footage. It blends
@@ -1306,3 +1344,18 @@ html.theme-light .theme-btn .icon-sun { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .hero-video { display: none; }
 }
+
+/* ---------- Vimeo embeds (project pages) ----------
+   Wrap the Vimeo <iframe> in .video-embed; it keeps a 16:9 box so the
+   page doesn't jump while the player loads. Use .video-embed-portrait
+   for 9:16 phone-shot clips. */
+.video-embed {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  margin-top: clamp(32px, 5vw, 48px);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--ink-2);
+}
+.video-embed-portrait { aspect-ratio: 9 / 16; max-width: 420px; }
+.video-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }

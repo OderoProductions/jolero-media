@@ -170,35 +170,6 @@
     updateParallax();
   }
 
-  /* ---------- Work filter ---------- */
-
-  var filterBtns = document.querySelectorAll(".filter-btn");
-  var tiles = document.querySelectorAll(".work-tile");
-  var emptyNote = document.getElementById("work-empty");
-
-  filterBtns.forEach(function (btn) {
-    btn.addEventListener("click", function () {
-      var filter = btn.dataset.filter;
-
-      filterBtns.forEach(function (b) {
-        var active = b === btn;
-        b.classList.toggle("is-active", active);
-        b.setAttribute("aria-pressed", String(active));
-      });
-
-      var visible = 0;
-      tiles.forEach(function (tile) {
-        var show = filter === "all" || tile.dataset.sport === filter;
-        tile.classList.toggle("is-hidden", !show);
-        if (show) {
-          visible++;
-          tile.classList.add("in"); // never leave a filtered-in tile pre-reveal
-        }
-      });
-      emptyNote.hidden = visible > 0;
-    });
-  });
-
   /* ---------- Contact form (Formspree via fetch) ----------
      Works once YOUR_FORM_ID in index.html is replaced — see the
      FORMSPREE SETUP comment above the <form>. */
