@@ -1369,3 +1369,71 @@ html.theme-light .theme-btn .icon-sun { display: none; }
   color: var(--paper-40);
 }
 .video-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+/* ---------- Project page hero + pieces ----------
+   The hero is a full-width still with the title over it; text stays light
+   in both themes because it always sits on a photo. Each piece of work for
+   a client is a .project-piece, numbered with .piece-label. */
+.project-page.legal { padding-top: 0; }
+.project-hero {
+  position: relative;
+  min-height: min(78vh, 760px);
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  background: #0A0A0A;
+}
+.project-hero-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.project-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(10,10,10,0.92) 0%, rgba(10,10,10,0.45) 45%, rgba(10,10,10,0.15) 100%);
+}
+.project-hero-inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding-top: 120px;
+  padding-bottom: clamp(36px, 6vw, 64px);
+}
+.project-hero h1,
+.project-hero .legal-lede { color: #F5F5F3; }
+.project-hero .eyebrow { color: rgba(245, 245, 243, 0.75); }
+.project-hero .legal-lede { max-width: 560px; }
+
+.project-piece { padding-top: clamp(56px, 9vw, 104px); }
+.piece-label {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent) !important;
+}
+.project-piece h2 {
+  border-top: 0;
+  padding-top: 0;
+  margin-top: 8px;
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  line-height: 1.02;
+}
+.legal h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(1.05rem, 2vw, 1.3rem);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  margin-top: clamp(32px, 5vw, 44px);
+}
+.project-gallery-43 .work-tile { aspect-ratio: 4 / 3; }
+.project-piece-soon .legal-inner {
+  padding-top: 26px;
+  border-top: 1px solid var(--line);
+}
+.project-piece-soon p:last-child { margin-top: 8px; }
