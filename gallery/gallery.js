@@ -124,6 +124,11 @@
     if (files.length) bit(pad(files.length, 2), files.length === 1 ? "file" : "files");
     if (man.expires) bit("", `Available until ${day(man.expires)}`);
     $("notice").hidden = !locked;
+    if (typeof man.message === "string" && man.message.trim()) {
+      $("message").textContent = man.message.trim();
+      $("message").hidden = false;
+    }
+    $("usage").hidden = false;
 
     if (man.zip && url(man.zip.o) && !locked && items.length > 1) {
       const all = $("download-all");

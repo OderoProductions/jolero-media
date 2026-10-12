@@ -387,6 +387,37 @@ a { color: inherit; }
 .state-text { max-width: 46ch; margin: 0 0 28px; color: var(--paper-60); font-size: 1.05rem; }
 .state-actions { display: flex; flex-wrap: wrap; gap: 12px; }
 
+/* ---------- personal note + usage terms ---------- */
+
+.message {
+  max-width: 62ch;
+  margin: 28px 0 0;
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.86);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+.usage {
+  margin-top: clamp(56px, 8vw, 96px);
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  max-width: 72ch;
+}
+.usage-head {
+  margin: 0 0 10px;
+  font: 500 0.75rem/1 var(--font-mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--paper-60);
+}
+.usage p {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.6;
+  color: var(--paper-40);
+}
+
 /* ---------- footer ---------- */
 
 .foot {
