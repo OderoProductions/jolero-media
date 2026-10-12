@@ -372,6 +372,154 @@ a { color: inherit; }
   to { opacity: 1; transform: none; }
 }
 
+/* ---------- folders: poster-style covers, opened in place ---------- */
+
+.crumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 18px -6px;
+  padding: 6px 10px 6px 4px;
+  border: 0;
+  border-radius: var(--radius);
+  background: none;
+  color: var(--paper-60);
+  font: 500 0.75rem/1 var(--font-mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+.crumb:hover { color: var(--paper); background: var(--soft); }
+.crumb .icon { width: 16px; height: 16px; }
+
+.folder-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+  gap: 32px 20px;
+}
+.folder {
+  opacity: 0;
+  animation: rise 0.7s var(--ease) forwards;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+.folder-open {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--ink-2);
+  color: var(--paper);
+  text-align: left;
+  cursor: pointer;
+}
+.folder-cover, .folder-cover img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.folder-cover img {
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.5s ease, transform 0.9s var(--ease), filter 0.4s ease;
+}
+.folder-cover img.is-loaded { opacity: 1; }
+.folder-open:hover .folder-cover img { transform: scale(1.04); filter: brightness(1.08); }
+/* scrim so the name always reads, whatever the cover */
+.folder-open::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(6, 6, 7, 0.94) 0%, rgba(6, 6, 7, 0.5) 34%, rgba(6, 6, 7, 0) 60%),
+              linear-gradient(to bottom, rgba(6, 6, 7, 0.55) 0%, rgba(6, 6, 7, 0) 22%);
+}
+/* viewfinder corners, the homepage hero's device, come up on hover */
+.folder-open::before {
+  --c: rgba(255, 255, 255, 0.85);
+  --l: 20px;
+  --t: 1.5px;
+  content: "";
+  position: absolute;
+  inset: 14px;
+  z-index: 2;
+  opacity: 0;
+  transform: scale(1.03);
+  transition: opacity 0.3s ease, transform 0.4s var(--ease);
+  background:
+    linear-gradient(var(--c), var(--c)) top left / var(--l) var(--t) no-repeat,
+    linear-gradient(var(--c), var(--c)) top left / var(--t) var(--l) no-repeat,
+    linear-gradient(var(--c), var(--c)) top right / var(--l) var(--t) no-repeat,
+    linear-gradient(var(--c), var(--c)) top right / var(--t) var(--l) no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom left / var(--l) var(--t) no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom left / var(--t) var(--l) no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom right / var(--l) var(--t) no-repeat,
+    linear-gradient(var(--c), var(--c)) bottom right / var(--t) var(--l) no-repeat;
+}
+.folder-open:hover::before, .folder-open:focus-visible::before { opacity: 1; transform: none; }
+.folder-index {
+  position: absolute;
+  top: 26px;
+  left: 28px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: 500 0.72rem/1 var(--font-mono);
+  letter-spacing: 0.14em;
+  color: rgba(255, 255, 255, 0.8);
+}
+.folder-index::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.folder-label {
+  position: absolute;
+  left: 28px;
+  right: 28px;
+  bottom: 26px;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.folder-name {
+  font-family: var(--font-display);
+  font-size: clamp(1.9rem, 3vw, 2.5rem);
+  line-height: 0.95;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+.folder-meta {
+  font: 500 0.72rem/1.4 var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.72);
+}
+.folder-dl {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 4px 0;
+  font: 600 0.78rem/1 var(--font-body);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--paper-60);
+  transition: color 0.2s ease;
+}
+.folder-dl:hover { color: var(--paper); }
+.folder-dl .icon { width: 16px; height: 16px; color: var(--accent); }
+
 /* ---------- other files ---------- */
 
 .file-list { list-style: none; margin: 0; padding: 0; }

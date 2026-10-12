@@ -13,8 +13,8 @@
   <meta name="theme-color" content="#0A0A0A">
   <title>Your gallery | Jolero Media</title>
   <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
-  <link rel="stylesheet" href="gallery.css?v=5">
-  <script src="gallery.js?v=5" defer></script>
+  <link rel="stylesheet" href="gallery.css?v=6">
+  <script src="gallery.js?v=6" defer></script>
 </head>
 <body>
 
@@ -34,11 +34,20 @@
   <main class="wrap" id="main">
 
     <section class="intro frame" id="intro">
-      <p class="slate"><span class="rec-dot" aria-hidden="true"></span>Client gallery</p>
+      <p class="slate" id="slate"><span class="rec-dot" aria-hidden="true"></span>Client gallery</p>
+      <button class="crumb" id="crumb" type="button" hidden>
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+        <span id="crumb-text">All folders</span>
+      </button>
       <h1 class="title" id="title">Loading<span class="dot">.</span></h1>
       <p class="osd" id="meta"></p>
       <p class="notice" id="notice" hidden>Downloads open once the invoice is paid.</p>
       <p class="message" id="message" hidden></p>
+    </section>
+
+    <section class="block" id="folders" hidden>
+      <h2 class="block-head">Folders<span class="dot">.</span><span class="block-count" id="folders-count"></span></h2>
+      <div class="folder-grid" id="folder-grid"></div>
     </section>
 
     <section class="block" id="videos" hidden>
