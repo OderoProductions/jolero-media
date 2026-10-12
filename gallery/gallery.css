@@ -390,7 +390,7 @@ a { color: inherit; }
 /* ---------- personal note + usage terms ---------- */
 
 .message {
-  max-width: 62ch;
+  max-width: none;
   margin: 28px 0 0;
   font-size: 1.05rem;
   line-height: 1.65;
