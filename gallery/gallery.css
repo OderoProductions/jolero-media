@@ -130,6 +130,9 @@ a { color: inherit; }
   opacity: 0.7;
 }
 
+.btn-icon { width: 40px; padding: 0; }
+.btn-icon .icon { width: 20px; height: 20px; }
+
 /* ---------- header ---------- */
 
 .bar {
@@ -160,6 +163,7 @@ a { color: inherit; }
   gap: 0.46em;
 }
 .wordmark .logo-mark { height: 1.62em; width: auto; }
+.bar-actions { display: flex; align-items: center; gap: 10px; }
 .wordmark-text { line-height: 1; }
 
 /* ---------- intro: framed like the viewfinder on the homepage hero ---------- */
@@ -435,6 +439,8 @@ a { color: inherit; }
 .foot-line { font-family: var(--font-display); font-size: 1.05rem; letter-spacing: 0.03em; text-transform: uppercase; color: var(--paper-60); }
 .foot-links { display: flex; flex-wrap: wrap; gap: 8px 22px; }
 .foot-links a { text-decoration: none; }
+.foot-ig { display: inline-flex; align-items: center; gap: 8px; }
+.foot-ig .icon { width: 18px; height: 18px; }
 .foot-links a:hover { color: var(--paper); }
 
 /* ---------- lightbox ---------- */

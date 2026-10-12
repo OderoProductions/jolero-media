@@ -13,18 +13,21 @@
   <meta name="theme-color" content="#0A0A0A">
   <title>Your gallery | Jolero Media</title>
   <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
-  <link rel="stylesheet" href="gallery.css?v=4">
-  <script src="gallery.js?v=4" defer></script>
+  <link rel="stylesheet" href="gallery.css?v=5">
+  <script src="gallery.js?v=5" defer></script>
 </head>
 <body>
 
   <header class="bar">
     <div class="bar-inner wrap">
       <a class="wordmark" href="../" aria-label="Jolero Media home"><img class="logo-mark" src="../assets/logo.svg" alt="" width="40" height="40"><span class="wordmark-text">JOLERO MEDIA</span></a>
+      <div class="bar-actions">
+      <a class="btn btn-ghost btn-sm btn-icon" href="https://www.instagram.com/joleromedia/" target="_blank" rel="noopener" aria-label="Jolero Media on Instagram"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none"/></svg></a>
       <a class="btn btn-primary btn-sm" id="download-all" hidden>
         <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 20h16"/></svg>
         <span>Download all</span><span class="btn-meta" id="download-all-size"></span>
       </a>
+      </div>
     </div>
   </header>
 
@@ -61,7 +64,7 @@
     <section class="state" id="state" hidden>
       <p class="state-text" id="state-text"></p>
       <div class="state-actions">
-        <a class="btn btn-primary" href="https://instagram.com/joleromedia" rel="noopener">Message us on Instagram</a>
+        <a class="btn btn-primary" href="https://www.instagram.com/joleromedia/" target="_blank" rel="noopener"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none"/></svg><span>Message us on Instagram</span></a>
         <a class="btn btn-ghost" href="mailto:info@joleromedia.com">info@joleromedia.com</a>
       </div>
     </section>
@@ -70,7 +73,7 @@
 
   <footer class="foot wrap">
     <p class="foot-line">Journeys captured. Outcomes remembered<span class="dot">.</span></p>
-    <p class="foot-links"><a href="https://instagram.com/joleromedia" rel="noopener">@joleromedia</a><a href="mailto:info@joleromedia.com">info@joleromedia.com</a></p>
+    <p class="foot-links"><a class="foot-ig" href="https://www.instagram.com/joleromedia/" target="_blank" rel="noopener"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none"/></svg><span>@joleromedia</span></a><a href="mailto:info@joleromedia.com">info@joleromedia.com</a></p>
   </footer>
 
   <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer" hidden>
