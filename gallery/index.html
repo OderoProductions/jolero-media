@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <!-- Client galleries. The gallery id lives in the #hash, so it never reaches
+       the web server or a Referer header. Files and the manifest come from the
+       jolero-gallery worker (see jolero-gallery/README.md); this page is the
+       same for every client. Unlisted, not indexed. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://jolero-gallery.jolero-gallery-worker.workers.dev http://localhost:8787; media-src https://jolero-gallery.jolero-gallery-worker.workers.dev http://localhost:8787; connect-src https://jolero-gallery.jolero-gallery-worker.workers.dev http://localhost:8787; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <meta name="theme-color" content="#0A0A0A">
+  <title>Your gallery | Jolero Media</title>
+  <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
+  <link rel="stylesheet" href="gallery.css">
+  <script src="gallery.js" defer></script>
+</head>
+<body>
+
+  <header class="bar">
+    <div class="bar-inner wrap">
+      <a class="wordmark" href="../" aria-label="Jolero Media home"><img class="logo-mark" src="../assets/logo.svg" alt="" width="40" height="40"><span class="wordmark-text">JOLERO MEDIA</span></a>
+      <a class="btn btn-primary btn-sm" id="download-all" hidden>
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 20h16"/></svg>
+        <span>Download all</span><span class="btn-meta" id="download-all-size"></span>
+      </a>
+    </div>
+  </header>
+
+  <main class="wrap" id="main">
+
+    <section class="intro frame" id="intro">
+      <p class="slate"><span class="rec-dot" aria-hidden="true"></span>Client gallery</p>
+      <h1 class="title" id="title">Loading<span class="dot">.</span></h1>
+      <p class="osd" id="meta"></p>
+      <p class="notice" id="notice" hidden>Downloads open once the invoice is paid.</p>
+    </section>
+
+    <section class="block" id="videos" hidden>
+      <h2 class="block-head">Videos<span class="dot">.</span><span class="block-count" id="videos-count"></span></h2>
+      <div class="video-row" id="video-row"></div>
+    </section>
+
+    <section class="block" id="photos" hidden>
+      <h2 class="block-head">Photos<span class="dot">.</span><span class="block-count" id="photos-count"></span></h2>
+      <div class="justified" id="grid"></div>
+    </section>
+
+    <section class="block" id="files" hidden>
+      <h2 class="block-head">Files<span class="dot">.</span><span class="block-count" id="files-count"></span></h2>
+      <ul class="file-list" id="file-list"></ul>
+    </section>
+
+    <section class="state" id="state" hidden>
+      <p class="state-text" id="state-text"></p>
+      <div class="state-actions">
+        <a class="btn btn-primary" href="https://instagram.com/joleromedia" rel="noopener">Message us on Instagram</a>
+        <a class="btn btn-ghost" href="mailto:info@joleromedia.com">info@joleromedia.com</a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="foot wrap">
+    <p class="foot-line">Journeys captured. Outcomes remembered<span class="dot">.</span></p>
+    <p class="foot-links"><a href="https://instagram.com/joleromedia" rel="noopener">@joleromedia</a><a href="mailto:info@joleromedia.com">info@joleromedia.com</a></p>
+  </footer>
+
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer" hidden>
+    <div class="lb-bar">
+      <span class="lb-count" id="lb-count"></span>
+      <span class="lb-name" id="lb-name"></span>
+      <a class="btn btn-ghost btn-sm lb-dl" id="lb-dl">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 20h16"/></svg>
+        <span>Download</span>
+      </a>
+      <button class="lb-btn lb-close" id="lb-close" type="button" aria-label="Close">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+    <div class="lb-stage" id="lb-stage">
+      <img class="lb-img" id="lb-img" alt="">
+    </div>
+    <button class="lb-btn lb-nav lb-prev" id="lb-prev" type="button" aria-label="Previous photo">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <button class="lb-btn lb-nav lb-next" id="lb-next" type="button" aria-label="Next photo">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+
+</body>
+</html>
