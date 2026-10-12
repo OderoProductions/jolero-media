@@ -679,7 +679,8 @@ a { color: inherit; }
   inset: 0;
   z-index: 50;
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto 1fr auto;
+  grid-template-columns: minmax(0, 1fr); /* the filmstrip scrolls; it mustn't widen the viewer */
   background: var(--glass-solid);
   animation: fade 0.2s ease;
 }
@@ -721,15 +722,29 @@ a { color: inherit; }
 }
 .lb-btn:hover { background: var(--soft); }
 .lb-btn .icon { width: 22px; height: 22px; }
+/* Three slides (previous, current, next) ride on one track. Dragging moves
+   the track with the finger; letting go slides it a whole width and the
+   slides are re-dealt, so swiping feels like flicking through a camera roll. */
 .lb-stage {
   position: relative;
+  min-height: 0;
+  overflow: hidden;
+  touch-action: pan-y pinch-zoom;
+  user-select: none;
+}
+.lb-track {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+.lb-track.is-sliding { transition: transform 0.34s cubic-bezier(0.22, 0.8, 0.24, 1); }
+.lb-slide {
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 0;
-  overflow: hidden;
-  padding: 0 clamp(8px, 7vw, 96px) calc(20px + env(safe-area-inset-bottom));
-  touch-action: pan-y pinch-zoom;
+  padding: 0 clamp(8px, 7vw, 96px) 12px;
 }
 .lb-img {
   max-width: 100%;
@@ -740,6 +755,37 @@ a { color: inherit; }
   user-select: none;
   -webkit-user-drag: none;
 }
+.lb-img:not([src]) { visibility: hidden; }
+.lb-img.is-jump { animation: fade 0.25s ease; }
+
+/* filmstrip of every photo, like the bottom of Lightroom or a phone gallery */
+.lb-strip {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 10px var(--gutter) calc(14px + env(safe-area-inset-bottom));
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+.lb-strip::-webkit-scrollbar { display: none; }
+.lb-thumb {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--ink-3);
+  opacity: 0.4;
+  outline: 2px solid transparent;
+  outline-offset: -2px;
+  cursor: pointer;
+  transition: opacity 0.2s ease, outline-color 0.2s ease;
+}
+.lb-thumb img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+.lb-thumb:hover { opacity: 0.8; }
+.lb-thumb.is-current { opacity: 1; outline-color: var(--accent); }
 .lb-nav {
   position: absolute;
   top: 50%;
@@ -760,7 +806,8 @@ a { color: inherit; }
   .vinfo .btn > span { display: none; }
   .vinfo .btn { padding-inline: 12px; }
   .lb-nav { display: none; }
-  .lb-stage { padding-inline: 0; }
+  .lb-slide { padding-inline: 0; }
+  .lb-thumb { width: 52px; height: 52px; }
   .lb-dl > span { display: none; }
   .lb-dl { padding-inline: 12px; }
 }

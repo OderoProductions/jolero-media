@@ -389,20 +389,136 @@
     resizeFrame = requestAnimationFrame(layout);
   }).observe($("grid"));
 
-  /* ---------- lightbox ---------- */
+  /* ---------- lightbox: sliding photos and a filmstrip ---------- */
 
   const box = $("lightbox");
-  const boxImg = $("lb-img");
+  const stage = $("lb-stage");
+  const track = $("lb-track");
+  const strip = $("lb-strip");
+  const slides = [...track.children];          // three slide elements
+  let order = [0, 1, 2];                         // which element is previous, current, next
   let current = -1;
   let opener = null;
   let skipPop = false;
+  let sliding = false;
+  let stripFor = null;                           // the photo list the strip was built for
+  const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function fillSlide(el, i) {
+    const img = el.querySelector("img");
+    el.dataset.i = String(i);
+    if (i < 0 || i >= shown.length) { img.removeAttribute("src"); return; }
+    const it = shown[i];
+    img.src = url(it.t); // the thumbnail is already cached, so something shows at once
+    const sharp = new Image();
+    sharp.onload = () => { if (el.dataset.i === String(i)) img.src = sharp.src; };
+    sharp.src = url(it.p);
+  }
+
+  function place() {
+    order.forEach((n, pos) => { slides[n].style.transform = `translateX(${(pos - 1) * 100}%)`; });
+  }
+
+  function setTrack(px, animate) {
+    track.classList.toggle("is-sliding", !!animate && !reduceMotion);
+    track.style.transform = `translateX(${px}px)`;
+  }
+
+  function dealAround(i) {
+    current = i;
+    fillSlide(slides[order[0]], i - 1);
+    fillSlide(slides[order[1]], i);
+    fillSlide(slides[order[2]], i + 1);
+    place();
+    setTrack(0, false);
+    updateMeta();
+  }
+
+  function updateMeta() {
+    const it = shown[current];
+    $("lb-count").textContent = `${pad(current + 1, 3)} / ${pad(shown.length, 3)}`;
+    $("lb-name").textContent = it.name || "";
+    const dl = $("lb-dl");
+    dl.hidden = isLocked;
+    dl.href = url(it.o, true);
+    $("lb-prev").disabled = current === 0;
+    $("lb-next").disabled = current === shown.length - 1;
+    for (const n of [current + 2, current - 2]) if (shown[n]) new Image().src = url(shown[n].p);
+    markStrip();
+  }
+
+  // Slide one photo along: dir +1 = next, -1 = previous
+  function go(dir) {
+    const target = current + dir;
+    if (sliding) return;
+    if (target < 0 || target >= shown.length) { setTrack(0, true); return; }
+    const width = stage.clientWidth;
+    const finish = () => {
+      order = dir > 0 ? [order[1], order[2], order[0]] : [order[2], order[0], order[1]];
+      current = target;
+      fillSlide(slides[dir > 0 ? order[2] : order[0]], current + dir);
+      place();
+      setTrack(0, false);
+      sliding = false;
+      updateMeta();
+    };
+    if (reduceMotion) { finish(); return; }
+    sliding = true;
+    setTrack(-dir * width, true);
+    let done = false;
+    const end = () => { if (!done) { done = true; finish(); } };
+    track.addEventListener("transitionend", end, { once: true });
+    setTimeout(end, 420); // in case transitionend never fires
+  }
+
+  // Jump straight to a photo picked from the strip
+  function jump(i) {
+    if (i === current || sliding) return;
+    if (Math.abs(i - current) === 1) { go(i - current); return; }
+    dealAround(i);
+    const img = slides[order[1]].querySelector("img");
+    img.classList.remove("is-jump");
+    void img.offsetWidth; // restart the fade
+    img.classList.add("is-jump");
+  }
+
+  function buildStrip() {
+    if (stripFor === shown) return;
+    stripFor = shown;
+    strip.textContent = "";
+    shown.forEach((it, i) => {
+      const b = el("button", "lb-thumb");
+      b.type = "button";
+      b.setAttribute("aria-label", `Photo ${i + 1}: ${it.name || ""}`);
+      const img = document.createElement("img");
+      img.alt = "";
+      img.loading = "lazy";
+      img.decoding = "async";
+      img.src = url(it.t);
+      b.appendChild(img);
+      b.addEventListener("click", () => jump(i));
+      strip.appendChild(b);
+    });
+  }
+
+  function markStrip() {
+    const thumbs = strip.children;
+    for (let n = 0; n < thumbs.length; n++) thumbs[n].classList.toggle("is-current", n === current);
+    const t = thumbs[current];
+    if (t) {
+      const left = t.offsetLeft - (strip.clientWidth - t.offsetWidth) / 2;
+      strip.scrollTo({ left, behavior: reduceMotion ? "auto" : "smooth" });
+    }
+  }
 
   function openBox(i) {
     opener = document.activeElement;
     box.hidden = false;
     document.documentElement.classList.add("is-locked");
     history.pushState({ ...(history.state || {}), lightbox: true }, "");
-    show(i);
+    buildStrip();
+    order = [0, 1, 2];
+    dealAround(i);
     $("lb-close").focus();
   }
 
@@ -410,7 +526,8 @@
     if (box.hidden) return;
     box.hidden = true;
     current = -1;
-    boxImg.removeAttribute("src");
+    sliding = false;
+    slides.forEach((s) => { s.querySelector("img").removeAttribute("src"); s.dataset.i = ""; });
     document.documentElement.classList.remove("is-locked");
     if (!viaHistory && history.state && history.state.lightbox) {
       skipPop = true; // undo our own history entry without re-rendering the page
@@ -419,32 +536,9 @@
     if (opener) opener.focus();
   }
 
-  function show(i) {
-    if (i < 0 || i >= shown.length) return;
-    current = i;
-    const it = shown[i];
-    $("lb-count").textContent = `${pad(i + 1, 3)} / ${pad(shown.length, 3)}`;
-    $("lb-name").textContent = it.name || "";
-    const dl = $("lb-dl");
-    dl.hidden = isLocked;
-    dl.href = url(it.o, true);
-    $("lb-prev").disabled = i === 0;
-    $("lb-next").disabled = i === shown.length - 1;
-
-    // Thumb straight away (already cached), the sharp preview once it lands
-    boxImg.src = url(it.t);
-    const sharp = new Image();
-    sharp.onload = () => { if (current === i) boxImg.src = sharp.src; };
-    sharp.src = url(it.p);
-    for (const n of [i - 1, i + 1]) {
-      if (shown[n]) new Image().src = url(shown[n].p);
-    }
-  }
-
   $("lb-close").addEventListener("click", () => closeBox(false));
-  $("lb-prev").addEventListener("click", () => show(current - 1));
-  $("lb-next").addEventListener("click", () => show(current + 1));
-  $("lb-stage").addEventListener("click", (e) => { if (e.target === e.currentTarget) closeBox(false); });
+  $("lb-prev").addEventListener("click", () => go(-1));
+  $("lb-next").addEventListener("click", () => go(1));
 
   window.addEventListener("popstate", (e) => {
     if (skipPop) { skipPop = false; return; }
@@ -455,8 +549,8 @@
   document.addEventListener("keydown", (e) => {
     if (box.hidden) return;
     if (e.key === "Escape") closeBox(false);
-    else if (e.key === "ArrowLeft") show(current - 1);
-    else if (e.key === "ArrowRight") show(current + 1);
+    else if (e.key === "ArrowLeft") go(-1);
+    else if (e.key === "ArrowRight") go(1);
     else if (e.key === "Tab") {
       // keep focus inside the viewer
       const focusable = [...box.querySelectorAll("a[href]:not([hidden]), button:not([disabled])")]
@@ -468,21 +562,59 @@
     }
   });
 
-  let touchX = null;
-  let touchY = null;
-  box.addEventListener("touchstart", (e) => {
-    if (e.touches.length !== 1) { touchX = null; return; }
-    touchX = e.touches[0].clientX;
-    touchY = e.touches[0].clientY;
+  /* Drag with a finger (or the mouse): the photo follows, and letting go past a
+     fifth of the width, or with a quick flick, slides to the neighbour. A
+     downward swipe closes the viewer, like a phone's photo app. */
+  let drag = null;
+  stage.addEventListener("pointerdown", (e) => {
+    if (sliding || (e.pointerType === "mouse" && e.button !== 0)) return;
+    drag = { x: e.clientX, y: e.clientY, t: performance.now(), dx: 0, dy: 0, moving: false, id: e.pointerId };
+  });
+  stage.addEventListener("pointermove", (e) => {
+    if (!drag || e.pointerId !== drag.id) return;
+    drag.dx = e.clientX - drag.x;
+    drag.dy = e.clientY - drag.y;
+    if (!drag.moving && Math.abs(drag.dx) > 8 && Math.abs(drag.dx) > Math.abs(drag.dy)) {
+      drag.moving = true;
+      stage.setPointerCapture(e.pointerId);
+    }
+    if (drag.moving) {
+      const atEnd = (drag.dx > 0 && current === 0) || (drag.dx < 0 && current === shown.length - 1);
+      setTrack(atEnd ? drag.dx / 3 : drag.dx, false); // resist past the first and last photo
+    }
+  });
+  const release = (e) => {
+    if (!drag || e.pointerId !== drag.id) return;
+    const d = drag;
+    drag = null;
+    if (d.moving) {
+      stage.dataset.dragged = "1"; // so the click that follows doesn't close the viewer
+      const v = d.dx / Math.max(performance.now() - d.t, 1); // px per ms
+      const w = stage.clientWidth;
+      if (d.dx < -w * 0.2 || v < -0.45) go(1);
+      else if (d.dx > w * 0.2 || v > 0.45) go(-1);
+      else setTrack(0, true);
+    }
+  };
+  stage.addEventListener("pointerup", release);
+  stage.addEventListener("pointercancel", release);
+  // Swipe down to close. Touch events, because the browser may claim a vertical
+  // pan for itself and cancel the pointer events partway through.
+  let touch0 = null;
+  stage.addEventListener("touchstart", (e) => {
+    touch0 = e.touches.length === 1 ? { x: e.touches[0].clientX, y: e.touches[0].clientY } : null;
   }, { passive: true });
-  box.addEventListener("touchend", (e) => {
-    if (touchX === null) return;
-    const dx = e.changedTouches[0].clientX - touchX;
-    const dy = e.changedTouches[0].clientY - touchY;
-    touchX = null;
-    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) show(current + (dx < 0 ? 1 : -1));
-    else if (dy > 90 && Math.abs(dy) > Math.abs(dx) * 1.5) closeBox(false);
+  stage.addEventListener("touchend", (e) => {
+    if (!touch0) return;
+    const dx = e.changedTouches[0].clientX - touch0.x;
+    const dy = e.changedTouches[0].clientY - touch0.y;
+    touch0 = null;
+    if (dy > 90 && dy > Math.abs(dx) * 1.5) closeBox(false);
   }, { passive: true });
+  stage.addEventListener("click", (e) => {
+    if (stage.dataset.dragged) { delete stage.dataset.dragged; return; }
+    if (e.target.classList.contains("lb-slide")) closeBox(false); // a click beside the photo closes
+  });
 
   /* ---------- review form: stars and a few words, sent privately to us ---------- */
 

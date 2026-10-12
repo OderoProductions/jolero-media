@@ -13,8 +13,8 @@
   <meta name="theme-color" content="#0A0A0A">
   <title>Your gallery | Jolero Media</title>
   <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
-  <link rel="stylesheet" href="gallery.css?v=9">
-  <script src="gallery.js?v=8" defer></script>
+  <link rel="stylesheet" href="gallery.css?v=11">
+  <script src="gallery.js?v=10" defer></script>
 </head>
 <body>
 
@@ -124,7 +124,11 @@
       </button>
     </div>
     <div class="lb-stage" id="lb-stage">
-      <img class="lb-img" id="lb-img" alt="">
+      <div class="lb-track" id="lb-track">
+        <div class="lb-slide"><img class="lb-img" alt="" draggable="false"></div>
+        <div class="lb-slide"><img class="lb-img" alt="" draggable="false"></div>
+        <div class="lb-slide"><img class="lb-img" alt="" draggable="false"></div>
+      </div>
     </div>
     <button class="lb-btn lb-nav lb-prev" id="lb-prev" type="button" aria-label="Previous photo">
       <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
@@ -132,6 +136,7 @@
     <button class="lb-btn lb-nav lb-next" id="lb-next" type="button" aria-label="Next photo">
       <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
     </button>
+    <div class="lb-strip" id="lb-strip" aria-label="All photos"></div>
   </div>
 
 </body>
