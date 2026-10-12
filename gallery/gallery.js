@@ -140,6 +140,7 @@
     }
     $("notice").hidden = !isLocked;
     $("usage").hidden = false;
+    setupReview();
     route(history.state);
   }
 
@@ -482,6 +483,75 @@
     if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) show(current + (dx < 0 ? 1 : -1));
     else if (dy > 90 && Math.abs(dy) > Math.abs(dx) * 1.5) closeBox(false);
   }, { passive: true });
+
+  /* ---------- review form: stars and a few words, sent privately to us ---------- */
+
+  const reviewKey = `jolero_review_${id}`;
+
+  function setupReview() {
+    $("review").hidden = false;
+    let sent = null;
+    try { sent = JSON.parse(localStorage.getItem(reviewKey) || "null"); } catch (e) { /* storage blocked */ }
+    if (sent) return showThanks(sent);
+
+    $("review-name").value = man.client || "";
+    const inputs = [...document.querySelectorAll("#stars input")];
+    let chosen = 0;
+    const paint = (n) => inputs.forEach((inp, i) => inp.parentElement.classList.toggle("is-on", i < n));
+    inputs.forEach((inp, i) => {
+      inp.addEventListener("change", () => {
+        chosen = i + 1;
+        paint(chosen);
+        $("review-send").disabled = false;
+      });
+      inp.parentElement.addEventListener("mouseenter", () => paint(i + 1));
+      inp.parentElement.addEventListener("mouseleave", () => paint(chosen));
+    });
+
+    $("review-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!chosen) return;
+      const send = $("review-send");
+      const error = $("review-error");
+      send.disabled = true;
+      send.textContent = "Sending…";
+      error.hidden = true;
+      const name = $("review-name").value.trim();
+      try {
+        const res = await fetch(base + "review", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          referrerPolicy: "no-referrer",
+          body: JSON.stringify({
+            stars: chosen,
+            text: $("review-text").value.trim(),
+            name,
+            consent: $("review-consent").checked,
+          }),
+        });
+        if (!res.ok) throw new Error(String(res.status));
+        const record = { stars: chosen, name };
+        try { localStorage.setItem(reviewKey, JSON.stringify(record)); } catch (e2) { /* fine without */ }
+        showThanks(record);
+      } catch (err) {
+        error.textContent = "That didn't send. Please try again, or message us on Instagram.";
+        error.hidden = false;
+        send.disabled = false;
+        send.textContent = "Send review";
+      }
+    });
+  }
+
+  function showThanks(record) {
+    $("review-form").hidden = true;
+    $("review-thanks").hidden = false;
+    const n = Math.min(Math.max(Number(record.stars) || 0, 0), 5);
+    $("thanks-stars").textContent = "★".repeat(n) + "☆".repeat(5 - n);
+    const first = String(record.name || "").trim().split(/\s+/)[0];
+    const title = $("thanks-title");
+    title.textContent = first ? `Thank you, ${first}` : "Thank you";
+    title.appendChild(el("span", "dot", "."));
+  }
 
   /* ---------- other files ---------- */
 
