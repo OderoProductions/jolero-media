@@ -7,7 +7,7 @@
 
   const LOCAL = location.hostname === "localhost" || location.hostname === "127.0.0.1";
   const API = LOCAL ? "http://localhost:8787" : "https://jolero-gallery.jolero-gallery-worker.workers.dev";
-  const ID_RE = /^[A-Za-z0-9_-]{16,64}$/;
+  const ID_RE = /^[A-Za-z0-9_-]{12,64}$/;
   const KEY_RE = /^[tpo]\/[A-Za-z0-9][A-Za-z0-9._-]{0,180}$/;
 
   const $ = (id) => document.getElementById(id);
@@ -29,7 +29,11 @@
     return s;
   };
 
-  const id = decodeURIComponent(location.hash.slice(1)).trim();
+  // Links look like #coach-manowar/k3J9xQ2mPa7Z: the name is only for people,
+  // the code after the last slash is what finds the gallery
+  const id = decodeURIComponent(location.hash.slice(1)).trim().split("/").pop();
+  const slug = (s) => s.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60);
   const base = `${API}/g/${id}/`;
   const url = (key, download) => (KEY_RE.test(key || "") ? base + key + (download ? "?dl=1" : "") : "");
 
@@ -109,6 +113,10 @@
     isLocked = locked;
 
     document.title = `${man.title || "Your gallery"} | Jolero Media`;
+    const name = slug(man.title || "");
+    if (name && location.hash.slice(1) !== `${name}/${id}`) {
+      history.replaceState(history.state, "", `#${name}/${id}`);
+    }
     setTitle(man.title || "Your gallery");
 
     const osd = $("meta");
