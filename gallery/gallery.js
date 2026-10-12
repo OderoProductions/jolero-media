@@ -184,7 +184,6 @@
   function showHome() {
     const all = folders.flatMap((f) => f.items).concat(root);
     setTitle(man.title || "Your gallery");
-    $("slate").hidden = false;
     $("crumb").hidden = true;
     const parts = [];
     if (man.client) parts.push([man.client, ""]);
@@ -202,7 +201,6 @@
 
   function showFolder(f) {
     setTitle(f.name || "Folder");
-    $("slate").hidden = true;
     $("crumb").hidden = false;
     $("crumb-text").textContent = man.title || "All folders";
     const parts = counts(f.items);
