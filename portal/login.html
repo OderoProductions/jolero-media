@@ -11,9 +11,10 @@
   <!-- ============================================================
        PORTAL SIGN IN
 
-       Magic link only: no passwords are stored, sent or reset here.
-       The tokens that come back land in the URL fragment and are
-       consumed by auth.js, which then scrubs the address bar.
+       Emailed 6-digit code: type your email, then the code from the
+       email. No passwords. The same email also carries a one-tap link,
+       whose tokens land in the URL fragment and are consumed by
+       auth.js, which then scrubs the address bar.
        ============================================================ -->
 
   <title>Sign in — Jolero Media Portal</title>
@@ -22,7 +23,7 @@
 
   <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
   <link rel="stylesheet" href="../styles.css?v=20261013">
-  <link rel="stylesheet" href="portal.css">
+  <link rel="stylesheet" href="portal.css?v=20261013b">
   <script>/* theme before first paint: saved choice, else OS, else dark */try{var s=localStorage.getItem("jolero_theme");if(s?s==="light":matchMedia("(prefers-color-scheme: light)").matches)document.documentElement.classList.add("theme-light")}catch(e){}</script>
 </head>
 <body>
@@ -53,8 +54,8 @@
 
       <h1 class="portal-h1" id="login-title">Client portal</h1>
       <p class="portal-sub" id="login-intro">
-        Enter the email address we set your account up with. We'll send you a
-        link that signs you straight in — there's no password to remember.
+        Enter the email address we set your account up with and we'll email
+        you a 6-digit code. No password needed.
       </p>
 
       <form id="login-form" novalidate>
@@ -63,22 +64,21 @@
           <input type="email" id="login-email" name="email" required autocomplete="email"
                  inputmode="email" spellcheck="false" placeholder="you@yourclub.com">
         </label>
-        <!-- Admin mode only. autocomplete="current-password" lets a password
-             manager fill it; the set-password dialog uses "new-password" so
-             browsers offer to generate a strong one there instead. -->
-        <label class="field" for="login-password" id="password-field" hidden>
-          <span>Password</span>
-          <input type="password" id="login-password" name="password"
-                 autocomplete="current-password" placeholder="Your admin password">
+        <!-- Step two: the code from the email. one-time-code lets phones
+             offer it straight from the Mail notification. -->
+        <label class="field" for="login-code" id="code-field" hidden>
+          <span>6-digit code</span>
+          <input type="text" id="login-code" name="code" inputmode="numeric"
+                 autocomplete="one-time-code" maxlength="10" spellcheck="false"
+                 placeholder="123456">
         </label>
-
-        <button class="btn btn-primary" type="submit" id="login-submit">Email me a link</button>
+        <button class="btn btn-primary" type="submit" id="login-submit">Email me a code</button>
       </form>
 
-      <!-- Escape hatch: a forgotten password must never mean locked out of
-           your own business, so the one-time link stays available. -->
       <p class="login-alt" id="login-alt" hidden>
-        <button type="button" class="link-quiet" id="use-link">Forgotten it? Email me a one-time link instead</button>
+        <button type="button" class="link-quiet" id="resend-code">Send a new code</button>
+        <span aria-hidden="true"> · </span>
+        <button type="button" class="link-quiet" id="change-email">Use a different email</button>
       </p>
 
       <p class="login-msg" id="login-msg" role="status" aria-live="polite" hidden></p>
@@ -100,9 +100,9 @@
     Jolero Media · West Sussex
   </footer>
 
-  <script src="../theme.js"></script>
-  <script src="supabase-config.js"></script>
-  <script src="auth.js"></script>
-  <script src="login.js"></script>
+  <script src="../theme.js?v=20261013b"></script>
+  <script src="supabase-config.js?v=20261013b"></script>
+  <script src="auth.js?v=20261013b"></script>
+  <script src="login.js?v=20261013b"></script>
 </body>
 </html>

@@ -12,7 +12,7 @@
   const LOCAL = location.hostname === "localhost" || location.hostname === "127.0.0.1";
   const API = LOCAL ? "http://localhost:8787" : "https://jolero-gallery.jolero-gallery-worker.workers.dev";
   const ID_RE = /^[A-Za-z0-9_-]{12,64}$/;
-  const KEY_RE = /^[tpo]\/[A-Za-z0-9][A-Za-z0-9._-]{0,180}$/;
+  const KEY_RE = /^[tpov]\/[A-Za-z0-9][A-Za-z0-9._-]{0,180}$/; // v/ = a video that is its own preview
 
   const $ = (id) => document.getElementById(id);
   const el = (tag, cls, text) => {

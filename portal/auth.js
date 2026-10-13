@@ -1,7 +1,8 @@
 /* ============================================================
    JOLERO MEDIA PORTAL — auth.js
 
-   Magic-link sign in, session handling and the page guard.
+   Code sign in (an emailed 6-digit code, with a one-tap link in the same
+   email as a fallback), session handling and the page guard.
 
    Talks to Supabase's REST endpoints directly rather than pulling in
    their JavaScript SDK. That keeps the site dependency-free, keeps
@@ -11,12 +12,15 @@
 
    HOW A SIGN IN GOES
      1. Someone types their email on login.html.
-     2. We POST it to /auth/v1/otp and Supabase emails a one-time link.
-     3. They click it. Supabase bounces them back to login.html with
-        tokens in the URL fragment (#access_token=...).
-     4. We store the tokens, wipe them out of the address bar, read
-        the person's profile, and send them to the right place:
-        admins to admin/, clients to the client page.
+     2. We POST it to /auth/v1/otp and Supabase emails a 6-digit code
+        (and a one-tap link, for anyone who prefers to tap).
+     3. They type the code; we POST it to /auth/v1/verify and get a
+        session back. (Or they tap the link and come back to login.html
+        with tokens in the URL fragment, #access_token=....)
+     4. We store the tokens, read the person's profile, and send them to
+        the right place: admins to admin/, clients to the client page.
+     The code works in whatever browser asked for it, which the link
+     doesn't always: on a phone, Gmail opens links in its own browser.
 
    WHAT THE GUARD DOES
      Any portal page carrying <meta name="portal-role" content="admin">
@@ -95,22 +99,45 @@
     var text = await res.text();
     var json = text ? JSON.parse(text) : {};
     if (!res.ok) {
-      throw new Error(json.error_description || json.msg || json.error || ("Sign-in failed (" + res.status + ")"));
+      var err = new Error(json.error_description || json.msg || json.error || ("Sign-in failed (" + res.status + ")"));
+      err.status = res.status;
+      throw err;
     }
     return json;
   }
 
+  /* Swap the refresh token for a new access token (about once an hour).
+     Only one refresh runs at a time, even when several calls ask at once,
+     and if another tab has already refreshed we use its tokens. Only
+     Supabase REJECTING the refresh token signs you out; a dropped
+     connection or a Supabase hiccup keeps the stored session so the
+     next attempt can succeed. (Wiping it on any error was what kept
+     signing people out.) */
+  var refreshing = null;
+
   async function refresh(session) {
     if (!session || !session.refreshToken) return null;
-    try {
-      var data = await authFetch("/token?grant_type=refresh_token", {
-        body: { refresh_token: session.refreshToken }
-      });
-      return storeTokens(data);
-    } catch (e) {
-      writeSession(null);          // refresh token dead: treat as signed out
-      return null;
-    }
+    if (refreshing) return refreshing;
+    refreshing = (async function () {
+      var latest = readSession() || session;
+      if (latest.refreshToken !== session.refreshToken && Date.now() < latest.expiresAt) return latest;
+      for (var attempt = 0; attempt < 2; attempt++) {
+        try {
+          var data = await authFetch("/token?grant_type=refresh_token", {
+            body: { refresh_token: latest.refreshToken }
+          });
+          return storeTokens(data);
+        } catch (e) {
+          if (e.status === 400 || e.status === 401 || e.status === 403) {
+            writeSession(null);    // refresh token rejected: genuinely signed out
+            return null;
+          }
+          await new Promise(function (r) { setTimeout(r, 1500); });
+        }
+      }
+      return null;                 // still offline: keep the session for next time
+    })();
+    try { return await refreshing; } finally { refreshing = null; }
   }
 
   /* Current session, refreshed if it is close to expiry. Returns null
@@ -164,7 +191,20 @@
     return true;
   }
 
-  /* Password sign-in. Admins only in practice: clients never get a password
+  /* Step two of a code sign-in: the 6-digit code from the email. */
+  async function verifyCode(email, code) {
+    if (!configured()) throw new Error("Supabase isn't connected yet.");
+    var data = await authFetch("/verify", {
+      body: { type: "email", email: String(email).trim(), token: String(code).replace(/\D/g, "") }
+    });
+    cachedProfile = null;
+    var s = storeTokens(data);
+    if (!s) throw new Error("That code didn't sign you in. Send a new one and try again.");
+    return s;
+  }
+
+  /* Password sign-in. No longer offered on login.html (codes replaced it);
+     kept so an existing admin password still works if it's ever needed. Admins only in practice: clients never get a password
      set, so this endpoint has nothing to match for them and they stay on
      magic links. Supabase rate-limits this endpoint, and a wrong password
      returns the same generic message as an unknown account so it can't be
@@ -269,6 +309,7 @@
   window.PortalAuth = {
     configured: configured,
     signIn: signIn,
+    verifyCode: verifyCode,
     signInWithPassword: signInWithPassword,
     setPassword: setPassword,
     signOut: signOut,

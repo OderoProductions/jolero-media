@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="portal-role" content="admin">
+  <!-- Security policy. GitHub Pages cannot send real HTTP headers, so this
+       meta tag is the enforcement point. Scripts are allowed by SHA-256 hash:
+       if you EDIT ANY INLINE <script> on this page you must recompute its
+       hash (shasum -a 256 of the exact script contents, base64) or the
+       script silently stops running. External scripts: same-origin only. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9hUOTyB0SoibSiWOZkJw2eqQFml00iDkRip2DzmnPus=' 'sha256-JssKZq7Zz1tMpFd4T9itCjnPwy3MNAE7DIQFnyVS3Ec='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://formspree.io https://*.supabase.co https://jolero-gallery.jolero-gallery-worker.workers.dev http://localhost:8787; media-src 'self' blob:; form-action 'self' https://formspree.io; object-src 'none'; base-uri 'self'; upgrade-insecure-requests">
+  <meta name="theme-color" content="#F5F5F3" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0A0A0A">
+  <meta name="robots" content="noindex">
+  <title>Galleries — Jolero Media Portal</title>
+  <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+  <link rel="stylesheet" href="../../styles.css?v=20261013">
+  <link rel="stylesheet" href="../portal.css?v=20261013b">
+  <script>/* theme before first paint: saved choice, else OS, else dark */try{var s=localStorage.getItem("jolero_theme");if(s?s==="light":matchMedia("(prefers-color-scheme: light)").matches)document.documentElement.classList.add("theme-light")}catch(e){}</script>
+</head>
+<body>
+
+  <header class="portal-top">
+    <div class="portal-top-inner">
+      <a class="wordmark" href="../../" aria-label="Jolero Media — back to main site"><img class="logo-mark" src="../../assets/logo.svg" alt="" width="40" height="40"><img class="logo-mark logo-mark-dark" src="../../assets/logo-dark.svg" alt="" width="40" height="40"><span class="wordmark-text">JOLERO MEDIA</span></a>
+      <nav class="admin-nav" aria-label="Admin sections">
+        <a href="index.html">Dashboard</a>
+        <a href="projects.html">Projects</a>
+        <a href="galleries.html" aria-current="page">Galleries</a>
+        <a href="schedule.html">Schedule</a>
+        <a href="invoices.html">Accounting</a>
+        <a href="contracts.html">Contracts</a>
+        <a href="clients.html">Clients</a>
+      </nav>
+      <div class="portal-top-right">
+        <button class="link-quiet" id="set-password" type="button" style="font-size:0.8rem;" hidden>Password</button>
+        <button class="link-quiet" id="sign-out" type="button" style="font-size:0.8rem;">Sign out</button>
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to light mode">
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        </button>
+        <div class="bell-wrap">
+          <button class="bell-btn" id="bell-btn" type="button" aria-label="Notifications" aria-expanded="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+            <span class="bell-count" id="bell-count" hidden></span>
+          </button>
+          <div class="bell-panel" id="bell-panel" hidden>
+            <div class="bell-panel-head">Notifications
+              <button class="link-quiet" id="bell-read-all" type="button">Mark all read</button>
+            </div>
+            <ol class="bell-list" id="bell-list"></ol>
+          </div>
+        </div>
+        <a href="../">Client view</a>
+        <button class="link-quiet" id="export-data" type="button" style="font-size:0.8rem;">Back up</button>
+        <button class="link-quiet" id="import-data" type="button" style="font-size:0.8rem;">Restore</button>
+        <input type="file" id="import-file" accept="application/json,.json" hidden>
+        <button class="link-quiet" id="reset-all" type="button" style="font-size:0.8rem;">Erase all</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="portal-shell">
+
+    <div>
+      <h1 class="portal-h1">Galleries</h1>
+      <p class="portal-sub">Client galleries on joleromedia.com. Drop a folder to make one, copy a link, or change one below.</p>
+    </div>
+
+    <p class="login-msg is-ok g-flash" id="g-flash" role="status" aria-live="polite" hidden></p>
+
+    <section class="portal-section">
+      <details class="adder" id="new-gallery">
+        <summary id="form-head">New gallery</summary>
+        <div class="adder-body">
+          <form class="portal-form" id="gallery-form" novalidate>
+            <label class="field field-wide" id="title-field">
+              <span>Title</span>
+              <input type="text" id="g-title" maxlength="120" placeholder="Coach Manowar" autocomplete="off">
+            </label>
+            <label class="field field-wide" id="foldername-field" hidden>
+              <span>Folder name in the gallery</span>
+              <input type="text" id="g-folder" maxlength="80" placeholder="Videos" autocomplete="off">
+            </label>
+            <div class="form-contents" id="new-only">
+              <label class="field">
+                <span>Client (optional)</span>
+                <input type="text" id="g-client" list="client-names" maxlength="120" placeholder="André Roberto" autocomplete="off">
+              </label>
+              <label class="field">
+                <span>Online for</span>
+                <select id="g-days">
+                  <option value="30">30 days</option>
+                  <option value="60">60 days</option>
+                  <option value="90" selected>90 days</option>
+                  <option value="180">6 months</option>
+                  <option value="365">1 year</option>
+                  <option value="never">No expiry</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>Downloads</span>
+                <select id="g-hold">
+                  <option value="">Open straight away</option>
+                  <option value="1">Previews only until I unlock them</option>
+                </select>
+              </label>
+              <label class="field field-wide">
+                <span>Note to the client (optional)</span>
+                <textarea id="g-message" rows="3" maxlength="1200" placeholder="Hey Coach, it was a pleasure meeting you..."></textarea>
+              </label>
+            </div>
+
+            <div class="field-wide dropzone" id="dropzone">
+              <p class="dz-title">Drop a folder or files here</p>
+              <p class="dz-sub">Subfolders become folders in the gallery, each with its own cover and Download all.
+                Or <button type="button" class="link-quiet" id="pick-folder">choose a folder</button>
+                or <button type="button" class="link-quiet" id="pick-files">choose files</button>.</p>
+              <input type="file" id="folder-input" webkitdirectory multiple hidden>
+              <input type="file" id="files-input" multiple hidden>
+            </div>
+            <p class="field-wide dz-summary" id="dz-summary" hidden></p>
+            <p class="field-wide hint">Photos and normal MP4 or H.264 videos get previews. Anything this browser can't show
+              (ProRes, RAW, HEIC on Chrome) still goes up as a download. Keep this tab open while it uploads.</p>
+
+            <div class="form-actions">
+              <button class="btn btn-primary" type="submit" id="g-submit" disabled>Create gallery</button>
+              <button class="btn btn-ghost" type="button" id="g-reset">Clear</button>
+            </div>
+          </form>
+
+          <div class="upload-progress" id="upload-progress" hidden>
+            <p class="up-stage" id="up-stage">Getting ready</p>
+            <div class="up-bar"><span id="up-fill"></span></div>
+            <p class="up-detail" id="up-detail"></p>
+          </div>
+
+          <div class="upload-done" id="upload-done" hidden>
+            <p id="done-lead">Gallery ready.</p>
+            <p class="done-link"><a id="done-link" href="#" target="_blank" rel="noopener"></a></p>
+            <button class="btn btn-primary" type="button" id="done-copy">Copy link</button>
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <section class="portal-section">
+      <h2>All galleries <span class="count" id="g-count"></span></h2>
+      <div class="g-list" id="gallery-list"><p class="empty-note">Loading galleries…</p></div>
+    </section>
+
+    <datalist id="client-names"></datalist>
+  </main>
+
+  <dialog class="pdialog" id="g-dialog" aria-labelledby="gd-title">
+    <div class="pdialog-head"><h3 id="gd-title">Are you sure?</h3></div>
+    <div class="pdialog-body">
+      <p class="g-dialog-text" id="gd-body"></p>
+      <textarea class="g-dialog-input" id="gd-text" rows="4" hidden></textarea>
+      <div class="form-actions g-dialog-actions">
+        <button class="btn btn-primary" type="button" id="gd-ok">OK</button>
+        <button class="btn btn-ghost" type="button" id="gd-cancel">Cancel</button>
+      </div>
+    </div>
+  </dialog>
+
+  <footer class="portal-foot">Jolero Media · internal — Phase 1/4 preview running on mock data</footer>
+
+  <script src="../../theme.js?v=20261013b"></script>
+  <script src="../supabase-config.js?v=20261013b"></script>
+  <script src="../auth.js?v=20261013b"></script>
+  <script src="../data.js?v=20261013b"></script>
+  <script src="../store.js?v=20261013b"></script>
+  <script src="../admin.js?v=20261013b"></script>
+  <script src="../galleries.js?v=20261013b"></script>
+
+  <!-- Set/change your own admin password. Requires a live session, so it can
+       only ever change the account you are signed in as. autocomplete
+       "new-password" makes browsers and password managers offer to generate a
+       strong one and save it — which is a better password than anyone types. -->
+  <dialog class="pdialog" id="pw-dialog">
+    <form method="dialog" id="pw-form">
+      <h2>Set your password</h2>
+      <p class="pdialog-note">
+        For the admin side only. Clients always sign in with a one-time link.
+        Let your browser generate and save one — it'll be stronger than anything
+        you'd invent.
+      </p>
+      <label class="field">
+        <span>New password</span>
+        <input type="password" id="pw-new" autocomplete="new-password" minlength="12" required
+               placeholder="At least 12 characters">
+      </label>
+      <label class="field">
+        <span>Confirm</span>
+        <input type="password" id="pw-confirm" autocomplete="new-password" minlength="12" required
+               placeholder="Type it again">
+      </label>
+      <p class="login-msg" id="pw-msg" role="status" aria-live="polite" hidden></p>
+      <div class="pdialog-actions">
+        <button class="btn btn-ghost" type="button" id="pw-cancel">Cancel</button>
+        <button class="btn btn-primary" type="button" id="pw-save">Save password</button>
+      </div>
+    </form>
+  </dialog>
+</body>
+</html>

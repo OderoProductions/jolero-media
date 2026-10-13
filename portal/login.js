@@ -1,9 +1,11 @@
 /* ============================================================
    JOLERO MEDIA PORTAL — login.js
 
-   Drives login.html. Three jobs: send the magic link, handle the
-   return trip when someone clicks it, and route them to the right
-   page once we know who they are.
+   Drives login.html. Code sign-in in two steps: type your email and
+   we email a 6-digit code; type the code and you're in. The same
+   email carries a one-tap link too, so this also handles the return
+   trip from that link. Then it routes people to the right page once
+   we know who they are. No passwords anywhere.
    ============================================================ */
 
 (function () {
@@ -11,6 +13,7 @@
 
   var form = document.getElementById("login-form");
   var email = document.getElementById("login-email");
+  var emailField = email.closest(".field");
   var submit = document.getElementById("login-submit");
   var msg = document.getElementById("login-msg");
   var intro = document.getElementById("login-intro");
@@ -18,35 +21,36 @@
   var label = document.getElementById("login-label");
   var toAdmin = document.getElementById("to-admin");
   var toClient = document.getElementById("to-client");
-  var pwField = document.getElementById("password-field");
-  var pw = document.getElementById("login-password");
+  var codeField = document.getElementById("code-field");
+  var code = document.getElementById("login-code");
   var alt = document.getElementById("login-alt");
-  var useLink = document.getElementById("use-link");
+  var resend = document.getElementById("resend-code");
+  var changeEmail = document.getElementById("change-email");
 
-  /* Admins sign in with a password by default; the one-time link stays as a
-     fallback. Clients only ever get the link — no password to forget, no
-     password to leak, and nothing for us to reset at 9pm on a Saturday. */
-  var forceLink = false;
+  var TEAM_EMAIL = "info@joleromedia.com";
+  var step = "email";        // "email" or "code"
+  var sentTo = "";
+  var cooldownTimer = 0;
 
   /* ---------- the two modes ----------
-     Cosmetic only. Nothing here grants anything: after the emailed link is
-     clicked, routeIn() reads the role from the database and sends the person
-     wherever they actually belong. Using the team form does not make you an
-     admin, and using the client form does not stop you being one. */
+     Cosmetic only. Nothing here grants anything: once signed in,
+     routeIn() reads the role from the database and sends the person
+     wherever they actually belong. Using the team form does not make you
+     an admin, and using the client form does not stop you being one. */
 
   var COPY = {
     client: {
       title: "Client portal",
-      intro: "Enter the email address we set your account up with. We'll send you a " +
-             "link that signs you straight in — there's no password to remember.",
+      intro: "Enter the email address we set your account up with and we'll email " +
+             "you a 6-digit code. No password needed.",
       label: "Email address",
       placeholder: "you@yourclub.com"
     },
     team: {
       title: "Admin login",
-      intro: "Jolero Media team only.",
-      label: "Work email",
-      placeholder: "you@joleromedia.com"
+      intro: "Jolero Media team. We'll email a 6-digit code to the admin inbox.",
+      label: "Admin email",
+      placeholder: TEAM_EMAIL
     }
   };
 
@@ -56,16 +60,11 @@
     intro.textContent = c.intro;
     label.textContent = c.label;
     email.placeholder = c.placeholder;
+    if (mode === "team" && !email.value) email.value = TEAM_EMAIL;
+    if (mode !== "team" && email.value === TEAM_EMAIL) email.value = "";
     toAdmin.hidden = mode === "team";
     toClient.hidden = mode !== "team";
     document.title = c.title + " — Jolero Media Portal";
-
-    var usePassword = mode === "team" && !forceLink;
-    pwField.hidden = !usePassword;
-    pw.required = usePassword;
-    if (!usePassword) pw.value = "";
-    alt.hidden = !usePassword;
-    submit.textContent = usePassword ? "Sign in" : "Email me a link";
     if (pushUrl) {
       // keep it bookmarkable without a reload
       history.replaceState(null, "", mode === "team" ? "?admin=1" : location.pathname);
@@ -81,6 +80,19 @@
     msg.textContent = text;
     msg.className = "login-msg" + (kind ? " is-" + kind : "");
     msg.hidden = false;
+  }
+
+  function showStep(next) {
+    step = next;
+    var codeStep = next === "code";
+    emailField.hidden = codeStep;
+    codeField.hidden = !codeStep;
+    alt.hidden = !codeStep;
+    code.required = codeStep;
+    submit.textContent = codeStep ? "Sign in" : "Email me a code";
+    submit.disabled = false;
+    if (codeStep) { code.value = ""; code.focus(); }
+    else { email.focus(); }
   }
 
   function destinationFor(profile) {
@@ -99,21 +111,53 @@
     say("You're signed in, but this email isn't linked to an account yet. " +
         "Email info@joleromedia.com and we'll add you.", "warn");
     await PortalAuth.signOut();
+    showStep("email");
     return false;
   }
 
-  useLink.addEventListener("click", function () {
-    forceLink = true;
-    setMode("team", false);
-    say("No problem — we'll email you a one-time link instead.", "ok");
-    email.focus();
+  // Supabase lets one code go out per email per minute
+  function startCooldown() {
+    var left = 60;
+    resend.disabled = true;
+    clearInterval(cooldownTimer);
+    var tick = function () {
+      resend.textContent = left > 0 ? "Send a new code (" + left + "s)" : "Send a new code";
+      resend.disabled = left > 0;
+      if (left-- <= 0) clearInterval(cooldownTimer);
+    };
+    tick();
+    cooldownTimer = setInterval(tick, 1000);
+  }
+
+  async function sendCode(address) {
+    await PortalAuth.signIn(address, location.origin + location.pathname);
+    sentTo = address;
+    showStep("code");
+    startCooldown();
+    say("Check your email at " + address + ". Type the 6-digit code here, " +
+        "or tap the sign-in link in the email.", "ok");
+  }
+
+  toAdmin.addEventListener("click", function () { setMode("team", true); showStep("email"); });
+  toClient.addEventListener("click", function () { setMode("client", true); showStep("email"); });
+  changeEmail.addEventListener("click", function () { msg.hidden = true; showStep("email"); });
+  resend.addEventListener("click", async function () {
+    if (!sentTo) return;
+    resend.disabled = true;
+    try { await sendCode(sentTo); }
+    catch (err) { say(err.message || "Couldn't send a new code. Try again in a moment.", "error"); resend.disabled = false; }
   });
 
-  toAdmin.addEventListener("click", function () { forceLink = false; setMode("team", true); email.focus(); });
-  toClient.addEventListener("click", function () { forceLink = false; setMode("client", true); email.focus(); });
+  // Paste or type: once six digits are in, sign straight in
+  code.addEventListener("input", function () {
+    var digits = code.value.replace(/\D/g, "");
+    if (digits !== code.value) code.value = digits;
+    if (digits.length === 6 && !submit.disabled) form.requestSubmit();
+  });
 
   (async function init() {
     setMode(currentMode(), false);
+    showStep("email");
 
     if (!PortalAuth.configured()) {
       form.hidden = true;
@@ -123,10 +167,10 @@
       return;
     }
 
-    // Came back from a magic link?
+    // Came back from the link in the email?
     var cb = PortalAuth.consumeCallback();
     if (cb && cb.error) {
-      say(cb.error + " Links expire quickly — send yourself a fresh one.", "error");
+      say(cb.error + " Links expire quickly, so ask for a fresh code below.", "error");
     } else if (cb && cb.session) {
       say("Signed in. Taking you through…", "ok");
       await routeIn();
@@ -145,52 +189,48 @@
 
   form.addEventListener("submit", async function (e) {
     e.preventDefault();
-    var address = email.value.trim();
-    if (!address || address.indexOf("@") === -1) {
-      say("Enter the email address your account uses.", "error");
-      email.focus();
-      return;
-    }
-
-    var usingPassword = !pwField.hidden;
-    if (usingPassword && !pw.value) {
-      say("Enter your password, or use the one-time link below.", "error");
-      pw.focus();
-      return;
-    }
-
-    submit.disabled = true;
     var original = submit.textContent;
-    submit.textContent = usingPassword ? "Signing in…" : "Sending…";
 
-    try {
-      if (usingPassword) {
-        await PortalAuth.signInWithPassword(address, pw.value);
-        pw.value = "";                       // don't leave it sitting in the DOM
-        say("Signed in. Taking you through…", "ok");
-        await routeIn();
+    if (step === "email") {
+      var address = email.value.trim();
+      if (!address || address.indexOf("@") === -1) {
+        say("Enter the email address your account uses.", "error");
+        email.focus();
         return;
       }
-      await PortalAuth.signIn(address, location.origin + location.pathname);
-      form.hidden = true;
-      alt.hidden = true;
-      intro.textContent = "";
-      say("Check your inbox — we've sent a sign-in link to " + address +
-          ". It's good for one use and expires within the hour.", "ok");
+      submit.disabled = true;
+      submit.textContent = "Sending…";
+      try {
+        await sendCode(address);
+      } catch (err) {
+        say(err.message || "Couldn't send a code. Try again in a moment.", "error");
+        submit.disabled = false;
+        submit.textContent = original;
+      }
+      return;
+    }
+
+    var digits = code.value.replace(/\D/g, "");
+    if (digits.length < 6) {
+      say("Enter the 6-digit code from the email.", "error");
+      code.focus();
+      return;
+    }
+    submit.disabled = true;
+    submit.textContent = "Signing in…";
+    try {
+      await PortalAuth.verifyCode(sentTo, digits);
+      say("Signed in. Taking you through…", "ok");
+      await routeIn();
     } catch (err) {
-      // Supabase returns the same message for a wrong password and an unknown
-      // account, which is deliberate — don't dress it up into something that
-      // would confirm whether an address exists.
-      var m = err.message || "";
-      say(usingPassword
-            ? (/invalid/i.test(m)
-                ? "That email and password don't match. Try again, or use the one-time link below."
-                : m || "Couldn't sign you in. Try again in a moment.")
-            : (m || "Couldn't send that link. Try again in a moment."),
+      // Supabase says "Token has expired or is invalid" for both cases
+      say(/expired|invalid/i.test(err.message || "")
+            ? "That code didn't work. Check it, or send a new one."
+            : (err.message || "Couldn't sign you in. Try again in a moment."),
           "error");
       submit.disabled = false;
       submit.textContent = original;
-      if (usingPassword) { pw.value = ""; pw.focus(); }
+      code.select();
     }
   });
 })();
