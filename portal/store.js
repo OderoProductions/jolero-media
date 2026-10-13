@@ -515,11 +515,11 @@
 
       s.events.forEach(function (e) {
         events.push({
-          kind: "event", date: e.date,
+          kind: "event", date: e.date, endDate: e.endDate || "",
           time: e.time || "", endTime: e.endTime || "",
           title: e.title, label: e.type,
           sub: e.notes || (clientName[e.clientId] || ""),
-          eventId: e.id
+          eventId: e.id, away: e.type === "Away"
         });
       });
 

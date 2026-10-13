@@ -50,7 +50,10 @@
 
     var upcoming = []
       .concat((data.events || []).map(function (e) {
-        return { date: e.date, time: e.time || "", text: e.title, tag: e.type };
+        var until = e.endDate && e.endDate > e.date ? e.endDate : "";
+        // an entry over several days stays listed until its last day
+        return { date: until && e.date < todayISO() ? todayISO() : e.date, until: until,
+                 time: e.time || "", text: e.title, tag: e.type };
       }))
       .concat(data.projects.filter(function (p) { return p.shootDate; }).map(function (p) {
         return { date: p.shootDate, time: "", text: p.title, tag: "Shoot" };
@@ -79,7 +82,8 @@
         upcoming.length ? upcoming.length : "—",
         upcoming.length
           ? upcoming.map(function (u) {
-              return fmtDate(u.date) + (u.time ? " " + u.time : "") + " — " + esc(u.text);
+              return fmtDate(u.date) + (u.until ? " – " + fmtDate(u.until) : "") +
+                (u.time ? " " + u.time : "") + " — " + esc(u.text);
             }).join("<br>")
           : "Nothing coming up") +
 

@@ -42,6 +42,18 @@
   }
   var todayISO = iso(today);
 
+  // Entries over several days (being away, a shoot week) carry an endDate
+  function lastDay(ev) { return ev.endDate && ev.endDate > ev.date ? ev.endDate : ev.date; }
+  function isMulti(ev) { return lastDay(ev) !== ev.date; }
+  function shiftISO(s, days) {
+    var d = parseISO(s);
+    d.setDate(d.getDate() + days);
+    return iso(d);
+  }
+  function daysBetween(a, b) {
+    return Math.round((parseISO(b) - parseISO(a)) / 86400000);
+  }
+
   // Drag-and-drop is desktop-only sugar (dialogs are the touch/keyboard path).
   // Without this gate, iPadOS lifts draggable chips on press-and-hold and a
   // stray release silently rewrites dates.
@@ -59,15 +71,18 @@
   }
 
   // Timed entries get real start/end times; everything else stays all-day.
+  // Over several days, the start time is on the first day and the end
+  // time on the last.
   function rangeFor(ev) {
+    var last = lastDay(ev);
     if (ev.time) {
       return {
         start: stampT(ev.date, ev.time),
-        end: stampT(ev.date, ev.endTime || plusHour(ev.time)),
+        end: stampT(last, ev.endTime || (last !== ev.date ? "23:59" : plusHour(ev.time))),
         timed: true
       };
     }
-    return { start: compact(ev.date), end: nextDayCompact(ev.date), timed: false };
+    return { start: compact(ev.date), end: nextDayCompact(last), timed: false };
   }
 
   // Single event → Google's prefilled "create event" screen.
@@ -161,9 +176,15 @@
 
   /* ---------- calendar ---------- */
 
+  // Everything on a day, with entries running over several days first so
+  // their bars line up from one day to the next
   function eventsOn(dateISO) {
-    return allEvents.filter(function (e) { return e.date === dateISO; });
+    var on = allEvents.filter(function (e) { return e.date <= dateISO && dateISO <= lastDay(e); });
+    return on.filter(isMulti).concat(on.filter(function (e) { return !isMulti(e); }));
   }
+
+  // "13 Oct – 20 Oct"
+  function spanText(ev) { return fmtDate(ev.date) + " – " + fmtDate(lastDay(ev)); }
 
   function renderCalendar() {
     document.getElementById("cal-month").textContent = MONTHS[view.m] + " " + view.y;
@@ -184,19 +205,32 @@
       var evs = eventsOn(dISO);
 
       var chips = evs.slice(0, 3).map(function (e, idx) {
-        return '<button class="chip chip-' + e.kind + (e.done ? " is-done" : "") +
+        // A multi-day entry draws as one bar across its days: rounded ends
+        // on the first and last day, and the title again on Mondays
+        var span = "", first = true;
+        if (isMulti(e)) {
+          first = dISO === e.date;
+          var last = dISO === lastDay(e);
+          span = " is-span" + (first ? " span-first" : "") + (last ? " span-last" : "");
+        }
+        var showTitle = first || cursor.getDay() === 1;
+        return '<button class="chip chip-' + e.kind + span + (e.done ? " is-done" : "") +
           '" data-open-event="' + dISO + "|" + idx + '"' +
-          (e.kind === "invoice" || !DRAG_OK ? "" : ' draggable="true"') + ' title="' +
-          esc((e.label ? e.label + " — " : "") + e.title) + '">' +
-          (e.time ? '<span class="chip-time">' + esc(e.time) + "</span> " : "") +
-          esc(e.title) + "</button>";
+          (e.kind === "invoice" || !DRAG_OK ? "" : ' draggable="true"') +
+          (showTitle ? "" : ' aria-label="' + esc(e.title) + '"') + ' title="' +
+          esc((e.label ? e.label + " — " : "") + e.title + (isMulti(e) ? " (" + spanText(e) + ")" : "")) + '">' +
+          (e.time && first ? '<span class="chip-time">' + esc(e.time) + "</span> " : "") +
+          (showTitle ? esc(e.title) : "&nbsp;") +
+          "</button>";
       }).join("");
+      var away = evs.some(function (e) { return e.away; });
       if (evs.length > 3) {
         chips += '<button class="chip-more" data-date="' + dISO + '">+' + (evs.length - 3) + " more</button>";
       }
 
       html += '<div class="cal-cell' + (outside ? " is-outside" : "") +
-        (dISO === todayISO ? " is-today" : "") + '" role="gridcell" data-date="' + dISO + '">' +
+        (dISO === todayISO ? " is-today" : "") + (away ? " is-away" : "") +
+        '" role="gridcell" data-date="' + dISO + '">' +
         '<span class="cal-date">' + cursor.getDate() + "</span>" + chips + "</div>";
 
       cursor.setDate(cursor.getDate() + 1);
@@ -238,6 +272,11 @@
         '" target="_blank" rel="noopener">Add to Google Calendar</a>';
 
       var when = e.time ? e.time + (e.endTime ? "–" + e.endTime : "") : "All day";
+      if (isMulti(e)) {
+        when = spanText(e) + " · Day " + (daysBetween(e.date, selected) + 1) + " of " +
+          (daysBetween(e.date, lastDay(e)) + 1) +
+          (e.time ? " · from " + e.time : "") + (e.endTime ? " · until " + e.endTime : "");
+      }
       return '<div class="day-row k-' + e.kind + '">' +
         "<div><span class='d-title'>" + esc(e.title) + "</span>" +
         '<div class="d-sub">' + esc(when) + " · " + esc(e.label) +
@@ -284,7 +323,13 @@
   }
 
   async function applyMove(info, date) {
-    if (info.kind === "event") await PortalStore.updateEvent(info.id, { date: date });
+    if (info.kind === "event") {
+      // Dragging any day of a multi-day entry moves the whole thing
+      var by = daysBetween(info.fromDate, date);
+      var move = { date: shiftISO(info.date, by) };
+      if (info.endDate) move.endDate = shiftISO(info.endDate, by);
+      await PortalStore.updateEvent(info.id, move);
+    }
     else if (info.kind === "task") await PortalStore.updateTask(info.id, { due: date });
     else if (info.kind === "post") await PortalStore.updatePost(info.id, { date: date });
     else if (info.kind === "shoot") await PortalStore.updateProject(info.id, { shootDate: date });
@@ -301,7 +346,7 @@
     var parts = String(chip.dataset.openEvent || "").split("|");
     var ev = eventsOn(parts[0])[Number(parts[1])];
     if (!ev || ev.kind === "invoice") return;
-    dragInfo = { kind: ev.kind, id: idFor(ev), fromDate: parts[0] };
+    dragInfo = { kind: ev.kind, id: idFor(ev), fromDate: parts[0], date: ev.date, endDate: ev.endDate };
     if (e.dataTransfer) {
       try {
         e.dataTransfer.setData("text/plain", ev.kind + "|" + dragInfo.id + "|" + parts[0]);
@@ -359,6 +404,25 @@
   var pdateForm = document.getElementById("pdate-form");
   // [data-close] handlers and the task dialog live in admin.js (shared)
 
+  // Until can't be before the first day; moving the date later than it
+  // carries Until along, keeping the same length
+  var editingHadEnd = false;
+  var edDate = document.getElementById("ed-date");
+  var edUntil = document.getElementById("ed-until");
+  var lastStart = "";
+  function syncUntil() {
+    edUntil.min = edDate.value || "";
+    edUntil.setCustomValidity("");
+    lastStart = edDate.value;
+  }
+  edDate.addEventListener("change", function () {
+    if (edUntil.value && lastStart && edDate.value) {
+      edUntil.value = shiftISO(edUntil.value, daysBetween(lastStart, edDate.value));
+    }
+    syncUntil();
+  });
+  edUntil.addEventListener("input", function () { edUntil.setCustomValidity(""); });
+
   function openEventDialog(ev) {
     var f = eventForm;
     f.reset();
@@ -368,6 +432,7 @@
       f.elements.title.value = ev.title;
       f.elements.type.value = ev.type;
       f.elements.date.value = ev.date;
+      f.elements.endDate.value = ev.endDate && ev.endDate > ev.date ? ev.endDate : "";
       f.elements.time.value = ev.time || "";
       f.elements.endTime.value = ev.endTime || "";
       f.elements.clientId.value = ev.clientId || "";
@@ -379,6 +444,8 @@
       f.elements.date.value = selected || todayISO;
       document.getElementById("ed-delete").hidden = true;
     }
+    editingHadEnd = !!(ev && ev.endDate);
+    syncUntil();
     eventDialog.showModal();
   }
 
@@ -457,8 +524,27 @@
       clientId: f.elements.clientId.value,
       notes: f.elements.notes.value.trim()
     };
-    if (f.elements.id.value) await PortalStore.updateEvent(f.elements.id.value, fields);
-    else await PortalStore.addEvent(fields);
+    var until = f.elements.endDate.value;
+    if (until && until < fields.date) {
+      edUntil.setCustomValidity("Until has to be on or after the first day.");
+      edUntil.reportValidity();
+      return;
+    }
+    // Only send endDate when there is one to set or clear, so single-day
+    // entries never depend on the column
+    if (until && until > fields.date) fields.endDate = until;
+    else if (editingHadEnd) fields.endDate = "";
+    var save = f.querySelector('[type="submit"]');
+    save.disabled = true;
+    try {
+      if (f.elements.id.value) await PortalStore.updateEvent(f.elements.id.value, fields);
+      else await PortalStore.addEvent(fields);
+    } catch (err) {
+      alert("Couldn't save the event: " + ((err && err.message) || err));
+      return;
+    } finally {
+      save.disabled = false;
+    }
     eventDialog.close();
     await refresh();
   });

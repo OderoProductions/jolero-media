@@ -16,7 +16,7 @@
   <title>Schedule — Jolero Media Portal</title>
   <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
   <link rel="stylesheet" href="../../styles.css?v=20261013">
-  <link rel="stylesheet" href="../portal.css?v=20261013b">
+  <link rel="stylesheet" href="../portal.css?v=20261013d">
   <script>/* theme before first paint: saved choice, else OS, else dark */try{var s=localStorage.getItem("jolero_theme");if(s?s==="light":matchMedia("(prefers-color-scheme: light)").matches)document.documentElement.classList.add("theme-light")}catch(e){}</script>
 </head>
 <body>
@@ -179,8 +179,16 @@
           <select id="ed-type" name="type"></select>
         </div>
         <div class="field">
+          <label for="ed-client">Client <span class="optional">(optional)</span></label>
+          <select id="ed-client" name="clientId"></select>
+        </div>
+        <div class="field">
           <label for="ed-date">Date</label>
           <input id="ed-date" name="date" type="date" required>
+        </div>
+        <div class="field">
+          <label for="ed-until">Until <span class="optional">(optional)</span></label>
+          <input id="ed-until" name="endDate" type="date">
         </div>
         <div class="field">
           <label for="ed-start">Start <span class="optional">(optional)</span></label>
@@ -191,14 +199,11 @@
           <input id="ed-end" name="endTime" type="time">
         </div>
         <div class="field field-wide">
-          <label for="ed-client">Client <span class="optional">(optional)</span></label>
-          <select id="ed-client" name="clientId"></select>
-        </div>
-        <div class="field field-wide">
           <label for="ed-notes">Notes <span class="optional">(optional)</span></label>
           <textarea id="ed-notes" name="notes" rows="2"></textarea>
         </div>
-        <p class="hint">Leave the times blank for an all-day entry.</p>
+        <p class="hint">Leave the times blank for an all-day entry. For anything over
+          several days, like being away, set the last day in Until.</p>
         <div class="form-actions">
           <button class="btn btn-primary" type="submit">Save event</button>
           <button class="btn btn-ghost" type="button" data-close="event-dialog">Cancel</button>
@@ -327,10 +332,10 @@
   <script src="../../theme.js?v=20261013b"></script>
   <script src="../supabase-config.js?v=20261013b"></script>
   <script src="../auth.js?v=20261013b"></script>
-  <script src="../data.js?v=20261013b"></script>
-  <script src="../store.js?v=20261013b"></script>
-  <script src="../admin.js?v=20261013b"></script>
-  <script src="../schedule.js?v=20261013b"></script>
+  <script src="../data.js?v=20261013d"></script>
+  <script src="../store.js?v=20261013d"></script>
+  <script src="../admin.js?v=20261013d"></script>
+  <script src="../schedule.js?v=20261013d"></script>
 
   <!-- Set/change your own admin password. Requires a live session, so it can
        only ever change the account you are signed in as. autocomplete

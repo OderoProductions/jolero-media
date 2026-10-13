@@ -27,7 +27,7 @@ window.JOLERO_SEED = {
   taskTypes: ["Shoot prep", "Edit", "Post", "Admin", "Invoice", "Other"],
 
   // Standalone calendar entries (anything not driven by a project)
-  eventTypes: ["Shoot", "Meeting", "Content day", "Edit day", "Personal", "Other"],
+  eventTypes: ["Shoot", "Meeting", "Content day", "Edit day", "Away", "Personal", "Other"],
 
   // Content planner
   postPlatforms: ["Instagram Reel", "Instagram Post", "Instagram Story", "TikTok", "YouTube", "Other"],

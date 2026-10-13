@@ -155,12 +155,16 @@ create table if not exists public.events (
   title      text not null,
   type       text default '',
   date       date not null,
+  end_date   date,             -- last day, for entries over several days
   time       text default '',
   end_time   text default '',
   notes      text default '',
   client_id  uuid references public.clients (id) on delete set null,
   created_at timestamptz not null default now()
 );
+
+-- added 2026-10-13: projects set up before then need the column too
+alter table public.events add column if not exists end_date date;
 
 create table if not exists public.tasks (
   id         uuid primary key default gen_random_uuid(),
