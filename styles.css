@@ -1325,6 +1325,11 @@ html.theme-light .theme-btn .icon-sun { display: none; }
 }
 .project-gallery { margin-top: clamp(40px, 6vw, 64px); }
 .project-gallery .work-tile { aspect-ratio: 4 / 5; }
+/* Portrait galleries go three across from tablets up (the shared
+   .project-grid would otherwise hold them at two); 4:3 galleries stay at two */
+@media (min-width: 640px) {
+  .project-grid.project-gallery:not(.project-gallery-43) { grid-template-columns: repeat(3, 1fr); }
+}
 .project-next {
   margin-top: clamp(48px, 8vw, 80px);
   padding-top: 26px;
