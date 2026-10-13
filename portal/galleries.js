@@ -650,6 +650,8 @@
 
   function resetForm() {
     form.reset();
+    $("g-new-client").hidden = true;
+    if (clients.length || $("g-client").options.length > 1) fillClients($("g-client"), "");
     addTo = null;
     folderField.hidden = true;
     $("title-field").hidden = false;
@@ -719,12 +721,14 @@
         var plan = [{ fid: null, name: null, items: gr.root }].concat(gr.folders.map(function (f, i) {
           return { fid: "f" + (i + 1), name: f.name, items: f.items };
         })).filter(function (g) { return g.items.length; });
+        var who = await resolveClient($("g-client"), $("g-nc-name"), $("g-nc-email"));
         var out = await build(gid, title, plan, 1, progress);
         written = out.keys;
         progress.stage("Finishing");
         await putManifest({
           v: 2, id: gid, title: title,
-          client: ($("g-client").value || "").trim(),
+          client: who ? who.name : "",
+          clientId: who ? who.id : "",
           message: ($("g-message").value || "").trim(),
           created: new Date().toISOString(),
           expires: days === "never" ? "" : new Date(Date.now() + days * 86400000).toISOString(),
@@ -928,6 +932,16 @@
       open.href = link; open.target = "_blank"; open.rel = "noopener";
       acts.appendChild(open);
       acts.appendChild(btn("Add files", async function () { startAdding(await getManifest(g.id)); }));
+      acts.appendChild(btn(g.clientId ? "Change client" : "Set client", async function () {
+        var man = await getManifest(g.id);
+        var picked = await askClient(man);
+        if (!picked) return;
+        man.clientId = picked.client ? picked.client.id : "";
+        man.client = picked.client ? picked.client.name : "";
+        await putManifest(man);
+        flash(picked.client ? "Linked to " + picked.client.name + "." : "Client removed.");
+        loadList();
+      }));
       acts.appendChild(btn("Note", async function () {
         var man = await getManifest(g.id);
         var text = await ask("Note to the client", "Shown under the title. Leave it empty to remove it.", "Save", true, man.message || "");
@@ -964,18 +978,84 @@
     });
   }
 
-  /* client names from the portal, as suggestions for the Client field */
-  (async function () {
-    try {
-      if (!window.PortalStore) return;
-      var clients = await PortalStore.getClients();
-      var dl = $("client-names");
-      (clients || []).forEach(function (c) {
-        var nm = c.name || c.contactName || "";
-        if (nm) { var o = document.createElement("option"); o.value = nm; dl.appendChild(o); }
-      });
-    } catch (e) { /* suggestions are a nicety */ }
-  })();
+  /* ---------- clients: every gallery belongs to a portal client ---------- */
+
+  var clients = [];
+
+  function fillClients(select, selectedId) {
+    select.textContent = "";
+    var none = el("option", null, "No client yet");
+    none.value = "";
+    select.appendChild(none);
+    clients.slice().sort(function (a, b) { return natural(a.name || "", b.name || ""); }).forEach(function (c) {
+      var o = el("option", null, c.name + (c.contactName && c.contactName !== c.name ? " (" + c.contactName + ")" : ""));
+      o.value = c.id;
+      select.appendChild(o);
+    });
+    var add = el("option", null, "+ New client…");
+    add.value = "__new";
+    select.appendChild(add);
+    select.value = selectedId && clients.some(function (c) { return c.id === selectedId; }) ? selectedId : "";
+  }
+
+  async function loadClients() {
+    try { clients = (window.PortalStore && (await PortalStore.getClients())) || []; }
+    catch (e) { clients = []; }
+    fillClients($("g-client"), "");
+  }
+
+  /* The chosen client, creating it first if "+ New client" was picked.
+     Only a name is needed; email and the rest can be added on the Clients page. */
+  async function resolveClient(select, nameIn, emailIn) {
+    if (select.value === "__new") {
+      var name = (nameIn.value || "").trim();
+      if (!name) { nameIn.focus(); throw new Error("Give the new client a name."); }
+      var row = await PortalStore.addClient({ name: name, kind: "", contactName: name, email: (emailIn.value || "").trim(), phone: "" });
+      clients.push(row);
+      return { id: row.id, name: row.name };
+    }
+    var c = clients.find(function (x) { return x.id === select.value; });
+    return c ? { id: c.id, name: c.name } : null;
+  }
+
+  $("g-client").addEventListener("change", function () {
+    var isNew = this.value === "__new";
+    $("g-new-client").hidden = !isNew;
+    if (isNew) $("g-nc-name").focus();
+  });
+
+  var clientDialog = $("client-dialog");
+  function askClient(current) {
+    return new Promise(function (resolve) {
+      var sel = $("cd-client");
+      fillClients(sel, current.clientId);
+      $("cd-new").hidden = true;
+      $("cd-nc-name").value = current.client && !current.clientId ? current.client : "";
+      $("cd-nc-email").value = "";
+      $("cd-msg").hidden = true;
+      if (!current.clientId && current.client && !clients.some(function (c) { return c.name === current.client; })) {
+        sel.value = "__new";                    // an old free-text client: offer it as the new client's name
+        $("cd-new").hidden = false;
+      }
+      sel.onchange = function () { $("cd-new").hidden = sel.value !== "__new"; if (sel.value === "__new") $("cd-nc-name").focus(); };
+      $("cd-cancel").onclick = function () { clientDialog.close(); resolve(null); };
+      $("cd-ok").onclick = async function () {
+        $("cd-ok").disabled = true;
+        try {
+          var c = await resolveClient(sel, $("cd-nc-name"), $("cd-nc-email"));
+          clientDialog.close();
+          resolve({ client: c });
+        } catch (err) {
+          $("cd-msg").textContent = err.message || String(err);
+          $("cd-msg").hidden = false;
+        }
+        $("cd-ok").disabled = false;
+      };
+      clientDialog.showModal();
+    });
+  }
+
+  loadClients();
 
   // Local testing only: lets a test drive the form without a real drag and drop
   if (LOCAL) window.__galleries = { setPicked: setPicked, normalise: normalise, groupsOf: groupsOf, loadList: loadList };

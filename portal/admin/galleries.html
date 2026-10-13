@@ -16,7 +16,7 @@
   <title>Galleries — Jolero Media Portal</title>
   <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
   <link rel="stylesheet" href="../../styles.css?v=20261013">
-  <link rel="stylesheet" href="../portal.css?v=20261013b">
+  <link rel="stylesheet" href="../portal.css?v=20261013c">
   <script>/* theme before first paint: saved choice, else OS, else dark */try{var s=localStorage.getItem("jolero_theme");if(s?s==="light":matchMedia("(prefers-color-scheme: light)").matches)document.documentElement.classList.add("theme-light")}catch(e){}</script>
 </head>
 <body>
@@ -85,9 +85,19 @@
             </label>
             <div class="form-contents" id="new-only">
               <label class="field">
-                <span>Client (optional)</span>
-                <input type="text" id="g-client" list="client-names" maxlength="120" placeholder="André Roberto" autocomplete="off">
+                <span>Client</span>
+                <select id="g-client"><option value="">Loading clients…</option></select>
               </label>
+              <div class="form-contents new-client" id="g-new-client" hidden>
+                <label class="field">
+                  <span>New client's name</span>
+                  <input type="text" id="g-nc-name" maxlength="120" placeholder="André Roberto" autocomplete="off">
+                </label>
+                <label class="field">
+                  <span>Email (optional, add it later)</span>
+                  <input type="email" id="g-nc-email" maxlength="160" placeholder="name@example.com" autocomplete="off">
+                </label>
+              </div>
               <label class="field">
                 <span>Online for</span>
                 <select id="g-days">
@@ -150,8 +160,32 @@
       <div class="g-list" id="gallery-list"><p class="empty-note">Loading galleries…</p></div>
     </section>
 
-    <datalist id="client-names"></datalist>
   </main>
+
+  <dialog class="pdialog" id="client-dialog" aria-labelledby="cd-title">
+    <div class="pdialog-head"><h3 id="cd-title">Client for this gallery</h3></div>
+    <div class="pdialog-body portal-form">
+      <label class="field field-wide">
+        <span>Client</span>
+        <select id="cd-client"></select>
+      </label>
+      <div class="form-contents" id="cd-new" hidden>
+        <label class="field">
+          <span>New client's name</span>
+          <input type="text" id="cd-nc-name" maxlength="120" autocomplete="off">
+        </label>
+        <label class="field">
+          <span>Email (optional, add it later)</span>
+          <input type="email" id="cd-nc-email" maxlength="160" autocomplete="off">
+        </label>
+      </div>
+      <p class="login-msg is-error field-wide" id="cd-msg" hidden></p>
+      <div class="form-actions g-dialog-actions">
+        <button class="btn btn-primary" type="button" id="cd-ok">Save</button>
+        <button class="btn btn-ghost" type="button" id="cd-cancel">Cancel</button>
+      </div>
+    </div>
+  </dialog>
 
   <dialog class="pdialog" id="g-dialog" aria-labelledby="gd-title">
     <div class="pdialog-head"><h3 id="gd-title">Are you sure?</h3></div>
@@ -173,7 +207,7 @@
   <script src="../data.js?v=20261013b"></script>
   <script src="../store.js?v=20261013b"></script>
   <script src="../admin.js?v=20261013b"></script>
-  <script src="../galleries.js?v=20261013b"></script>
+  <script src="../galleries.js?v=20261013c"></script>
 
   <!-- Set/change your own admin password. Requires a live session, so it can
        only ever change the account you are signed in as. autocomplete
