@@ -1463,7 +1463,7 @@ html.theme-light .theme-btn .icon-sun { display: none; }
 .clip-frame:focus-within::after,
 .clip.is-held .clip-frame::after,
 .clip.show-bar .clip-frame::after { opacity: 0; }
-.clip-play, .clip-sound {
+.clip-play, .clip-sound, .clip-full {
   flex: none;
   display: grid;
   place-items: center;
@@ -1477,9 +1477,9 @@ html.theme-light .theme-btn .icon-sun { display: none; }
   cursor: pointer;
   transition: background-color 0.2s ease, color 0.2s ease;
 }
-.clip-play:hover, .clip-sound:hover { background: rgba(245, 245, 243, 0.14); }
+.clip-play:hover, .clip-sound:hover, .clip-full:hover { background: rgba(245, 245, 243, 0.14); }
 .clip-sound.is-on { background: var(--accent); color: var(--accent-ink); }
-.clip-play .icon, .clip-sound .icon { width: 18px; height: 18px; }
+.clip-play .icon, .clip-sound .icon, .clip-full .icon { width: 18px; height: 18px; }
 .clip-sound .icon-on, .clip-sound.is-on .icon-muted { display: none; }
 .clip-sound.is-on .icon-on { display: block; }
 .clip-track {
@@ -1526,6 +1526,41 @@ html.theme-light .theme-btn .icon-sun { display: none; }
   color: rgba(245, 245, 243, 0.85);
 }
 @media (max-width: 420px) { .clip-rail-goals .clip-time { display: none; } }
+
+/* Films (data-film): one 4:3 piece, as big as fits on screen, with a big
+   play button that starts it with sound. The bar appears once it starts. */
+.clip-rail-film { justify-content: center; overflow: visible; }
+.clip-rail-film .clip { width: min(100%, calc(82vh * 4 / 3)); }
+.clip-rail-film .clip-frame { aspect-ratio: 4 / 3; }
+.clip-big-play {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 88px;
+  height: 88px;
+  margin: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-ink);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.25s ease;
+}
+.clip-big-play .icon { width: 34px; height: 34px; margin-left: 4px; }
+.clip-big-play:hover { transform: scale(1.06); }
+.clip.is-started .clip-big-play { opacity: 0; transform: scale(0.9); pointer-events: none; }
+.clip.clip-film:not(.is-started) .clip-bar { opacity: 0; pointer-events: none; }
+.clip.clip-film:not(.is-started) .clip-frame::after { opacity: 0; }
+.clip-frame:fullscreen { aspect-ratio: auto; border-radius: 0; background: #000; }
+.clip-frame:fullscreen video { object-fit: contain; }
+@media (max-width: 640px) {
+  .clip-big-play { width: 68px; height: 68px; }
+  .clip-big-play .icon { width: 28px; height: 28px; }
+}
 .rail-controls {
   display: flex;
   align-items: center;

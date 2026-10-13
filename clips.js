@@ -8,6 +8,9 @@
    Touch: a tap shows the bar for a few seconds.
    A [data-carousel] rail also gets previous/next buttons and a count from
    the .rail-controls block right after it.
+   A video marked data-film (a longer piece with sound, like an interview)
+   never starts by itself: a big play button starts it with sound on, and
+   its bar adds a full-screen button.
    Without JavaScript the videos keep their native controls; with reduced
    motion on, nothing plays by itself. */
 (() => {
@@ -26,6 +29,7 @@
     `<svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">${paths}</svg>`;
   const PLAY = svg('<path d="M8 5.5v13l11-6.5z"/>');
   const PAUSE = svg('<rect x="6.5" y="5" width="4" height="14" rx="1"/><rect x="13.5" y="5" width="4" height="14" rx="1"/>');
+  const FULL = '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>';
 
   const clips = videos.map((v) => {
     const clip = v.closest(".clip");
@@ -43,6 +47,24 @@
       <span class="clip-time">0:00</span>`;
     const sound = clip.querySelector(".clip-sound");
     if (sound) { sound.hidden = false; bar.appendChild(sound); }
+    const film = v.hasAttribute("data-film");
+    let big = null;
+    let full = null;
+    if (film) {
+      clip.classList.add("clip-film");
+      full = document.createElement("button");
+      full.className = "clip-full";
+      full.type = "button";
+      full.setAttribute("aria-label", "Full screen");
+      full.innerHTML = FULL;
+      bar.appendChild(full);
+      big = document.createElement("button");
+      big.className = "clip-big-play";
+      big.type = "button";
+      big.setAttribute("aria-label", "Play the film with sound");
+      big.innerHTML = PLAY;
+      frame.appendChild(big);
+    }
     frame.appendChild(bar);
 
     const c = {
@@ -50,7 +72,9 @@
       play: bar.querySelector(".clip-play"),
       track: bar.querySelector(".clip-track"),
       time: bar.querySelector(".clip-time"),
-      held: !autoplay,   // paused by the viewer (or never auto-started)
+      film, big, full,
+      started: false,
+      held: !autoplay || film,   // paused by the viewer (or never auto-started)
       visible: false,
       hideTimer: 0,
     };
@@ -89,6 +113,7 @@
   function toggle(c) {
     if (c.v.paused) {
       c.held = false;
+      if (c.film && !c.started) { c.v.muted = false; markSound(c); } // a film starts with sound
       c.v.play().catch(() => {});
     } else {
       c.held = true;
@@ -98,16 +123,28 @@
   }
 
   for (const c of clips) {
-    c.v.addEventListener("play", () => { setPlayIcon(c); kick(); });
+    c.v.addEventListener("play", () => {
+      setPlayIcon(c);
+      kick();
+      if (!c.started) { c.started = true; c.clip.classList.add("is-started"); }
+    });
     c.v.addEventListener("pause", () => { setPlayIcon(c); paint(c); });
     c.v.addEventListener("loadedmetadata", () => paint(c));
     c.v.addEventListener("seeked", () => paint(c));
 
     c.play.addEventListener("click", (e) => { e.stopPropagation(); toggle(c); showBar(c); });
+    if (c.big) c.big.addEventListener("click", (e) => { e.stopPropagation(); if (c.v.paused) toggle(c); });
+    if (c.full) c.full.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (document.fullscreenElement) document.exitFullscreen();
+      else if (c.frame.requestFullscreen) c.frame.requestFullscreen().catch(() => {});
+      else if (c.v.webkitEnterFullscreen) c.v.webkitEnterFullscreen(); // iPhone
+    });
     c.bar.addEventListener("click", (e) => e.stopPropagation());
 
     // Click on the picture: desktop plays/pauses, touch shows the bar
     c.v.addEventListener("click", () => {
+      if (c.film && !c.started) { toggle(c); return; }
       if (touch) {
         if (c.clip.classList.contains("show-bar")) hideBar(c);
         else showBar(c);
