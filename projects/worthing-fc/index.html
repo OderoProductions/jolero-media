@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Same security policy as index.html / privacy.html. The inline theme
        script below is byte-identical to theirs, so the same hash covers it. -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9hUOTyB0SoibSiWOZkJw2eqQFml00iDkRip2DzmnPus=' 'sha256-JssKZq7Zz1tMpFd4T9itCjnPwy3MNAE7DIQFnyVS3Ec='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://formspree.io https://*.supabase.co; form-action 'self' https://formspree.io; frame-src https://player.vimeo.com; object-src 'none'; base-uri 'self'; upgrade-insecure-requests">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9hUOTyB0SoibSiWOZkJw2eqQFml00iDkRip2DzmnPus=' 'sha256-JssKZq7Zz1tMpFd4T9itCjnPwy3MNAE7DIQFnyVS3Ec='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://jolero-gallery.jolero-gallery-worker.workers.dev; media-src 'self' https://jolero-gallery.jolero-gallery-worker.workers.dev; font-src 'self'; connect-src 'self' https://formspree.io https://*.supabase.co; form-action 'self' https://formspree.io; frame-src https://player.vimeo.com; object-src 'none'; base-uri 'self'; upgrade-insecure-requests">
 
   <!-- ============================================================
        PROJECT — Worthing FC  (multi-piece: see PIECE 01 below)
@@ -128,11 +128,142 @@
       </div>
     </section>
 
-    <!-- Placeholder for the next piece. Delete once 02 exists. -->
-    <section class="project-piece project-piece-soon">
+    <!-- ============ PIECE 02 ============
+         Clips are hosted on the gallery worker under site/worthing-fc/
+         (jolero-gallery site-put). clips.js plays each one silently while
+         it's on screen. -->
+    <section class="project-piece" aria-labelledby="piece-02">
       <div class="container legal-inner">
         <p class="piece-label">02 · Matchday</p>
-        <p>Goals, highlights and matchday coverage. Coming soon.</p>
+        <h2 id="piece-02">Worthing 3-0 Horsham</h2>
+        <p>
+          Matchday highlights for the club's socials. We covered the 1st team's
+          home game against Horsham and caught all three goals in a 3-0 win.
+        </p>
+      </div>
+
+      <div class="container">
+        <div class="clip-rail clip-rail-goals" data-clips>
+          <figure class="clip">
+            <div class="clip-frame">
+              <video src="https://jolero-gallery.jolero-gallery-worker.workers.dev/s/worthing-fc/goal-1-0-v1.mp4" poster="https://jolero-gallery.jolero-gallery-worker.workers.dev/s/worthing-fc/goal-1-0-v1.jpg" muted loop playsinline controls preload="none" aria-label="Worthing's first goal against Horsham"></video>
+              
+            </div>
+            <figcaption>1-0</figcaption>
+          </figure>
+          <figure class="clip">
+            <div class="clip-frame">
+              <video src="https://jolero-gallery.jolero-gallery-worker.workers.dev/s/worthing-fc/goal-2-0-v1.mp4" poster="https://jolero-gallery.jolero-gallery-worker.workers.dev/s/worthing-fc/goal-2-0-v1.jpg" muted loop playsinline controls preload="none" aria-label="Worthing's second goal against Horsham"></video>
+              <button class="clip-sound" type="button" aria-label="Turn sound on" aria-pressed="false" hidden><svg class="icon icon-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 9.5l4.5 5M21.5 9.5l-4.5 5"/></svg><svg class="icon icon-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg></button>
+            </div>
+            <figcaption>2-0</figcaption>
+          </figure>
+          <figure class="clip">
+            <div class="clip-frame">
+              <video src="https://jolero-gallery.jolero-gallery-worker.workers.dev/s/worthing-fc/goal-3-0-v1.mp4" poster="https://jolero-gallery.jolero-gallery-worker.workers.dev/s/worthing-fc/goal-3-0-v1.jpg" muted loop playsinline controls preload="none" aria-label="Worthing's third goal against Horsham"></video>
+              <button class="clip-sound" type="button" aria-label="Turn sound on" aria-pressed="false" hidden><svg class="icon icon-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 9.5l4.5 5M21.5 9.5l-4.5 5"/></svg><svg class="icon icon-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg></button>
+            </div>
+            <figcaption>3-0</figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <div class="container legal-inner">
+        <h3>The brief</h3>
+        <p>
+          Standard matchday content for social media: the goals, cut vertical
+          and ready to post.
+        </p>
+
+        <h3>What we made</h3>
+        <p>
+          A highlight clip for each goal. Some of the goals were filmed from two
+          angles, so the edits show the moment from more than one view instead
+          of relying on a single wide shot.
+        </p>
+
+        <h3>The result</h3>
+        <p>
+          All three were with the club the next day, so the highlights went out
+          while the win was still the talking point.
+        </p>
+      </div>
+    </section>
+
+    <!-- ============ PIECE 03 ============ -->
+    <section class="project-piece" aria-labelledby="piece-03">
+      <div class="container legal-inner">
+        <p class="piece-label">03 · Social trend</p>
+        <h2 id="piece-03">IMAX 70mm vs Standard</h2>
+        <p>
+          When The Odyssey came out, IMAX 70mm was everywhere, and clips
+          comparing the full IMAX frame with a standard one became a trend of
+          their own. We put Worthing FC's matchday through the same comparison.
+        </p>
+      </div>
+
+      <div class="container">
+        <div class="clip-rail clip-rail-imax" data-clips data-carousel>
+          <figure class="clip">
+            <div class="clip-frame">
+              <video src="https://jolero-gallery.jolero-gallery-worker.workers.dev/s/worthing-fc/imax-01-v1.mp4" poster="https://jolero-gallery.jolero-gallery-worker.workers.dev/s/worthing-fc/imax-01-v1.jpg" muted loop playsinline controls preload="none" aria-label="The walkout, opening from a standard frame to IMAX 70mm"></video>
+              <button class="clip-sound" type="button" aria-label="Turn sound on" aria-pressed="false" hidden><svg class="icon icon-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 9.5l4.5 5M21.5 9.5l-4.5 5"/></svg><svg class="icon icon-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg></button>
+            </div>
+            <figcaption>01 · Walkout</figcaption>
+          </figure>
+          <figure class="clip">
+            <div class="clip-frame">
+              <video src="https://jolero-gallery.jolero-gallery-worker.workers.dev/s/worthing-fc/imax-02-v1.mp4" poster="https://jolero-gallery.jolero-gallery-worker.workers.dev/s/worthing-fc/imax-02-v1.jpg" muted loop playsinline controls preload="none" aria-label="The team line-up, opening from a standard frame to IMAX 70mm"></video>
+              <button class="clip-sound" type="button" aria-label="Turn sound on" aria-pressed="false" hidden><svg class="icon icon-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 9.5l4.5 5M21.5 9.5l-4.5 5"/></svg><svg class="icon icon-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg></button>
+            </div>
+            <figcaption>02 · Line-up</figcaption>
+          </figure>
+          <figure class="clip">
+            <div class="clip-frame">
+              <video src="https://jolero-gallery.jolero-gallery-worker.workers.dev/s/worthing-fc/imax-03-v1.mp4" poster="https://jolero-gallery.jolero-gallery-worker.workers.dev/s/worthing-fc/imax-03-v1.jpg" muted loop playsinline controls preload="none" aria-label="A set piece, opening from a standard frame to IMAX 70mm"></video>
+              <button class="clip-sound" type="button" aria-label="Turn sound on" aria-pressed="false" hidden><svg class="icon icon-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 9.5l4.5 5M21.5 9.5l-4.5 5"/></svg><svg class="icon icon-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg></button>
+            </div>
+            <figcaption>03 · Set piece</figcaption>
+          </figure>
+          <figure class="clip">
+            <div class="clip-frame">
+              <video src="https://jolero-gallery.jolero-gallery-worker.workers.dev/s/worthing-fc/imax-04-v1.mp4" poster="https://jolero-gallery.jolero-gallery-worker.workers.dev/s/worthing-fc/imax-04-v1.jpg" muted loop playsinline controls preload="none" aria-label="Action in the box, opening from a standard frame to IMAX 70mm"></video>
+              <button class="clip-sound" type="button" aria-label="Turn sound on" aria-pressed="false" hidden><svg class="icon icon-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 9.5l4.5 5M21.5 9.5l-4.5 5"/></svg><svg class="icon icon-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg></button>
+            </div>
+            <figcaption>04 · In the box</figcaption>
+          </figure>
+          <figure class="clip">
+            <div class="clip-frame">
+              <video src="https://jolero-gallery.jolero-gallery-worker.workers.dev/s/worthing-fc/imax-05-v1.mp4" poster="https://jolero-gallery.jolero-gallery-worker.workers.dev/s/worthing-fc/imax-05-v1.jpg" muted loop playsinline controls preload="none" aria-label="A goal kick, opening from a standard frame to IMAX 70mm"></video>
+              <button class="clip-sound" type="button" aria-label="Turn sound on" aria-pressed="false" hidden><svg class="icon icon-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 9.5l4.5 5M21.5 9.5l-4.5 5"/></svg><svg class="icon icon-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg></button>
+            </div>
+            <figcaption>05 · Goal kick</figcaption>
+          </figure>
+        </div>
+        <div class="rail-controls" hidden>
+          <button class="rail-btn" type="button" aria-label="Previous clip"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+          <span class="rail-count">01 / 05</span>
+          <button class="rail-btn" type="button" aria-label="Next clip"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+        </div>
+      </div>
+
+      <div class="container legal-inner">
+        <h3>What we made</h3>
+        <p>
+          A five-part carousel from the same game: the walkout, the team
+          line-up, a set piece, action in the box and a goal kick. Each one
+          starts in a standard widescreen frame, then opens up to the full
+          height of the 70mm frame.
+        </p>
+
+        <h3>Why we did it</h3>
+        <p>
+          Jumping on a trend while it's live draws people in, and it gave us
+          room to be creative and make something different from the usual
+          matchday posts. Most clubs at Worthing's level don't have the creative
+          or media resources for content like this, which is exactly why we
+          wanted to do it.
+        </p>
       </div>
     </section>
 
@@ -162,5 +293,6 @@
   </footer>
 
   <script src="../../theme.js"></script>
+  <script src="../../clips.js" defer></script>
 </body>
 </html>
