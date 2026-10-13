@@ -1422,28 +1422,110 @@ html.theme-light .theme-btn .icon-sun { display: none; }
 .clip-rail-imax .clip { width: 90%; }
 .clip-rail-imax .clip-frame { aspect-ratio: 1920 / 1342; }
 @media (min-width: 1000px) { .clip-rail-imax .clip { width: 80%; } }
-.clip-sound {
+/* Control bar: play/pause, playhead, time, sound. clips.js builds it.
+   It shows on hover (desktop), on a tap (touch), and stays up while a
+   clip is held paused; otherwise a thin red line tracks progress. */
+.clip-frame { --p: 0%; }
+.clip-frame video { cursor: pointer; }
+.clip-bar {
   position: absolute;
-  right: 12px;
-  bottom: 12px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 36px 10px 8px;
+  background: linear-gradient(to top, rgba(10, 10, 10, 0.78) 0%, rgba(10, 10, 10, 0) 100%);
+  color: #F5F5F3;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
+}
+.clip-frame:hover .clip-bar,
+.clip-frame:focus-within .clip-bar,
+.clip.is-held .clip-bar,
+.clip.show-bar .clip-bar,
+.clip.is-scrubbing .clip-bar { opacity: 1; transform: none; pointer-events: auto; }
+.clip-frame::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: var(--p);
+  height: 2px;
+  background: var(--accent);
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.clip-frame:hover::after,
+.clip-frame:focus-within::after,
+.clip.is-held .clip-frame::after,
+.clip.show-bar .clip-frame::after { opacity: 0; }
+.clip-play, .clip-sound {
+  flex: none;
   display: grid;
   place-items: center;
-  width: 40px;
-  height: 40px;
+  width: 34px;
+  height: 34px;
   padding: 0;
   border: 0;
   border-radius: 50%;
-  background: rgba(10, 10, 10, 0.62);
+  background: transparent;
   color: #F5F5F3;
   cursor: pointer;
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
   transition: background-color 0.2s ease, color 0.2s ease;
 }
-.clip-sound:hover, .clip-sound.is-on { background: var(--accent); color: var(--accent-ink); }
-.clip-sound .icon { width: 18px; height: 18px; }
+.clip-play:hover, .clip-sound:hover { background: rgba(245, 245, 243, 0.14); }
+.clip-sound.is-on { background: var(--accent); color: var(--accent-ink); }
+.clip-play .icon, .clip-sound .icon { width: 18px; height: 18px; }
 .clip-sound .icon-on, .clip-sound.is-on .icon-muted { display: none; }
 .clip-sound.is-on .icon-on { display: block; }
+.clip-track {
+  position: relative;
+  flex: 1;
+  min-width: 40px;
+  height: 24px;
+  cursor: pointer;
+  touch-action: none;
+}
+.clip-track::before, .clip-fill {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  height: 3px;
+  border-radius: 2px;
+  transform: translateY(-50%);
+}
+.clip-track::before { right: 0; background: rgba(245, 245, 243, 0.3); }
+.clip-fill { width: var(--p); background: var(--accent); }
+.clip-head {
+  position: absolute;
+  top: 50%;
+  left: var(--p);
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px rgba(10, 10, 10, 0.35);
+  transform: translate(-50%, -50%) scale(0.6);
+  transition: transform 0.15s ease;
+}
+.clip-track:hover .clip-head,
+.clip-track:focus-visible .clip-head,
+.clip.is-scrubbing .clip-head { transform: translate(-50%, -50%) scale(1); }
+.clip-track:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+.clip-time {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+  color: rgba(245, 245, 243, 0.85);
+}
+@media (max-width: 420px) { .clip-rail-goals .clip-time { display: none; } }
 .rail-controls {
   display: flex;
   align-items: center;
