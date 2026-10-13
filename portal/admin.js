@@ -53,7 +53,7 @@
         var until = e.endDate && e.endDate > e.date ? e.endDate : "";
         // an entry over several days stays listed until its last day
         return { date: until && e.date < todayISO() ? todayISO() : e.date, until: until,
-                 time: e.time || "", text: e.title, tag: e.type };
+                 time: e.time || "", text: e.title + (e.who ? " (" + e.who + ")" : ""), tag: e.type };
       }))
       .concat(data.projects.filter(function (p) { return p.shootDate; }).map(function (p) {
         return { date: p.shootDate, time: "", text: p.title, tag: "Shoot" };
@@ -553,6 +553,7 @@
         "<div><button class='row-btn t-title' type='button' data-edit-task='" + esc(t.id) + "'>" +
         esc(t.title) + "</button>" +
         '<div class="t-meta">' + esc(t.type) +
+        (t.who ? " · " + esc(t.who) : "") +
         (t.projectId && projectTitle[t.projectId] ? " · " + esc(projectTitle[t.projectId]) : "") +
         "</div></div>" +
         '<span class="t-meta t-due' + (overdue ? " is-overdue" : "") + '">' +
@@ -822,6 +823,7 @@
 
   var taskDialog = el("task-dialog");
   var taskForm = el("task-form");
+  var taskHadWho = false;
 
   window.AdminEditTask = async function (taskId) {
     if (!taskDialog) return;
@@ -834,6 +836,8 @@
     f.elements.due.value = t.due || "";
     f.elements.projectId.value = t.projectId || "";
     f.elements.done.checked = !!t.done;
+    f.elements.who.value = t.who || "";
+    taskHadWho = !!t.who;
     taskDialog.showModal();
   };
 
@@ -841,13 +845,16 @@
     taskForm.addEventListener("submit", async function (e) {
       e.preventDefault();
       var f = taskForm;
-      await PortalStore.updateTask(f.elements.id.value, {
+      var patch = {
         title: f.elements.title.value.trim(),
         type: f.elements.type.value,
         due: f.elements.due.value,
         projectId: f.elements.projectId.value,
         done: f.elements.done.checked
-      });
+      };
+      // only sent when there's one to set or clear
+      if (f.elements.who.value || taskHadWho) patch.who = f.elements.who.value;
+      await PortalStore.updateTask(f.elements.id.value, patch);
       taskDialog.close();
       renderAll();
       if (window.ScheduleRefresh) window.ScheduleRefresh();
@@ -969,6 +976,7 @@
       var d = f.closest("details");
       if (d) d.open = false;
       renderAll();
+      if (window.ScheduleRefresh) window.ScheduleRefresh();   // new tasks show on the calendar straight away
     });
   }
 
@@ -1013,12 +1021,14 @@
   });
 
   form("add-task", function (f) {
-    return PortalStore.addTask({
+    var task = {
       title: f.elements.title.value.trim(),
       type: f.elements.type.value,
       due: f.elements.due.value,
       projectId: f.elements.projectId.value
-    });
+    };
+    if (f.elements.who.value) task.who = f.elements.who.value;
+    return PortalStore.addTask(task);
   });
 
   on("nc2-client", "change", async function () {
@@ -1238,6 +1248,7 @@
 
     var taskOpts = PortalStore.TASK_TYPES.map(function (t) { return "<option>" + esc(t) + "</option>"; }).join("");
     ["nt-type", "td-type"].forEach(function (id) { if (el(id)) el(id).innerHTML = taskOpts; });
+    ["nt-who", "td-who"].forEach(function (id) { if (el(id)) el(id).innerHTML = PortalUtil.whoOptions(); });
 
     if (el("pod-platform")) {
       el("pod-platform").innerHTML = PortalStore.POST_PLATFORMS.map(function (x) { return "<option>" + esc(x) + "</option>"; }).join("");

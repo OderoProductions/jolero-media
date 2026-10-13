@@ -191,6 +191,7 @@
     PROJECT_TYPES: seed.projectTypes || [],
     TASK_TYPES: seed.taskTypes || [],
     EVENT_TYPES: seed.eventTypes || [],
+    TEAM: seed.team || [],
     POST_PLATFORMS: seed.postPlatforms || [],
     POST_STATUSES: seed.postStatuses || [],
     TX_CATEGORIES: seed.txCategories || { income: [], expense: [] },
@@ -519,7 +520,7 @@
           time: e.time || "", endTime: e.endTime || "",
           title: e.title, label: e.type,
           sub: e.notes || (clientName[e.clientId] || ""),
-          eventId: e.id, away: e.type === "Away"
+          eventId: e.id, away: e.type === "Away", who: e.who || ""
         });
       });
 
@@ -558,7 +559,7 @@
             var p = s.projects.find(function (x) { return x.id === t.projectId; });
             return p ? p.title : "";
           })() : "",
-          taskId: t.id, done: t.done
+          taskId: t.id, done: t.done, who: t.who || ""
         });
       });
 
@@ -715,6 +716,21 @@
 
     fmtMoney: function (n) {
       return "£" + Number(n || 0).toLocaleString("en-GB");
+    },
+
+    // Who an event or task is for: the <option>s for a picker, and the
+    // initials shown on calendar chips ("C", "J", "C+J")
+    whoOptions: function (blankLabel) {
+      var esc = window.PortalUtil.esc;
+      return '<option value="">' + esc(blankLabel || "Anyone") + "</option>" +
+        (seed.team || []).concat(["Both"]).map(function (n) {
+          return '<option value="' + esc(n) + '">' + esc(n) + "</option>";
+        }).join("");
+    },
+    whoInitials: function (who) {
+      if (!who) return "";
+      if (who === "Both") return (seed.team || []).map(function (n) { return n.charAt(0); }).join("+");
+      return who.charAt(0);
     },
 
     safeUrl: function (url) {

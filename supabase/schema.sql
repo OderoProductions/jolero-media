@@ -156,6 +156,7 @@ create table if not exists public.events (
   type       text default '',
   date       date not null,
   end_date   date,             -- last day, for entries over several days
+  who        text default '',  -- 'Christopher', 'Justin', 'Both' or '' for anyone
   time       text default '',
   end_time   text default '',
   notes      text default '',
@@ -163,8 +164,9 @@ create table if not exists public.events (
   created_at timestamptz not null default now()
 );
 
--- added 2026-10-13: projects set up before then need the column too
+-- added 2026-10-13: projects set up before then need the columns too
 alter table public.events add column if not exists end_date date;
+alter table public.events add column if not exists who text default '';
 
 create table if not exists public.tasks (
   id         uuid primary key default gen_random_uuid(),
@@ -173,8 +175,11 @@ create table if not exists public.tasks (
   due        date,
   done       boolean not null default false,
   project_id uuid references public.projects (id) on delete set null,
+  who        text default '',  -- who's doing it, as on events
   created_at timestamptz not null default now()
 );
+
+alter table public.tasks add column if not exists who text default '';
 
 create table if not exists public.posts (
   id         uuid primary key default gen_random_uuid(),

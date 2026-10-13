@@ -26,6 +26,9 @@ window.JOLERO_SEED = {
   // Task categories — "Post" is the content-posting schedule
   taskTypes: ["Shoot prep", "Edit", "Post", "Admin", "Invoice", "Other"],
 
+  // Who an event or task is for. "Both" is offered too; blank means anyone.
+  team: ["Christopher", "Justin"],
+
   // Standalone calendar entries (anything not driven by a project)
   eventTypes: ["Shoot", "Meeting", "Content day", "Edit day", "Away", "Personal", "Other"],
 

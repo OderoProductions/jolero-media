@@ -23,6 +23,16 @@
   var selected = null;      // ISO date string
   var allEvents = [];
 
+  // Whose schedule is showing: "" for everyone, or one of the team, who
+  // then sees their own entries plus anything for both or for anyone.
+  // Remembered per browser, since the admin login is shared.
+  var WHO_KEY = "jolero_schedule_who";
+  var whoFilter = "";
+  try { whoFilter = localStorage.getItem(WHO_KEY) || ""; } catch (e) { /* storage blocked */ }
+  function shown(e) {
+    return !whoFilter || !e.who || e.who === whoFilter || e.who === "Both";
+  }
+
   /* ---------- date helpers (local time — no UTC drift) ---------- */
 
   function iso(d) {
@@ -97,7 +107,8 @@
       action: "TEMPLATE",
       text: (ev.label ? ev.label + " — " : "") + ev.title,
       dates: r.start + "/" + r.end,
-      details: (ev.sub ? ev.sub + "\n" : "") + "Added from the Jolero Media portal."
+      details: (ev.who ? "For: " + ev.who + "\n" : "") + (ev.sub ? ev.sub + "\n" : "") +
+        "Added from the Jolero Media portal."
     });
     // authuser takes an address and picks that account (or prompts to add it)
     if (gcalAccount) params.set("authuser", gcalAccount);
@@ -179,7 +190,7 @@
   // Everything on a day, with entries running over several days first so
   // their bars line up from one day to the next
   function eventsOn(dateISO) {
-    var on = allEvents.filter(function (e) { return e.date <= dateISO && dateISO <= lastDay(e); });
+    var on = allEvents.filter(function (e) { return shown(e) && e.date <= dateISO && dateISO <= lastDay(e); });
     return on.filter(isMulti).concat(on.filter(function (e) { return !isMulti(e); }));
   }
 
@@ -219,6 +230,7 @@
           (e.kind === "invoice" || !DRAG_OK ? "" : ' draggable="true"') +
           (showTitle ? "" : ' aria-label="' + esc(e.title) + '"') + ' title="' +
           esc((e.label ? e.label + " — " : "") + e.title + (isMulti(e) ? " (" + spanText(e) + ")" : "")) + '">' +
+          (e.who && showTitle ? '<span class="chip-who">' + esc(PortalUtil.whoInitials(e.who)) + "</span>" : "") +
           (e.time && first ? '<span class="chip-time">' + esc(e.time) + "</span> " : "") +
           (showTitle ? esc(e.title) : "&nbsp;") +
           "</button>";
@@ -280,6 +292,7 @@
       return '<div class="day-row k-' + e.kind + '">' +
         "<div><span class='d-title'>" + esc(e.title) + "</span>" +
         '<div class="d-sub">' + esc(when) + " · " + esc(e.label) +
+        (e.who ? " · " + esc(e.who === "Both" ? "Both of you" : e.who) : "") +
         (e.sub ? " · " + esc(e.sub) : "") + "</div></div>" +
         '<div class="d-actions">' + actions + "</div>" +
         "</div>";
@@ -407,6 +420,7 @@
   // Until can't be before the first day; moving the date later than it
   // carries Until along, keeping the same length
   var editingHadEnd = false;
+  var editingHadWho = false;
   var edDate = document.getElementById("ed-date");
   var edUntil = document.getElementById("ed-until");
   var lastStart = "";
@@ -436,15 +450,18 @@
       f.elements.time.value = ev.time || "";
       f.elements.endTime.value = ev.endTime || "";
       f.elements.clientId.value = ev.clientId || "";
+      f.elements.who.value = ev.who || "";
       f.elements.notes.value = ev.notes || "";
       document.getElementById("ed-delete").hidden = false;
     } else {
       document.getElementById("ed-title").textContent = "Add event";
       f.elements.id.value = "";
       f.elements.date.value = selected || todayISO;
+      f.elements.who.value = whoFilter;   // new entries default to whoever's view this is
       document.getElementById("ed-delete").hidden = true;
     }
     editingHadEnd = !!(ev && ev.endDate);
+    editingHadWho = !!(ev && ev.who);
     syncUntil();
     eventDialog.showModal();
   }
@@ -534,6 +551,8 @@
     // entries never depend on the column
     if (until && until > fields.date) fields.endDate = until;
     else if (editingHadEnd) fields.endDate = "";
+    var who = f.elements.who.value;
+    if (who || editingHadWho) fields.who = who;
     var save = f.querySelector('[type="submit"]');
     save.disabled = true;
     try {
@@ -586,6 +605,14 @@
   });
   document.getElementById("export-ics").addEventListener("click", downloadIcs);
 
+  var whoSelect = document.getElementById("cal-who");
+  whoSelect.addEventListener("change", function () {
+    whoFilter = whoSelect.value;
+    try { localStorage.setItem(WHO_KEY, whoFilter); } catch (e) { /* storage blocked */ }
+    renderCalendar();
+    renderDay();
+  });
+
   // Delegated: day/chip selection, task toggles, task delete
   document.addEventListener("click", async function (e) {
   });
@@ -595,6 +622,10 @@
   (async function init() {
     document.getElementById("ed-type").innerHTML =
       PortalStore.EVENT_TYPES.map(function (t) { return "<option>" + esc(t) + "</option>"; }).join("");
+    document.getElementById("ed-who").innerHTML = PortalUtil.whoOptions();
+    whoSelect.innerHTML = PortalUtil.whoOptions("Everyone").replace(/<option value="Both">.*?<\/option>/, "");
+    if (PortalStore.TEAM.indexOf(whoFilter) === -1) whoFilter = "";
+    whoSelect.value = whoFilter;
 
     var data = await PortalStore.getData();
     var clientName = {};

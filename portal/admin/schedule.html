@@ -16,7 +16,7 @@
   <title>Schedule — Jolero Media Portal</title>
   <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
   <link rel="stylesheet" href="../../styles.css?v=20261013">
-  <link rel="stylesheet" href="../portal.css?v=20261013d">
+  <link rel="stylesheet" href="../portal.css?v=20261013e">
   <script>/* theme before first paint: saved choice, else OS, else dark */try{var s=localStorage.getItem("jolero_theme");if(s?s==="light":matchMedia("(prefers-color-scheme: light)").matches)document.documentElement.classList.add("theme-light")}catch(e){}</script>
 </head>
 <body>
@@ -77,6 +77,7 @@
         </div>
         <span class="cal-month" id="cal-month">—</span>
         <button class="cal-today" type="button" id="cal-today-btn">Today</button>
+        <select class="cal-today cal-who" id="cal-who" aria-label="Whose schedule to show"></select>
         <div class="cal-actions">
           <button class="btn btn-primary" type="button" id="add-event-btn">Add event</button>
           <button class="btn btn-ghost" type="button" id="export-ics">Export .ics</button>
@@ -150,7 +151,11 @@
               <label for="nt-due">Due</label>
               <input id="nt-due" name="due" type="date" required>
             </div>
-            <div class="field field-wide">
+            <div class="field">
+              <label for="nt-who">Who</label>
+              <select id="nt-who" name="who"></select>
+            </div>
+            <div class="field">
               <label for="nt-project">Linked project <span class="optional">(optional)</span></label>
               <select id="nt-project" name="projectId"></select>
             </div>
@@ -179,8 +184,8 @@
           <select id="ed-type" name="type"></select>
         </div>
         <div class="field">
-          <label for="ed-client">Client <span class="optional">(optional)</span></label>
-          <select id="ed-client" name="clientId"></select>
+          <label for="ed-who">Who</label>
+          <select id="ed-who" name="who"></select>
         </div>
         <div class="field">
           <label for="ed-date">Date</label>
@@ -197,6 +202,10 @@
         <div class="field">
           <label for="ed-end">End <span class="optional">(optional)</span></label>
           <input id="ed-end" name="endTime" type="time">
+        </div>
+        <div class="field field-wide">
+          <label for="ed-client">Client <span class="optional">(optional)</span></label>
+          <select id="ed-client" name="clientId"></select>
         </div>
         <div class="field field-wide">
           <label for="ed-notes">Notes <span class="optional">(optional)</span></label>
@@ -311,7 +320,11 @@
           <label for="td-due">Due</label>
           <input id="td-due" name="due" type="date" required>
         </div>
-        <div class="field field-wide">
+        <div class="field">
+          <label for="td-who">Who</label>
+          <select id="td-who" name="who"></select>
+        </div>
+        <div class="field">
           <label for="td-project">Linked project <span class="optional">(optional)</span></label>
           <select id="td-project" name="projectId"></select>
         </div>
@@ -332,10 +345,10 @@
   <script src="../../theme.js?v=20261013b"></script>
   <script src="../supabase-config.js?v=20261013b"></script>
   <script src="../auth.js?v=20261013b"></script>
-  <script src="../data.js?v=20261013d"></script>
-  <script src="../store.js?v=20261013d"></script>
-  <script src="../admin.js?v=20261013d"></script>
-  <script src="../schedule.js?v=20261013d"></script>
+  <script src="../data.js?v=20261013e"></script>
+  <script src="../store.js?v=20261013e"></script>
+  <script src="../admin.js?v=20261013e"></script>
+  <script src="../schedule.js?v=20261013e"></script>
 
   <!-- Set/change your own admin password. Requires a live session, so it can
        only ever change the account you are signed in as. autocomplete
