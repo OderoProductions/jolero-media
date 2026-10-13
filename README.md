@@ -95,3 +95,14 @@ output = repo root) and add the domain there.
 
 Still to do before launch: real portfolio photos, the Formspree form ID, and a
 1200×630 `assets/og.jpg` for link previews.
+
+## Shared styles and scripts are versioned
+
+Every page links `styles.css`, `clips.js` and `lightbox.js` with a `?v=` date
+(e.g. `styles.css?v=20261013`). GitHub Pages lets browsers keep those files for
+10 minutes, so after changing one, bump the date on every page in one go so a
+normal refresh picks it up:
+
+```bash
+grep -rl 'styles.css?v=' . --include=*.html | xargs sed -i '' 's/?v=20261013/?v=NEWDATE/g'
+```
