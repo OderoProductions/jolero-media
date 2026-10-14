@@ -181,6 +181,7 @@
 
   let original = null;      // the manifest as loaded
   let groups = [];          // [{id|null, name, cover, zip, items: [item]}]
+  let galleryCover = "";    // thumbnail key fronting the gallery (the client's portal card)
   let removed = [];         // items marked for deletion
   let selected = new Set(); // items
   let lastClicked = null;
@@ -244,6 +245,7 @@
       }
       original = man;
       groups = buildGroups(clone(man));
+      galleryCover = man.cover || "";
       removed = [];
       selected = new Set();
       dirty = false;
@@ -487,7 +489,12 @@
       move.value = "";
       if (v) moveSelected(v);
     });
-    const cover = el("button", "btn btn-ghost btn-sm", "Make cover");
+    const gcover = el("button", "btn btn-ghost btn-sm", "Gallery cover");
+    gcover.type = "button";
+    gcover.id = "ed-gcover";
+    gcover.title = "The photo on this gallery's card in the client's portal";
+    gcover.addEventListener("click", makeGalleryCover);
+    const cover = el("button", "btn btn-ghost btn-sm", "Folder cover");
     cover.type = "button";
     cover.id = "ed-cover";
     cover.addEventListener("click", makeCover);
@@ -498,7 +505,7 @@
     const clear = el("button", "btn btn-ghost btn-sm", "Clear");
     clear.type = "button";
     clear.addEventListener("click", () => { selected.clear(); paintSelection(); });
-    inner.append(count, move, cover, del, clear);
+    inner.append(count, move, gcover, cover, del, clear);
     bar.appendChild(inner);
     return bar;
   }
@@ -591,10 +598,11 @@
       v.appendChild(document.createTextNode(clock(it.dur)));
       t.appendChild(v);
     }
-    if (g.id && it.t && g.cover === it.t) {
+    const isGallery = it.t && galleryCover === it.t;
+    if (isGallery || (g.id && it.t && g.cover === it.t)) {
       const c = el("span", "ed-cover-badge");
       c.appendChild(icon(ICON.star));
-      c.appendChild(document.createTextNode("Cover"));
+      c.appendChild(document.createTextNode(isGallery ? "Gallery cover" : "Cover"));
       t.appendChild(c);
     }
     const tick = el("span", "ed-tick");
@@ -647,6 +655,7 @@
     const only = n === 1 ? [...selected][0] : null;
     const home = only && groups.find((g) => g.items.includes(only));
     $("ed-cover").hidden = !(only && home && home.id && only.t);
+    $("ed-gcover").hidden = !(only && only.t);
   }
 
   /* ---------- selecting ---------- */
@@ -719,6 +728,15 @@
     const g = groups.find((x) => x.items.includes(it));
     if (!g || !g.id || !it.t) return;
     g.cover = it.t;
+    selected.clear();
+    changed();
+    renderGroups();
+  }
+
+  function makeGalleryCover() {
+    const it = [...selected][0];
+    if (!it || !it.t) return;
+    galleryCover = it.t;
     selected.clear();
     changed();
     renderGroups();
@@ -869,6 +887,9 @@
       next.locked = fields.locked.value === "1";
       next.keep = fields.keep.checked;
       next.expires = fields.until.value ? `${fields.until.value}T23:59:59Z` : "";
+      // the gallery's cover, if that photo is still in it
+      next.cover = groups.some((g) => g.items.some((it) => it.t === galleryCover)) ? galleryCover : "";
+      if (!next.cover) delete next.cover;
 
       // client: an existing one, a new one, or none
       const pick = fields.client.value;

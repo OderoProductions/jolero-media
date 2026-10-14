@@ -245,8 +245,10 @@ as $$
   where p.id = auth.uid() and p.role = 'client';
 $$;
 
--- New login -> profile. An invited email becomes that client;
--- anyone else lands on 'none' and sees nothing at all.
+-- New login -> profile. An invited email becomes that client, and so
+-- does the email on a client's own record (adding a client's email on
+-- the Clients page is their invitation); anyone else lands on 'none'
+-- and sees nothing at all.
 create or replace function public.handle_new_user()
   returns trigger
   language plpgsql
@@ -259,6 +261,14 @@ begin
   select ci.client_id into invited_client
   from public.client_invites ci
   where ci.email = new.email;
+
+  if invited_client is null then
+    select c.id into invited_client
+    from public.clients c
+    where coalesce(c.email, '') <> '' and lower(c.email) = lower(new.email)
+    order by c.created_at
+    limit 1;
+  end if;
 
   insert into public.profiles (id, email, role, client_id)
   values (
@@ -277,6 +287,30 @@ drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
+
+-- A client's email added (or changed) after that person has already
+-- signed in once: link the login they have, if it isn't linked to
+-- anything yet. Never touches an admin.
+create or replace function public.link_client_email()
+  returns trigger
+  language plpgsql
+  security definer
+  set search_path = ''
+as $$
+begin
+  if coalesce(new.email, '') <> '' then
+    update public.profiles p
+    set role = 'client', client_id = new.id
+    where lower(p.email::text) = lower(new.email) and p.role = 'none';
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists on_client_email on public.clients;
+create trigger on_client_email
+  after insert or update of email on public.clients
+  for each row execute function public.link_client_email();
 
 -- =============================================================
 -- 4. ACCESS RULES
