@@ -204,7 +204,8 @@
     setTitle(man.title || "Your gallery");
     $("crumb").hidden = true;
     const parts = [];
-    if (man.client) parts.push([man.client, ""]);
+    // the client's name, unless it just repeats the title (e.g. Coach Manowar)
+    if (man.client && slug(man.client) !== slug(man.title || "")) parts.push([man.client, ""]);
     if (folders.length) parts.push([pad(folders.length, 2), plural(folders.length, "folder")]);
     parts.push(...counts(all));
     if (man.expires) parts.push(["", `Available until ${day(man.expires)}`]);
