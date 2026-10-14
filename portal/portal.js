@@ -240,6 +240,53 @@
     currentBundle = bundle;
     try { sessionStorage.setItem(VIEW_KEY, clientId); } catch (e) {}
     render(bundle, opts);
+    loadGalleries(clientId);
+  }
+
+  /* ---------- galleries ----------
+     A client's photo and video galleries live on the gallery worker, not in
+     the database; it checks this sign-in with Supabase and returns only
+     that client's live galleries (an admin previewing passes ?client=). */
+  var LOCAL = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+  var GALLERY_API = LOCAL ? "http://localhost:8787" : "https://jolero-gallery.jolero-gallery-worker.workers.dev";
+  var GALLERY_SITE = LOCAL ? location.origin + "/gallery/" : "https://joleromedia.com/gallery/";
+  var FILE_KEY = /^[tpov]\/[A-Za-z0-9][A-Za-z0-9._-]{0,180}$/;
+  var GALLERY_ID = /^[A-Za-z0-9_-]{12,64}$/;
+
+  async function loadGalleries(clientId) {
+    var section = document.getElementById("galleries-section");
+    var host = document.getElementById("galleries");
+    if (!section || !window.PortalAuth || !PortalAuth.configured()) return;
+    var list = [];
+    try {
+      var token = await PortalAuth.getToken();
+      if (!token) return;
+      var res = await fetch(GALLERY_API + "/client/galleries?client=" + encodeURIComponent(clientId), {
+        headers: { authorization: "Bearer " + token },
+        referrerPolicy: "no-referrer"
+      });
+      if (res.ok) list = await res.json();
+    } catch (e) { /* the rest of the page doesn't depend on it */ }
+    if (clientId !== currentClientId) return; // switched client while this loaded
+    list = (Array.isArray(list) ? list : []).filter(function (g) { return GALLERY_ID.test(g.id || ""); });
+    section.hidden = !list.length;
+    document.getElementById("galleries-count").textContent = list.length > 1 ? " (" + list.length + ")" : "";
+    host.innerHTML = list.map(function (g) {
+      var href = GALLERY_SITE + "#" + (g.slug ? encodeURIComponent(g.slug) + "/" : "") + g.id;
+      var bits = [];
+      if (g.photos) bits.push(g.photos + (g.photos === 1 ? " photo" : " photos"));
+      if (g.videos) bits.push(g.videos + (g.videos === 1 ? " video" : " videos"));
+      var until = g.expires ? "Available until " + fmtDate(String(g.expires).slice(0, 10)) : "";
+      return '<a class="gcard panel" href="' + esc(href) + '" target="_blank" rel="noopener">' +
+        '<span class="gcard-cover">' + (FILE_KEY.test(g.cover || "")
+          ? '<img src="' + esc(GALLERY_API + "/g/" + g.id + "/" + g.cover) + '" alt="" loading="lazy" decoding="async">' : "") +
+        "</span>" +
+        '<span class="gcard-body"><span class="gcard-title">' + esc(g.title || "Your gallery") + "</span>" +
+        '<span class="gcard-meta">' + esc(bits.join(" · ")) + "</span>" +
+        (g.locked ? '<span class="gcard-note">Downloads open once the invoice is paid</span>' : "") +
+        (until ? '<span class="gcard-meta">' + esc(until) + "</span>" : "") +
+        '<span class="gcard-open">Open gallery &rarr;</span></span></a>';
+    }).join("");
   }
 
   // Signed contracts download as a real PDF (built in pdf.js, no server)

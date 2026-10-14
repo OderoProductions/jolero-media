@@ -9,7 +9,7 @@
        if you EDIT ANY INLINE <script> on this page you must recompute its
        hash (shasum -a 256 of the exact script contents, base64) or the
        script silently stops running. External scripts: same-origin only. -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9hUOTyB0SoibSiWOZkJw2eqQFml00iDkRip2DzmnPus=' 'sha256-JssKZq7Zz1tMpFd4T9itCjnPwy3MNAE7DIQFnyVS3Ec='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://formspree.io https://*.supabase.co; form-action 'self' https://formspree.io; object-src 'none'; base-uri 'self'; upgrade-insecure-requests">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9hUOTyB0SoibSiWOZkJw2eqQFml00iDkRip2DzmnPus=' 'sha256-JssKZq7Zz1tMpFd4T9itCjnPwy3MNAE7DIQFnyVS3Ec='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://jolero-gallery.jolero-gallery-worker.workers.dev http://localhost:8787; font-src 'self'; connect-src 'self' https://formspree.io https://*.supabase.co https://jolero-gallery.jolero-gallery-worker.workers.dev http://localhost:8787; form-action 'self' https://formspree.io; object-src 'none'; base-uri 'self'; upgrade-insecure-requests">
   <meta name="theme-color" content="#F5F5F3" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#0A0A0A">
   <meta name="robots" content="noindex">
@@ -27,7 +27,7 @@
 
 
   <link rel="stylesheet" href="../styles.css?v=20261013">
-  <link rel="stylesheet" href="portal.css?v=20261013e">
+  <link rel="stylesheet" href="portal.css?v=20261014">
   <script>/* theme before first paint: saved choice, else OS, else dark */try{var s=localStorage.getItem("jolero_theme");if(s?s==="light":matchMedia("(prefers-color-scheme: light)").matches)document.documentElement.classList.add("theme-light")}catch(e){}</script>
 </head>
 <body>
@@ -63,6 +63,12 @@
       <div class="panel">
         <ol class="feed" id="feed"></ol>
       </div>
+    </section>
+
+    <!-- Photo and video galleries (hides itself when the client has none) -->
+    <section class="portal-section" aria-labelledby="galleries-h" id="galleries-section" hidden>
+      <h2 id="galleries-h">Your galleries<span class="count" id="galleries-count"></span></h2>
+      <div class="gallery-cards" id="galleries"></div>
     </section>
 
     <section class="portal-section" aria-labelledby="projects-h">
@@ -192,6 +198,6 @@
   <script src="data.js?v=20261013e"></script>
   <script src="store.js?v=20261013e"></script>
   <script src="pdf.js?v=20261013b"></script>
-  <script src="portal.js?v=20261013b"></script>
+  <script src="portal.js?v=20261014"></script>
 </body>
 </html>

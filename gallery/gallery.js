@@ -113,11 +113,13 @@
   let isLocked = false;
   let root = [];          // items that aren't in a folder
   let folders = [];       // [{id, name, cover, zip, items}]
+  let flat = null;        // the one folder, when a gallery is a single folder shown flat
 
   const usable = (it) => (it.type === "photo" || it.type === "video") ? url(it.t) && url(it.p) : url(it.o);
 
   function setup(m) {
     man = m;
+    flat = null;
     isLocked = !!man.locked;
     const items = (Array.isArray(man.items) ? man.items : []).filter(usable);
     const list = Array.isArray(man.folders) ? man.folders : [];
@@ -128,8 +130,8 @@
     root = items.filter((it) => !known.has(it.f));
     // A single folder with nothing beside it is just a gallery: skip the cover step
     if (folders.length === 1 && !root.length) {
-      root = folders[0].items;
-      if (!man.zip) man.zip = folders[0].zip;
+      flat = folders[0];
+      root = flat.items;
       folders = [];
     }
 
@@ -142,6 +144,7 @@
     $("usage").hidden = false;
     setupReview();
     route(history.state);
+    maybeAdmin();
   }
 
   function route(state) {
@@ -170,11 +173,25 @@
     }
   }
 
-  function setDownloadAll(zip, count) {
+  /* Download all: built on the fly by the worker from the originals when
+     every file in it has a CRC in the manifest (galleries made since
+     October 2026, and older ones once they've been edited), otherwise the
+     zip stored with the gallery. One zip stays under 4 GB. */
+  const ZIP_MAX = 4 * 1024 ** 3 - 64 * 1024 ** 2;
+  function zipFor(items, scope, stored) {
+    if (isLocked || items.length < 2) return null;
+    if (items.every((it) => Number.isInteger(it.crc) && url(it.o))) {
+      const bytes = items.reduce((n, it) => n + (it.bytes || 0), 0);
+      return bytes < ZIP_MAX ? { href: `${API}/g/${id}/zip/${scope}.zip?dl=1`, bytes } : null;
+    }
+    return stored && url(stored.o) ? { href: url(stored.o, true), bytes: stored.bytes || 0 } : null;
+  }
+
+  function setDownloadAll(zip) {
     const all = $("download-all");
-    if (zip && url(zip.o) && !isLocked && count > 1) {
-      all.href = url(zip.o, true);
-      $("download-all-size").textContent = size(zip.bytes || 0);
+    if (zip) {
+      all.href = zip.href;
+      $("download-all-size").textContent = size(zip.bytes);
       all.hidden = false;
     } else {
       all.hidden = true;
@@ -195,7 +212,8 @@
     const note = typeof man.message === "string" ? man.message.trim() : "";
     $("message").textContent = note;
     $("message").hidden = !note;
-    setDownloadAll(folders.length ? null : man.zip, root.length);
+    setDownloadAll(folders.length ? zipFor(all, "all", null)
+      : flat ? zipFor(root, flat.id, flat.zip) : zipFor(root, "all", man.zip));
     renderFolders();
     renderItems(root);
   }
@@ -208,7 +226,7 @@
     if (man.expires) parts.push(["", `Available until ${day(man.expires)}`]);
     setOsd(parts);
     $("message").hidden = true;
-    setDownloadAll(f.zip, f.items.length);
+    setDownloadAll(zipFor(f.items, f.id, f.zip));
     $("folders").hidden = true;
     renderItems(f.items);
   }
@@ -262,9 +280,10 @@
       open.appendChild(label);
       open.addEventListener("click", () => openFolder(f));
       card.appendChild(open);
-      if (f.zip && url(f.zip.o) && !isLocked && f.items.length > 1) {
-        const dl = downloadLink(url(f.zip.o, true), "Download all", "folder-dl");
-        dl.appendChild(el("span", "btn-meta", size(f.zip.bytes || 0)));
+      const fz = zipFor(f.items, f.id, f.zip);
+      if (fz) {
+        const dl = downloadLink(fz.href, "Download all", "folder-dl");
+        dl.appendChild(el("span", "btn-meta", size(fz.bytes)));
         card.appendChild(dl);
       }
       grid.appendChild(card);
@@ -619,9 +638,12 @@
   /* ---------- review form: stars and a few words, sent privately to us ---------- */
 
   const reviewKey = `jolero_review_${id}`;
+  let reviewWired = false;
 
   function setupReview() {
     $("review").hidden = false;
+    if (reviewWired) return; // already set up (the page re-renders after an edit)
+    reviewWired = true;
     let sent = null;
     try { sent = JSON.parse(localStorage.getItem(reviewKey) || "null"); } catch (e) { /* storage blocked */ }
     if (sent) return showThanks(sent);
@@ -699,6 +721,43 @@
       if (!isLocked) li.appendChild(downloadLink(url(it.o, true), "Download", "btn btn-ghost btn-sm"));
       list.appendChild(li);
     }
+  }
+
+  /* ---------- admin: the Edit tab ----------
+     Only for someone signed into the portal as an admin in this browser, on
+     this same site: the portal keeps its sign-in in this origin's storage,
+     so a client's browser never has one and never loads any of this. The
+     worker checks the sign-in again on every change anyway. */
+  let adminLoaded = false;
+  function maybeAdmin() {
+    if (adminLoaded) { if (window.JoleroGalleryAdmin) window.JoleroGalleryAdmin.refresh(); return; }
+    let signedIn = null;
+    try { signedIn = localStorage.getItem("jolero_session"); } catch (e) { /* storage blocked */ }
+    if (!signedIn) return;
+    adminLoaded = true;
+    window.JoleroGallery = {
+      id,
+      api: API,
+      url,
+      size,
+      slug,
+      // the editor saves, then hands the new manifest back to be shown
+      show(m) {
+        setup(JSON.parse(JSON.stringify(m)));
+      },
+      route: () => route(history.state),
+    };
+    const add = (src) => new Promise((resolve, reject) => {
+      const tag = document.createElement("script");
+      tag.src = src;
+      tag.onload = resolve;
+      tag.onerror = reject;
+      document.head.appendChild(tag);
+    });
+    add("../portal/supabase-config.js?v=20261014")
+      .then(() => add("../portal/auth.js?v=20261014"))
+      .then(() => add("gallery-admin.js?v=1"))
+      .catch(() => { /* no portal on this site: nothing to edit with */ });
   }
 
   window.addEventListener("hashchange", () => location.reload());

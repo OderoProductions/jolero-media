@@ -12,8 +12,9 @@
      · videos the browser can play are used as their own preview, with a
        poster frame grabbed here; anything it can't play (ProRes, HEIC on
        Chrome, RAW) goes up as a download
-     · each folder gets a Download all zip (under 3.9 GB), written here
-       as it uploads, so nothing big sits in memory
+     · every original's CRC-32 is worked out here and kept in the manifest,
+       so the worker can build Download all on the fly: nothing goes up
+       twice, and deleting or moving photos later never means a new zip
      · files go straight to Cloudflare R2 through the worker, in 50 MB
        pieces, and the gallery only appears once everything is up.
 
@@ -31,7 +32,6 @@
   var API = LOCAL ? "http://localhost:8787" : "https://jolero-gallery.jolero-gallery-worker.workers.dev";
   var SITE = LOCAL ? location.origin + "/gallery/" : "https://joleromedia.com/gallery/";
   var PART = 50 * 1024 * 1024;
-  var ZIP_LIMIT = 3.9 * 1024 * 1024 * 1024;   // browser zips stay under 4 GB (no zip64)
   var GRACE_DAYS = 90;                          // matches the worker's sweep
 
   var PHOTO = /\.(jpe?g|png|webp|gif|heic|heif|tiff?|dng|cr2|cr3|nef|arw|raf|orf|rw2)$/i;
@@ -83,6 +83,11 @@
   function linkFor(title, id) {
     var name = slug(title);
     return SITE + "#" + (name && name !== "file" ? name + "/" : "") + id;
+  }
+  // the gallery page on this portal's own site, opened straight into Edit
+  function editLinkFor(title, id) {
+    var name = slug(title);
+    return new URL("../../gallery/?edit#" + (name && name !== "file" ? name + "/" : "") + id, location.href).href;
   }
   async function copy(text, btn) {
     var ok = false;
@@ -280,10 +285,10 @@
     });
   }
 
-  /* ---------- Download all: a zip written as it uploads ----------
-     Stored, not compressed (photos and video are already compressed), with
-     data descriptors so each file's checksum can come after its bytes: one
-     pass over each file, and the zip goes up in 50 MB pieces as it's made. */
+  /* ---------- CRCs for Download all ----------
+     The worker builds Download all on the fly from each original's size and
+     CRC-32 (see the jolero-gallery worker), so all we do is read each file
+     once here and note its CRC. */
 
   var CRC_TABLE = (function () {
     var t = new Uint32Array(256);
@@ -299,120 +304,13 @@
     for (var i = 0; i < bytes.length; i++) crc = CRC_TABLE[(crc ^ bytes[i]) & 0xFF] ^ (crc >>> 8);
     return (crc ^ 0xFFFFFFFF) >>> 0;
   }
-  function dosTime(ms) {
-    var d = new Date(ms || Date.now());
-    var year = Math.max(1980, d.getFullYear());
-    return {
-      time: (d.getHours() << 11) | (d.getMinutes() << 5) | Math.floor(d.getSeconds() / 2),
-      date: ((year - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate()
-    };
-  }
-
-  function zipSize(entries) {
-    var enc = new TextEncoder();
-    return entries.reduce(function (n, e) {
-      var nameLen = enc.encode(e.arcname).length;
-      return n + 30 + nameLen + e.file.size + 16 + 46 + nameLen;
-    }, 22);
-  }
-
-  async function uploadZip(key, entries, zipName, onBytes) {
-    var path = "/admin/mpu/" + encodeURI(key);
-    var created = await send("POST", path + "?action=create", "",
-      Object.assign({ "content-type": "application/zip" }, metaHeaders({ filename: zipName })));
-    var uid = encodeURIComponent(created.uploadId);
-    var parts = [];
-    var pending = [];           // Blobs/Uint8Arrays not yet sent
-    var pendingBytes = 0;
-    var offset = 0;
-    var central = [];
-    var enc = new TextEncoder();
-
-    async function push(chunk) {
-      pending.push(chunk);
-      pendingBytes += chunk.size != null ? chunk.size : chunk.length;
-      offset += chunk.size != null ? chunk.size : chunk.length;
-      while (pendingBytes >= PART) await flush(PART);
-    }
-    async function flush(n) {
-      var all = new Blob(pending);
-      var piece = all.slice(0, n);
-      var rest = all.slice(n);
-      pending = rest.size ? [rest] : [];
-      pendingBytes = rest.size;
-      var r = await send("PUT", path + "?uploadId=" + uid + "&part=" + (parts.length + 1), piece, {}, onBytes);
-      parts.push({ partNumber: r.partNumber, etag: r.etag });
-    }
-
-    try {
-      for (var i = 0; i < entries.length; i++) {
-        var e = entries[i];
-        var name = enc.encode(e.arcname);
-        var t = dosTime(e.file.lastModified);
-        var start = offset;
-        var head = new DataView(new ArrayBuffer(30));
-        head.setUint32(0, 0x04034b50, true);
-        head.setUint16(4, 20, true);              // version needed
-        head.setUint16(6, 0x0808, true);          // data descriptor + UTF-8 names
-        head.setUint16(8, 0, true);               // stored
-        head.setUint16(10, t.time, true);
-        head.setUint16(12, t.date, true);
-        // crc and sizes are 0 here; they follow the data
-        head.setUint16(26, name.length, true);
-        await push(new Uint8Array(head.buffer));
-        await push(name);
-
-        var crc = 0;
-        var reader = e.file.stream().getReader();
-        while (true) {
-          var step = await reader.read();
-          if (step.done) break;
-          crc = crc32(crc, step.value);
-          await push(step.value);
-        }
-        var desc = new DataView(new ArrayBuffer(16));
-        desc.setUint32(0, 0x08074b50, true);
-        desc.setUint32(4, crc, true);
-        desc.setUint32(8, e.file.size, true);
-        desc.setUint32(12, e.file.size, true);
-        await push(new Uint8Array(desc.buffer));
-        central.push({ name: name, crc: crc, size: e.file.size, offset: start, t: t });
-      }
-
-      var cdStart = offset;
-      for (var j = 0; j < central.length; j++) {
-        var c = central[j];
-        var cd = new DataView(new ArrayBuffer(46));
-        cd.setUint32(0, 0x02014b50, true);
-        cd.setUint16(4, 20, true);
-        cd.setUint16(6, 20, true);
-        cd.setUint16(8, 0x0808, true);
-        cd.setUint16(10, 0, true);
-        cd.setUint16(12, c.t.time, true);
-        cd.setUint16(14, c.t.date, true);
-        cd.setUint32(16, c.crc, true);
-        cd.setUint32(20, c.size, true);
-        cd.setUint32(24, c.size, true);
-        cd.setUint16(28, c.name.length, true);
-        cd.setUint32(42, c.offset, true);
-        await push(new Uint8Array(cd.buffer));
-        await push(c.name);
-      }
-      var end = new DataView(new ArrayBuffer(22));
-      end.setUint32(0, 0x06054b50, true);
-      end.setUint16(8, central.length, true);
-      end.setUint16(10, central.length, true);
-      end.setUint32(12, offset - cdStart, true);
-      end.setUint32(16, cdStart, true);
-      await push(new Uint8Array(end.buffer));
-      if (pendingBytes) await flush(pendingBytes);
-
-      await send("POST", path + "?action=complete&uploadId=" + uid, JSON.stringify({ parts: parts }),
-        { "content-type": "application/json" });
-      return offset;
-    } catch (err) {
-      try { await send("DELETE", path + "?uploadId=" + uid, null, {}); } catch (e2) {}
-      throw err;
+  async function fileCrc(file) {
+    var reader = file.stream().getReader();
+    var crc = 0;
+    for (;;) {
+      var step = await reader.read();
+      if (step.done) return crc;
+      crc = crc32(crc, step.value);
     }
   }
 
@@ -470,11 +368,10 @@
   /* ---------- building a gallery (or adding to one) ---------- */
 
   /* plan: [{ fid|null, name|null, items:[{file, path}] }]; returns items,
-     folders, root zip, and every key it wrote (for cleaning up a failure). */
+     folders, and every key it wrote (for cleaning up a failure). */
   async function build(gid, title, plan, start, progress) {
     var items = [];
     var uploads = [];           // { key, blob, type, meta }
-    var zips = [];              // { key, entries, name, fid }
     var n = start;
     var total = plan.reduce(function (s, g) { return s + g.items.length; }, 0);
     var made = 0;
@@ -514,25 +411,18 @@
             item.type = "file";
           }
         }
+        progress.stage("Checking files", made + " of " + total + ": " + file.name);
+        item.crc = await fileCrc(file);
         uploads.push({ key: item.o, blob: file, type: contentType(file), meta: { filename: file.name } });
         items.push(item);
       }
-      var entries = g.items.map(function (it) {
-        return { file: it.file, arcname: g.fid ? it.path.split("/").slice(1).join("/") : it.path };
-      });
-      if (entries.length > 1 && zipSize(entries) <= ZIP_LIMIT && !progress.noZip) {
-        var zname = (title + (g.name ? " - " + g.name : "")).replace(/[\\/:*?"<>|]+/g, "-") + ".zip";
-        var zkey = g.fid ? "o/" + g.fid + ".zip" : "o/all.zip";
-        zips.push({ key: zkey, entries: entries, name: zname, fid: g.fid });
-      }
     }
 
-    // previews first so a half-finished upload is cheap to retry, then originals, then zips
+    // previews first so a half-finished upload is cheap to retry, then originals
     uploads.sort(function (a, b) { return (a.key.charAt(0) === "o" || a.key.charAt(0) === "v") - (b.key.charAt(0) === "o" || b.key.charAt(0) === "v"); });
-    var bytes = uploads.reduce(function (s, u) { return s + u.blob.size; }, 0) +
-                zips.reduce(function (s, z) { return s + zipSize(z.entries); }, 0);
+    var bytes = uploads.reduce(function (s, u) { return s + u.blob.size; }, 0);
     progress.begin(bytes);
-    var keys = uploads.map(function (u) { return u.key; }).concat(zips.map(function (z) { return z.key; }));
+    var keys = uploads.map(function (u) { return u.key; });
 
     var next = 0;
     await Promise.all([0, 1, 2].map(async function () {
@@ -542,19 +432,11 @@
         await putBlob("g/" + gid + "/" + u.key, u.blob, u.type, u.meta, progress.add);
       }
     }));
-    var zipInfo = {};
-    for (var zi = 0; zi < zips.length; zi++) {
-      var z = zips[zi];
-      progress.stage("Building Download all", z.name);
-      var size = await uploadZip("g/" + gid + "/" + z.key, z.entries, z.name, progress.add);
-      zipInfo[z.fid || ""] = { o: z.key, name: z.name, bytes: size };
-    }
-
     var folders = plan.filter(function (g) { return g.fid; }).map(function (g) {
       var mine = items.filter(function (it) { return it.f === g.fid; });
-      return { id: g.fid, name: g.name, cover: cover(mine), zip: zipInfo[g.fid] || null };
+      return { id: g.fid, name: g.name, cover: cover(mine), zip: null };
     });
-    return { items: items, folders: folders, rootZip: zipInfo[""] || null, keys: keys };
+    return { items: items, folders: folders, keys: keys };
   }
 
   function cover(items) {
@@ -685,7 +567,6 @@
         (secs > 5 && left > 5 ? " · about " + (left > 90 ? Math.round(left / 60) + " min" : Math.round(left) + "s") + " left" : "");
     }
     return {
-      noZip: false,
       stage: function (s, what) { stageEl.textContent = s + (what ? ": " + what : ""); },
       begin: function (bytes) { total = Math.max(bytes, 1); done = 0; t0 = Date.now(); draw(); },
       add: function (n) { done += n; draw(); }
@@ -733,7 +614,7 @@
           created: new Date().toISOString(),
           expires: days === "never" ? "" : new Date(Date.now() + days * 86400000).toISOString(),
           locked: $("g-hold").value === "1",
-          zip: out.rootZip, folders: out.folders, items: out.items
+          zip: null, folders: out.folders, items: out.items
         });
         showDone(title, gid, "Gallery ready. The link for your client:");
       }
@@ -928,6 +809,11 @@
       var link = linkFor(g.title, g.id);
       var acts = el("div", "g-actions");
       acts.appendChild(btn("Copy link", function (b) { return copy(link, b); }, "is-primary"));
+      // Edit on the gallery page itself, on this same site so it sees this sign-in
+      var edit = el("a", "link-quiet g-act is-primary", "Edit on page");
+      edit.href = editLinkFor(g.title, g.id);
+      edit.target = "_blank"; edit.rel = "noopener";
+      acts.appendChild(edit);
       var open = el("a", "link-quiet g-act", "Open");
       open.href = link; open.target = "_blank"; open.rel = "noopener";
       acts.appendChild(open);

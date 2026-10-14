@@ -1403,3 +1403,17 @@ html.is-authed #sign-out { display: inline; }
   resize: vertical;
 }
 .g-dialog-actions { margin-top: 18px; display: flex; gap: 10px; }
+
+/* ---------- Client page: galleries ---------- */
+.gallery-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.gcard { display: grid; grid-template-rows: auto 1fr; padding: 0; overflow: hidden; text-decoration: none; color: inherit;
+  transition: border-color 0.2s ease, transform 0.2s ease; }
+.gcard:hover { border-color: var(--hover-line); transform: translateY(-2px); }
+.gcard-cover { display: block; aspect-ratio: 4 / 3; background: var(--ink-3); overflow: hidden; }
+.gcard-cover img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+.gcard:hover .gcard-cover img { transform: scale(1.03); }
+.gcard-body { display: grid; gap: 6px; padding: 16px 18px 18px; }
+.gcard-title { font-family: var(--font-display); font-size: 1.4rem; line-height: 1.05; text-transform: uppercase; letter-spacing: 0.01em; }
+.gcard-meta { font-size: 0.85rem; color: var(--paper-60); }
+.gcard-note { font-size: 0.82rem; color: var(--accent); }
+.gcard-open { margin-top: 6px; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }

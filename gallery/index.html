@@ -6,15 +6,17 @@
   <!-- Client galleries. The gallery id lives in the #hash, so it never reaches
        the web server or a Referer header. Files and the manifest come from the
        jolero-gallery worker (see jolero-gallery/README.md); this page is the
-       same for every client. Unlisted, not indexed. -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://jolero-gallery.jolero-gallery-worker.workers.dev http://localhost:8787; media-src https://jolero-gallery.jolero-gallery-worker.workers.dev http://localhost:8787; connect-src https://jolero-gallery.jolero-gallery-worker.workers.dev http://localhost:8787; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+       same for every client. Unlisted, not indexed. A portal admin signed in
+       on this same site also gets an Edit tab (gallery-admin.js), which is
+       why Supabase is in connect-src. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://jolero-gallery.jolero-gallery-worker.workers.dev http://localhost:8787; media-src https://jolero-gallery.jolero-gallery-worker.workers.dev http://localhost:8787; connect-src https://jolero-gallery.jolero-gallery-worker.workers.dev http://localhost:8787 https://hrdjikuadcqrddbeszzb.supabase.co; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
   <meta name="robots" content="noindex, nofollow">
   <meta name="referrer" content="no-referrer">
   <meta name="theme-color" content="#0A0A0A">
   <title>Your gallery | Jolero Media</title>
   <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
-  <link rel="stylesheet" href="gallery.css?v=11">
-  <script src="gallery.js?v=11" defer></script>
+  <link rel="stylesheet" href="gallery.css?v=12">
+  <script src="gallery.js?v=12" defer></script>
 </head>
 <body>
 
