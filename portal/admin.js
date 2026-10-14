@@ -199,7 +199,7 @@
       return '<article class="panel client-block">' +
         '<div class="client-block-head"><h3>' + esc(c.name) + '</h3><span class="project-type">' + esc(c.kind) + "</span>" +
         '<a class="btn btn-ghost btn-mini view-as" href="../index.html?client=' + encodeURIComponent(c.id) +
-        '">See their view</a></div>' +
+        '" target="_blank" rel="noopener">See their view</a></div>' +
         '<p class="client-contact">' + esc(c.contactName) + (c.email ? " · " + esc(c.email) : "") + (c.phone ? " · " + esc(c.phone) : "") + "</p>" +
         '<div class="client-lines">' + plines + "</div>" +
         '<div class="client-lines">' + ilines + "</div>" +

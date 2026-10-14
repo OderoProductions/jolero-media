@@ -291,7 +291,9 @@
       location.replace(loginUrl() + "?denied=1");
       return;
     }
-    document.documentElement.classList.add("is-authed");
+    // is-admin shows the admin-only bits (the client switcher, the Admin
+    // link); a client never gets them, even on the same page
+    document.documentElement.classList.add("is-authed", profile.role === "admin" ? "is-admin" : "is-client");
   }
 
   /* If a page starts loading data before the guard has finished

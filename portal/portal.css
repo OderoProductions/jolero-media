@@ -1306,6 +1306,8 @@ html.theme-light { --halo: rgba(214, 42, 32, 0.18); }   /* tracks the light acce
 /* Sign out only appears once there's actually a session to end */
 #sign-out { display: none; }
 html.is-authed #sign-out { display: inline; }
+/* Admin-only bits on the client page: shown once auth.js knows it's an admin */
+html:not(.is-admin) .admin-only { display: none !important; }
 
 /* Admin way in — deliberately quiet, below the client form */
 .login-switch {

@@ -16,7 +16,7 @@
   <title>Projects — Jolero Media Portal</title>
   <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
   <link rel="stylesheet" href="../../styles.css?v=20261013">
-  <link rel="stylesheet" href="../portal.css?v=20261014">
+  <link rel="stylesheet" href="../portal.css?v=20261014b">
   <script>/* theme before first paint: saved choice, else OS, else dark */try{var s=localStorage.getItem("jolero_theme");if(s?s==="light":matchMedia("(prefers-color-scheme: light)").matches)document.documentElement.classList.add("theme-light")}catch(e){}</script>
 </head>
 <body>
@@ -52,7 +52,7 @@
             <ol class="bell-list" id="bell-list"></ol>
           </div>
         </div>
-        <a href="../">Client view</a>
+        <a href="../" target="_blank" rel="noopener">Client view</a>
         <button class="link-quiet" id="export-data" type="button" style="font-size:0.8rem;">Back up</button>
         <button class="link-quiet" id="import-data" type="button" style="font-size:0.8rem;">Restore</button>
         <input type="file" id="import-file" accept="application/json,.json" hidden>
@@ -129,10 +129,10 @@
 
   <script src="../../theme.js?v=20261013b"></script>
   <script src="../supabase-config.js?v=20261013b"></script>
-  <script src="../auth.js?v=20261013b"></script>
+  <script src="../auth.js?v=20261014b"></script>
   <script src="../data.js?v=20261013e"></script>
   <script src="../store.js?v=20261013e"></script>
-  <script src="../admin.js?v=20261013e"></script>
+  <script src="../admin.js?v=20261014b"></script>
 
   <!-- Set/change your own admin password. Requires a live session, so it can
        only ever change the account you are signed in as. autocomplete
