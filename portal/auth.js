@@ -159,11 +159,27 @@
 
   var cachedProfile = null;
 
+  /* The signed-in user's id, read out of the token. Supabase checks the
+     token's signature on every call, so a tampered id wouldn't be accepted
+     there; this only picks which row to ask for. */
+  function tokenSub(token) {
+    try {
+      var part = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+      var sub = JSON.parse(atob(part + "===".slice((part.length + 3) % 4))).sub;
+      return /^[0-9a-f-]{36}$/i.test(sub || "") ? sub : "";
+    } catch (e) { return ""; }
+  }
+
   async function getProfile(force) {
     if (cachedProfile && !force) return cachedProfile;
     var token = await getToken();
     if (!token) return null;
-    var res = await fetch(cfg().url + "/rest/v1/profiles?select=id,email,role,client_id", {
+    // Ask for this person's own row by id: an admin may read every profile,
+    // so "whatever I can see" would return a row per person once more than
+    // one has signed in, and the first of those may be somebody else.
+    var sub = tokenSub(token);
+    if (!sub) return null;
+    var res = await fetch(cfg().url + "/rest/v1/profiles?select=id,email,role,client_id&id=eq." + sub, {
       headers: {
         "apikey": cfg().anonKey,
         "Authorization": "Bearer " + token,
@@ -172,7 +188,7 @@
     });
     if (!res.ok) return null;
     var rows = await res.json();
-    cachedProfile = rows && rows.length ? rows[0] : null;   // RLS returns only your own row
+    cachedProfile = rows && rows.length === 1 ? rows[0] : null;
     return cachedProfile;
   }
 

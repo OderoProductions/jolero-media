@@ -756,7 +756,7 @@
       document.head.appendChild(tag);
     });
     add("../portal/supabase-config.js?v=20261014")
-      .then(() => add("../portal/auth.js?v=20261014"))
+      .then(() => add("../portal/auth.js?v=20261016"))
       .then(() => add("gallery-admin.js?v=2"))
       .catch(() => { /* no portal on this site: nothing to edit with */ });
   }
