@@ -34,6 +34,185 @@
 
   /* ================= DASHBOARD ================= */
 
+  /* ================= DASHBOARD PANELS =================
+     This month at a glance, what's open, what's running. Same records as
+     the Schedule, Tasks and Projects pages, read-only apart from ticking
+     a task off, which is the one thing worth doing from here. */
+
+  var MONTHS = ["January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"];
+  var DAYS = ["M", "T", "W", "T", "F", "S", "S"];
+
+  function isoOf(d) {
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") +
+      "-" + String(d.getDate()).padStart(2, "0");
+  }
+  function parseISO(iso) {
+    var p = String(iso).split("-");
+    return new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+  }
+  function daysFromToday(iso) {
+    return Math.round((parseISO(iso) - parseISO(todayISO())) / 86400000);
+  }
+  function whenWord(iso) {
+    var n = daysFromToday(iso);
+    if (n === 0) return "Today";
+    if (n === 1) return "Tomorrow";
+    if (n === -1) return "Yesterday";
+    if (n < 0) return Math.abs(n) + " days ago";
+    if (n < 7) return "In " + n + " days";
+    return fmtDate(iso);
+  }
+  function lastDayOf(e) {
+    return e.endDate && e.endDate > e.date ? e.endDate : e.date;
+  }
+
+  /* A month of 42 cells, Monday first, each carrying the kinds of thing
+     happening that day (an entry over several days marks every one). */
+  function renderMiniCal(events) {
+    var host = el("mini-cal");
+    if (!host) return;
+    var today = new Date();
+    var view = { y: today.getFullYear(), m: today.getMonth() };
+    var label = el("mc-month");
+    if (label) label.textContent = MONTHS[view.m] + " " + view.y;
+
+    var kinds = {};
+    events.forEach(function (e) {
+      for (var d = parseISO(e.date), end = parseISO(lastDayOf(e)); d <= end; d.setDate(d.getDate() + 1)) {
+        var k = isoOf(d);
+        if (!kinds[k]) kinds[k] = [];
+        if (kinds[k].indexOf(e.kind) === -1) kinds[k].push(e.kind);
+      }
+    });
+
+    var html = DAYS.map(function (d, i) {
+      return '<span class="mc-head" aria-hidden="true" data-i="' + i + '">' + d + "</span>";
+    }).join("");
+    var first = new Date(view.y, view.m, 1);
+    var cursor = new Date(view.y, view.m, 1 - ((first.getDay() + 6) % 7));
+    for (var i = 0; i < 42; i++) {
+      var iso = isoOf(cursor);
+      var outside = cursor.getMonth() !== view.m;
+      var mine = kinds[iso] || [];
+      html += '<a class="mc-day' + (outside ? " is-outside" : "") +
+        (iso === todayISO() ? " is-today" : "") + (mine.length ? " has-on" : "") +
+        '" href="schedule.html?date=' + iso + '" aria-label="' + esc(fmtDate(iso)) +
+        (mine.length ? ", " + mine.length + " on" : ", nothing on") + '">' +
+        '<span class="mc-n">' + cursor.getDate() + "</span>" +
+        '<span class="mc-dots">' + mine.slice(0, 3).map(function (k) {
+          return '<i class="mc-dot k-' + k + '"></i>';
+        }).join("") + "</span></a>";
+      cursor.setDate(cursor.getDate() + 1);
+    }
+    host.innerHTML = html;
+  }
+
+  function renderNextUp(events) {
+    var host = el("next-up");
+    if (!host) return;
+    var soon = events.filter(function (e) {
+      return lastDayOf(e) >= todayISO() && !e.done;
+    }).sort(function (a, b) {
+      if (a.date !== b.date) return a.date < b.date ? -1 : 1;
+      return (a.time || "99:99") < (b.time || "99:99") ? -1 : 1;
+    }).slice(0, 4);
+
+    host.innerHTML = soon.length ? soon.map(function (e) {
+      var multi = lastDayOf(e) !== e.date;
+      // when and what kind on top, the title on its own line: the calendar
+      // column is narrow, and a title is the thing worth reading
+      return '<li class="nx k-' + e.kind + '">' +
+        '<span class="nx-when">' + esc(e.date <= todayISO() && multi ? "On now" : whenWord(e.date)) +
+        (e.time ? ' <b>' + esc(e.time) + "</b>" : "") + "</span>" +
+        '<span class="nx-tag">' + esc(e.label || "") +
+        (e.who ? " · " + esc(PortalUtil.whoInitials(e.who)) : "") + "</span>" +
+        '<span class="nx-title">' + esc(e.title) + "</span></li>";
+    }).join("") : '<li class="nx-empty">Nothing booked in. Enjoy it.</li>';
+  }
+
+  function renderMiniTasks(data) {
+    var host = el("mini-tasks");
+    if (!host) return;
+    var all = data.tasks || [];
+    var open = all.filter(function (t) { return !t.done; });
+    var done = all.length - open.length;
+    var bar = el("mt-bar");
+    if (bar) {
+      bar.firstElementChild.style.width = all.length ? (done / all.length * 100).toFixed(1) + "%" : "0%";
+      bar.title = done + " of " + all.length + " done";
+    }
+    var overdue = open.filter(function (t) { return t.due && t.due < todayISO(); }).length;
+    var meta = el("mt-meta");
+    if (meta) {
+      meta.textContent = open.length ? open.length + " open" + (overdue ? " · " + overdue + " overdue" : "") : "All done";
+      meta.classList.toggle("is-accent", overdue > 0);
+    }
+
+    var projectTitle = {};
+    data.projects.forEach(function (p) { projectTitle[p.id] = p.title; });
+    var soonest = open.slice().sort(function (a, b) {
+      return (a.due || "9999") < (b.due || "9999") ? -1 : 1;
+    }).slice(0, 5);
+
+    host.innerHTML = soonest.length ? soonest.map(function (t) {
+      var late = t.due && t.due < todayISO();
+      return '<li class="mtask' + (late ? " is-late" : "") + '">' +
+        '<input type="checkbox" data-toggle-task="' + esc(t.id) + '" aria-label="Mark ' + esc(t.title) + ' done">' +
+        '<span class="mtask-body"><span class="mtask-title">' + esc(t.title) + "</span>" +
+        '<span class="mtask-meta">' + esc(t.type || "") +
+        (t.who ? " · " + esc(t.who) : "") +
+        (t.projectId && projectTitle[t.projectId] ? " · " + esc(projectTitle[t.projectId]) : "") +
+        "</span></span>" +
+        '<span class="mtask-due">' + esc(t.due ? whenWord(t.due) : "") + "</span></li>";
+    }).join("") : '<li class="nx-empty">Nothing on the list.</li>';
+  }
+
+  function renderMiniProjects(data) {
+    var host = el("mini-projects");
+    if (!host) return;
+    var clientName = {};
+    data.clients.forEach(function (c) { clientName[c.id] = c.name; });
+    var live = data.projects.filter(function (p) { return p.status !== "Delivered"; })
+      .sort(function (a, b) {
+        var av = a.deadline || a.shootDate || "9999", bv = b.deadline || b.shootDate || "9999";
+        return av < bv ? -1 : av > bv ? 1 : 0;
+      });
+    var delivered = data.projects.length - live.length;
+    var waiting = (data.briefs || []).filter(function (b) { return b.status === "requested"; }).length;
+    var meta = el("mp-meta");
+    if (meta) {
+      meta.textContent = (live.length ? live.length + " running" : "Nothing running") +
+        (delivered ? " · " + delivered + " delivered" : "") +
+        (waiting ? " · " + waiting + " brief" + (waiting === 1 ? "" : "s") + " awaiting client" : "");
+    }
+
+    host.innerHTML = live.length ? live.slice(0, 6).map(function (p) {
+      var at = STATUSES.indexOf(p.status);
+      var late = p.deadline && p.deadline < todayISO();
+      return '<a class="mproj" href="projects.html">' +
+        '<span class="mproj-top"><span class="mproj-title">' + esc(p.title) + "</span>" +
+        '<span class="mproj-status">' + esc(p.status) + "</span></span>" +
+        '<span class="mproj-client">' + esc(clientName[p.clientId] || "") + "</span>" +
+        '<span class="mproj-pips" title="' + esc(p.status) + '">' + STATUSES.map(function (s, i) {
+          return '<i class="' + (i < at ? "is-done" : i === at ? "is-now" : "") + '"></i>';
+        }).join("") + "</span>" +
+        '<span class="mproj-dates">' +
+        (p.shootDate ? "Shoot " + esc(whenWord(p.shootDate)) : "No shoot date") +
+        (p.deadline ? ' <b class="' + (late ? "is-late" : "") + '">Due ' + esc(whenWord(p.deadline)) + "</b>" : "") +
+        "</span></a>";
+    }).join("") : '<p class="nx-empty">No projects on the go.</p>';
+  }
+
+  async function renderDashPanels(data) {
+    if (!el("mini-cal")) return;              // not the dashboard page
+    var events = await PortalStore.getScheduleEvents();
+    renderMiniCal(events);
+    renderNextUp(events);
+    renderMiniTasks(data);
+    renderMiniProjects(data);
+  }
+
   function renderDashboard(data) {
     var host = el("dash-grid");
     if (!host) return;
@@ -77,20 +256,9 @@
         '<span class="dash-sub">' + sub + "</span></a>";
     }
 
+    // Schedule, Tasks and Projects have their own panels below, in more
+    // detail than a number could give; these are the rest of the business.
     host.innerHTML =
-      card("schedule.html", "Schedule",
-        upcoming.length ? upcoming.length : "—",
-        upcoming.length
-          ? upcoming.map(function (u) {
-              return fmtDate(u.date) + (u.until ? " – " + fmtDate(u.until) : "") +
-                (u.time ? " " + u.time : "") + " — " + esc(u.text);
-            }).join("<br>")
-          : "Nothing coming up") +
-
-      card("schedule.html", "Tasks", openTasks.length,
-        overdueTasks.length ? overdueTasks.length + " overdue" : "None overdue",
-        overdueTasks.length > 0) +
-
       card("invoices.html", "Accounting", fmtMoney(unpaidTotal),
         unpaid.length + " unpaid · " + fmtMoney(paidTotal) + " received" +
         (function () {
@@ -111,10 +279,6 @@
       card("contracts.html", "Contracts", (data.contracts || []).length,
         awaiting.length ? awaiting.length + " awaiting signature" : "All signed",
         awaiting.length > 0) +
-
-      card("projects.html", "Projects", live.length,
-        live.length + " live · " + (data.projects.length - live.length) + " delivered" +
-        (briefsWaiting.length ? "<br>" + briefsWaiting.length + " brief(s) awaiting client" : "")) +
 
       card("clients.html", "Clients", data.clients.length,
         reviews.length
@@ -702,6 +866,7 @@
   async function renderAll() {
     var data = await PortalStore.getData();
     renderDashboard(data);
+    await renderDashPanels(data);
     renderOverview(data);
     renderBoard(data);
     renderClients(data);

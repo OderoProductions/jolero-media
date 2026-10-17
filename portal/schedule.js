@@ -638,7 +638,21 @@
       }).join("");
 
     await initGcalAccount();      // before first render: links need the account
+
+    // ?date=YYYY-MM-DD opens straight on that day (the dashboard's mini
+    // calendar links here), otherwise today
     selected = todayISO;
+    try {
+      var asked = new URLSearchParams(location.search).get("date");
+      if (/^\d{4}-\d{2}-\d{2}$/.test(asked || "")) {
+        var d = parseISO(asked);
+        if (!isNaN(d)) {
+          selected = asked;
+          view = { y: d.getFullYear(), m: d.getMonth() };
+        }
+      }
+    } catch (e) { /* no query string support: today it is */ }
+
     await refresh();
   })();
 })();
