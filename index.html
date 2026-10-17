@@ -8,7 +8,7 @@
        if you EDIT ANY INLINE <script> on this page you must recompute its
        hash (shasum -a 256 of the exact script contents, base64) or the
        script silently stops running. External scripts: same-origin only. -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9hUOTyB0SoibSiWOZkJw2eqQFml00iDkRip2DzmnPus=' 'sha256-JssKZq7Zz1tMpFd4T9itCjnPwy3MNAE7DIQFnyVS3Ec='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://formspree.io https://*.supabase.co; form-action 'self' https://formspree.io; object-src 'none'; base-uri 'self'; upgrade-insecure-requests">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9hUOTyB0SoibSiWOZkJw2eqQFml00iDkRip2DzmnPus=' 'sha256-JssKZq7Zz1tMpFd4T9itCjnPwy3MNAE7DIQFnyVS3Ec='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://jolero-gallery.jolero-gallery-worker.workers.dev https://*.supabase.co; form-action 'self' https://jolero-gallery.jolero-gallery-worker.workers.dev; object-src 'none'; base-uri 'self'; upgrade-insecure-requests">
 
   <!-- ============================================================
        JOLERO MEDIA — joleromedia.com
@@ -463,16 +463,15 @@
             </p>
           </aside>
 
-          <!-- ============ FORMSPREE SETUP ============
-               1. Create a free form at https://formspree.io (use info@joleromedia.com).
-               2. Copy your endpoint, e.g. https://formspree.io/f/abcdwxyz
-               3. Replace YOUR_FORM_ID in the action below with your form's ID.
-               script.js submits this via fetch and shows the success message in-page;
-               if JavaScript is off it falls back to a normal Formspree redirect.
-               ========================================== -->
-          <form class="contact-form reveal" id="contact-form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST" novalidate>
-            <input type="hidden" name="_subject" value="New enquiry — Jolero Media">
-            <!-- Honeypot: hidden from humans, catches bots. Leave as-is. -->
+          <!-- ============ WHERE THIS GOES ============
+               Our own gallery worker (jolero-gallery/worker), which keeps
+               each enquiry and emails info@joleromedia.com with the sender
+               as reply-to, so you can answer straight from your inbox.
+               No third-party form service and no monthly cap. script.js
+               posts it with fetch and shows the thank-you in place.
+               ========================================= -->
+          <form class="contact-form reveal" id="contact-form" action="https://jolero-gallery.jolero-gallery-worker.workers.dev/enquiry" method="POST" novalidate>
+            <!-- Honeypot: hidden from people, catches bots. Leave as-is. -->
             <input type="text" name="_gotcha" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
 
             <div class="field">
