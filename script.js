@@ -143,6 +143,21 @@
     heroVideo.pause();
   }
 
+  /* The still behind the video is there to fill the frame until the video
+     paints, and to be the whole picture if it never does (reduced motion,
+     a failed load, a browser that won't autoplay). Once the video is
+     actually running, fade the still away — left underneath it showed
+     through as a frozen frame for the whole loop. */
+  if (heroVideo && !prefersReducedMotion) {
+    var heroMedia = heroVideo.closest(".hero-media");
+    var showVideo = function () { heroMedia.classList.add("is-playing"); };
+    if (!heroVideo.paused && heroVideo.currentTime > 0) showVideo();
+    heroVideo.addEventListener("playing", showVideo);
+    // if it stalls or is paused by the browser, bring the still back
+    heroVideo.addEventListener("pause", function () { heroMedia.classList.remove("is-playing"); });
+    heroVideo.addEventListener("error", function () { heroMedia.classList.remove("is-playing"); });
+  }
+
   /* ---------- Hero parallax ----------
      The backdrop drifts at ~0.18 of scroll speed (the scrim rides with
      it, untouched). One rAF loop, fed by a passive scroll listener;
@@ -170,9 +185,9 @@
     updateParallax();
   }
 
-  /* ---------- Contact form (Formspree via fetch) ----------
-     Works once YOUR_FORM_ID in index.html is replaced — see the
-     FORMSPREE SETUP comment above the <form>. */
+  /* ---------- Contact form ----------
+     Posts to the gallery worker's /enquiry (see the form's action in
+     index.html), which emails info@joleromedia.com and keeps a copy. */
 
   var form = document.getElementById("contact-form");
   var success = document.getElementById("form-success");

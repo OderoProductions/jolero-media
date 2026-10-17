@@ -1347,13 +1347,22 @@ html.theme-light .theme-btn .icon-sun { display: none; }
    knob: lower = more subdued, higher = more of the footage. It blends
    toward the page's own dark ground, so the headline keeps its contrast
    no matter what the footage is doing underneath. */
-:root { --hero-video-opacity: 0.5; }
+/* How strongly the hero video reads. It used to be 0.5 because a full
+   still sat underneath and the two blended; now the still fades out once
+   the video runs, so this is the video on its own over the backdrop.
+   Lower it for a moodier hero, raise it for a brighter one. */
+:root { --hero-video-opacity: 0.8; }
 
 .hero-video {
   opacity: var(--hero-video-opacity);
   /* the poster still underneath shows through while this loads */
   background: transparent;
 }
+
+/* Once it's playing, the still has done its job: fade it out, or it
+   reads as a frozen frame blended over the whole loop. */
+.hero-media img { transition: opacity 0.6s ease; }
+.hero-media.is-playing img { opacity: 0; }
 
 /* Reduced motion: script.js pauses it, and we drop it entirely so the
    still frame is what remains rather than a frozen half-faded frame. */
