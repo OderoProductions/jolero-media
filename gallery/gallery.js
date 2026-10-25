@@ -161,6 +161,8 @@
     const bar = document.querySelector(".bar-inner");
     const old = document.getElementById("client-mark");
     if (old) old.remove();
+    const band = $("client-band");
+    band.hidden = true;
     const root = document.documentElement.style;
     root.removeProperty("--accent");
     root.removeProperty("--accent-ink");
@@ -189,6 +191,12 @@
       }
       const wordmark = bar.querySelector(".wordmark");
       if (wordmark) wordmark.after(node); else bar.insertBefore(node, bar.firstChild);
+
+      // and again, properly big, at the head of the page
+      const big = $("client-band-logo");
+      big.src = url(theme.logo);
+      big.alt = theme.name ? `${theme.name} logo` : "";
+      band.hidden = false;
     }
   }
 
@@ -353,20 +361,36 @@
     row.textContent = "";
     $("videos").hidden = !videos.length;
     $("videos-count").textContent = pad(videos.length, 2);
-    for (const it of videos) {
+    videos.forEach((it, i) => {
       const card = el("article", "vcard");
       const ar = it.w && it.h ? Math.min(Math.max(it.w / it.h, 0.4), 2.6) : 16 / 9;
       card.style.setProperty("--ar", ar.toFixed(4));
+
+      // a still that opens the video full size, rather than a player in the grid
+      const open = el("button", "vopen");
+      open.type = "button";
+      open.setAttribute("aria-label", `Open ${stem(it.name || "video")}`);
       const frame = el("div", "vframe");
-      const v = document.createElement("video");
-      v.controls = true;
-      v.preload = "none";
-      v.playsInline = true;
-      v.poster = url(it.t);
-      v.src = url(it.p);
-      v.setAttribute("controlslist", "nodownload");
-      frame.appendChild(v);
-      card.appendChild(frame);
+      if (url(it.t)) {
+        const img = document.createElement("img");
+        img.alt = "";
+        img.loading = "lazy";
+        img.decoding = "async";
+        img.src = url(it.t);
+        frame.appendChild(img);
+      }
+      const play = el("span", "vplay");
+      play.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>';
+      frame.appendChild(play);
+      frame.appendChild(el("span", "vdur", clock(it.dur)));
+      if (notesOn) {
+        const n = notesFor(it.p || it.o || "").length;
+        const tag = el("span", "vnotes", n ? `${n} ${plural(n, "comment")}` : "Comment");
+        frame.appendChild(tag);
+      }
+      open.appendChild(frame);
+      open.addEventListener("click", () => openReview(videos, i));
+      card.appendChild(open);
 
       const info = el("div", "vinfo");
       const text = el("div");
@@ -376,19 +400,222 @@
       meta.push(size(it.bytes || 0));
       text.appendChild(el("p", "vmeta", meta.join("  ·  ")));
       info.appendChild(text);
-      if (notesOn) {
-        const ask = el("button", "btn btn-ghost btn-sm");
-        ask.type = "button";
-        ask.textContent = "Ask for a change";
-        ask.addEventListener("click", () => toggleNotes(card, it, v));
-        info.appendChild(ask);
-      }
+      const watch = el("button", "btn btn-primary btn-sm");
+      watch.type = "button";
+      watch.textContent = notesOn ? "Watch & comment" : "Watch";
+      watch.addEventListener("click", () => openReview(videos, i));
+      info.appendChild(watch);
       if (!isLocked) info.appendChild(downloadLink(url(it.o, true), "Download", "btn btn-ghost btn-sm"));
       card.appendChild(info);
-      if (notesOn) card.appendChild(buildNotes(it, v));
       row.appendChild(card);
+    });
+  }
+
+  /* ---------- review view: the film on the left, the notes on the right ----------
+     The playhead decides which moment a comment belongs to, so a revision
+     round reads "at 0:42, cut earlier" instead of a paragraph describing a
+     frame. Comments already left show as pins under the video. */
+
+  const rv = {
+    box: $("vreview"), video: $("rv-video"), list: $("rv-list"), track: $("rv-track"),
+    title: $("rv-title"), meta: $("rv-meta"), count: $("rv-count"), form: $("rv-form"),
+    text: $("rv-text"), name: $("rv-name"), send: $("rv-send"), error: $("rv-error"),
+    at: $("rv-at"), atText: $("rv-at-text"), menu: $("rv-menu"), menuBtn: $("rv-menu-btn"),
+    download: $("rv-download"), size: $("rv-size"), copy: $("rv-copy"), close: $("rv-close"),
+  };
+  let rvItem = null;
+  let rvOpener = null;
+  let rvSkipPop = false;
+  let rvHeld = false;          // they're typing about a moment: stop the clock
+
+  function rvKey() { return rvItem ? (rvItem.p || rvItem.o || "") : ""; }
+
+  function openReview(list, i) {
+    rvItem = list[i];
+    if (!rvItem) return;
+    rvOpener = document.activeElement;
+    rvHeld = false;
+    rv.box.hidden = false;
+    document.documentElement.classList.add("is-locked");
+    history.pushState({ ...(history.state || {}), review: true }, "");
+
+    rv.title.textContent = stem(rvItem.name || "Video");
+    const bits = [];
+    if (rvItem.w && rvItem.h) bits.push(`${rvItem.w}×${rvItem.h}`);
+    bits.push(size(rvItem.bytes || 0));
+    rv.meta.textContent = bits.join("  ·  ");
+    rv.video.poster = url(rvItem.t);
+    rv.video.src = url(rvItem.p);
+    rv.name.value = rv.name.value || man.client || "";
+    rv.text.value = "";
+    rv.error.hidden = true;
+    rv.at.checked = true;
+
+    rv.form.hidden = !notesOn;
+    rv.download.hidden = isLocked;
+    rv.download.href = isLocked ? "" : url(rvItem.o, true);
+    rv.size.textContent = size(rvItem.bytes || 0);
+    document.querySelector(".rv-side").hidden = !notesOn;
+    rv.box.classList.toggle("no-side", !notesOn);
+
+    paintReview();
+    rvStamp();
+    rv.close.focus();
+  }
+
+  function closeReview(viaHistory) {
+    if (rv.box.hidden) return;
+    rv.box.hidden = true;
+    rv.video.pause();
+    rv.video.removeAttribute("src");
+    rv.video.load();
+    rvItem = null;
+    closeMenu();
+    document.documentElement.classList.remove("is-locked");
+    if (!viaHistory && history.state && history.state.review) { rvSkipPop = true; history.back(); }
+    if (rvOpener) rvOpener.focus();
+    renderItems(shownItems);     // comment counts on the cards may have changed
+  }
+
+  function rvStamp() {
+    rv.atText.textContent = `at ${clock(rv.video.currentTime || 0)}`;
+  }
+
+  function paintReview() {
+    const mine = notesFor(rvKey());
+    rv.count.textContent = mine.length ? pad(mine.length, 2) : "";
+    rv.list.textContent = "";
+    if (!mine.length) {
+      const empty = el("li", "rv-empty", notesOn
+        ? "No comments yet. Play to a moment and say what you'd like changed."
+        : "");
+      rv.list.appendChild(empty);
+    }
+    for (const n of mine) {
+      const li = el("li", "rv-note");
+      const head = el("p", "rv-note-head");
+      if (n.at !== null && n.at !== undefined) {
+        const chip = el("button", "rv-chip", clock(n.at));
+        chip.type = "button";
+        chip.title = "Jump to this moment";
+        chip.addEventListener("click", () => {
+          rv.video.currentTime = n.at;
+          rv.video.play().catch(() => {});
+        });
+        head.appendChild(chip);
+      }
+      head.appendChild(el("span", "rv-who", n.name || "You"));
+      head.appendChild(el("span", "rv-when", day(n.sent)));
+      li.appendChild(head);
+      li.appendChild(el("p", "rv-note-text", n.text));
+      rv.list.appendChild(li);
+    }
+    paintTrack(mine);
+  }
+
+  // pins under the video, one per comment, at its moment
+  function paintTrack(mine) {
+    rv.track.textContent = "";
+    const dur = rvItem && rvItem.dur ? rvItem.dur : rv.video.duration;
+    if (!dur || !isFinite(dur)) return;
+    for (const n of mine) {
+      if (n.at === null || n.at === undefined) continue;
+      const pin = el("button", "rv-pin");
+      pin.type = "button";
+      pin.style.left = `${Math.min(Math.max(n.at / dur, 0), 1) * 100}%`;
+      pin.title = `${clock(n.at)} — ${n.text.slice(0, 60)}`;
+      pin.setAttribute("aria-label", `Comment at ${clock(n.at)}`);
+      pin.addEventListener("click", () => {
+        rv.video.currentTime = n.at;
+        rv.video.play().catch(() => {});
+      });
+      rv.track.appendChild(pin);
     }
   }
+
+  rv.video.addEventListener("timeupdate", () => { if (!rvHeld) rvStamp(); });
+  rv.video.addEventListener("seeked", () => { if (!rvHeld) rvStamp(); });
+  rv.video.addEventListener("loadedmetadata", () => paintTrack(notesFor(rvKey())));
+  rv.text.addEventListener("focus", () => { rvHeld = true; });
+
+  rv.form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const body = rv.text.value.trim();
+    if (!body || !rvItem) return;
+    rv.send.disabled = true;
+    rv.send.textContent = "Sending…";
+    rv.error.hidden = true;
+    try {
+      const res = await fetch(`${base}note`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        referrerPolicy: "no-referrer",
+        body: JSON.stringify({
+          text: body,
+          name: rv.name.value.trim(),
+          at: rv.at.checked ? Math.round(rv.video.currentTime) : null,
+          file: rvKey(),
+          title: stem(rvItem.name || ""),
+        }),
+      });
+      if (!res.ok) throw new Error(String(res.status));
+      const out = await res.json();
+      notes.push(out.note);
+      rv.text.value = "";
+      rvHeld = false;
+      rvStamp();
+      paintReview();
+    } catch (err) {
+      rv.error.textContent = "That didn't send. Please try again, or email info@joleromedia.com.";
+      rv.error.hidden = false;
+    }
+    rv.send.disabled = false;
+    rv.send.textContent = "Comment";
+  });
+
+  /* the ⋮ menu: download, and the link to send on */
+  function closeMenu() {
+    rv.menu.hidden = true;
+    rv.menuBtn.setAttribute("aria-expanded", "false");
+  }
+  rv.menuBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const open = rv.menu.hidden;
+    rv.menu.hidden = !open;
+    rv.menuBtn.setAttribute("aria-expanded", String(open));
+  });
+  document.addEventListener("click", (e) => {
+    if (!rv.menu.hidden && !rv.menu.contains(e.target) && e.target !== rv.menuBtn) closeMenu();
+  });
+  rv.copy.addEventListener("click", () => {
+    const link = location.href;
+    const done = () => {
+      const label = rv.copy.querySelector("span");
+      label.textContent = "Link copied";
+      setTimeout(() => { label.textContent = "Copy link to this gallery"; closeMenu(); }, 1200);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(link).then(done, () => {});
+    } else {
+      const t = document.createElement("textarea");
+      t.value = link;
+      document.body.appendChild(t);
+      t.select();
+      try { document.execCommand("copy"); done(); } catch (e) { /* nothing to do */ }
+      t.remove();
+    }
+  });
+  rv.download.addEventListener("click", () => closeMenu());
+  rv.close.addEventListener("click", () => closeReview(false));
+
+  document.addEventListener("keydown", (e) => {
+    if (rv.box.hidden) return;
+    if (e.key === "Escape") {
+      if (!rv.menu.hidden) { closeMenu(); return; }
+      if (document.activeElement === rv.text && rv.text.value) return;  // don't lose a half-typed note
+      closeReview(false);
+    }
+  });
 
   /* ---------- photos: justified rows ---------- */
 
@@ -691,148 +918,21 @@
   });
 
   /* ---------- asking for a change ----------
-     A note on a video, with the moment it's about, so a revision round is
-     "at 0:42, cut earlier" rather than an email describing a frame. Same
-     door as the gallery: whoever has the link can leave one and read the
-     thread. */
+     Notes live on the worker, same door as the gallery: whoever holds the
+     link can leave one and read the thread. The review view above is where
+     they're written and read. */
 
   async function loadNotes() {
     try {
       const res = await fetch(`${base}notes`, { cache: "no-store", referrerPolicy: "no-referrer" });
       if (res.ok) notes = await res.json();
     } catch (e) { /* the form still works; the thread just starts empty */ }
-    for (const panel of document.querySelectorAll(".notes")) paintNotes(panel);
+    if (!rv.box.hidden) paintReview();
+    renderItems(shownItems);
   }
 
   function notesFor(key) {
     return notes.filter((n) => n && n.file === key);
-  }
-
-  function paintNotes(panel) {
-    const list = panel.querySelector(".note-list");
-    const mine = notesFor(panel.dataset.key);
-    list.textContent = "";
-    for (const n of mine) {
-      const li = el("li", "note");
-      const head = el("p", "note-head");
-      if (n.at !== null && n.at !== undefined) {
-        const at = el("b", "note-at", clock(n.at));
-        at.title = "Jump to this moment";
-        at.addEventListener("click", () => {
-          const v = panel.previousElementSibling && panel.parentElement.querySelector("video");
-          if (v) { v.currentTime = n.at; v.play().catch(() => {}); }
-        });
-        head.appendChild(at);
-      }
-      head.appendChild(el("span", null, n.name ? `${n.name}` : "You"));
-      head.appendChild(el("span", "note-when", day(n.sent)));
-      li.appendChild(head);
-      li.appendChild(el("p", "note-text", n.text));
-      list.appendChild(li);
-    }
-    panel.querySelector(".note-count").textContent = mine.length
-      ? `${pad(mine.length, 2)} ${plural(mine.length, "note")} so far`
-      : "No changes asked for yet";
-  }
-
-  function buildNotes(it, video) {
-    const panel = el("div", "notes");
-    panel.dataset.key = it.p || it.o || "";
-    panel.hidden = true;
-
-    panel.appendChild(el("p", "note-count"));
-    const list = el("ul", "note-list");
-    panel.appendChild(list);
-
-    const form = el("form", "note-form");
-    const stamp = el("label", "note-stamp");
-    const useTime = document.createElement("input");
-    useTime.type = "checkbox";
-    useTime.checked = true;
-    const stampText = el("span", null, "at 0:00");
-    stamp.appendChild(useTime);
-    stamp.appendChild(stampText);
-    const refresh = () => { stampText.textContent = `at ${clock(video.currentTime)}`; };
-    video.addEventListener("timeupdate", () => { if (!form.dataset.held) refresh(); });
-    video.addEventListener("seeked", () => { if (!form.dataset.held) refresh(); });
-    panel.refreshStamp = refresh;
-    refresh();
-
-    const text = el("textarea", "field note-field");
-    text.rows = 3;
-    text.maxLength = 2000;
-    text.placeholder = "What would you like changed? e.g. cut this shot earlier, swap the track, fix the caption.";
-    text.required = true;
-    // hold the timestamp still once they start typing about that moment
-    text.addEventListener("focus", () => { form.dataset.held = "1"; });
-
-    const name = el("input", "field note-name");
-    name.type = "text";
-    name.maxLength = 80;
-    name.placeholder = "Your name";
-    name.value = man.client || "";
-
-    const send = el("button", "btn btn-primary btn-sm");
-    send.type = "submit";
-    send.textContent = "Send note";
-    const error = el("p", "review-error");
-    error.hidden = true;
-
-    const row = el("div", "note-actions");
-    row.appendChild(name);
-    row.appendChild(send);
-
-    form.appendChild(stamp);
-    form.appendChild(text);
-    form.appendChild(row);
-    form.appendChild(error);
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const body = text.value.trim();
-      if (!body) return;
-      send.disabled = true;
-      send.textContent = "Sending…";
-      error.hidden = true;
-      try {
-        const res = await fetch(`${base}note`, {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          referrerPolicy: "no-referrer",
-          body: JSON.stringify({
-            text: body,
-            name: name.value.trim(),
-            at: useTime.checked ? Math.round(video.currentTime) : null,
-            file: panel.dataset.key,
-            title: stem(it.name || ""),
-          }),
-        });
-        if (!res.ok) throw new Error(String(res.status));
-        const out = await res.json();
-        notes.push(out.note);
-        text.value = "";
-        delete form.dataset.held;
-        refresh();
-        paintNotes(panel);
-      } catch (err) {
-        error.textContent = "That didn't send. Please try again, or email info@joleromedia.com.";
-        error.hidden = false;
-      }
-      send.disabled = false;
-      send.textContent = "Send note";
-    });
-    panel.appendChild(form);
-    return panel;
-  }
-
-  function toggleNotes(card, it, video) {
-    const panel = card.querySelector(".notes");
-    panel.hidden = !panel.hidden;
-    if (!panel.hidden) {
-      paintNotes(panel);
-      if (panel.refreshStamp) panel.refreshStamp();   // show the moment they're on now
-      panel.querySelector(".note-field").focus({ preventScroll: true });
-      panel.scrollIntoView({ block: "nearest", behavior: reduceMotion ? "auto" : "smooth" });
-    }
   }
 
   /* ---------- review form: stars and a few words, sent privately to us ---------- */

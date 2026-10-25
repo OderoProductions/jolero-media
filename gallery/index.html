@@ -15,8 +15,8 @@
   <meta name="theme-color" content="#0A0A0A">
   <title>Your gallery | Jolero Media</title>
   <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
-  <link rel="stylesheet" href="gallery.css?v=14">
-  <script src="gallery.js?v=14" defer></script>
+  <link rel="stylesheet" href="gallery.css?v=15">
+  <script src="gallery.js?v=15" defer></script>
 </head>
 <body>
 
@@ -34,6 +34,11 @@
   </header>
 
   <main class="wrap" id="main">
+
+    <!-- A client's mark, large, above everything (manifest.theme) -->
+    <div class="client-band" id="client-band" hidden>
+      <img id="client-band-logo" alt="" decoding="async">
+    </div>
 
     <section class="intro frame" id="intro">
       <button class="crumb" id="crumb" type="button" hidden>
@@ -58,12 +63,12 @@
       <aside class="howto" id="howto" hidden>
         <h3>Need a change<span class="dot">?</span></h3>
         <ol>
-          <li>Play the video and pause at the moment you want to talk about.</li>
-          <li>Press <strong>Ask for a change</strong> under that video.</li>
-          <li>The time is filled in for you, so we know exactly where you mean. Untick it if your note is about the whole edit.</li>
-          <li>Write what you'd like changed, add your name, and send it.</li>
+          <li>Click the video to open it. It fills the screen, with the comments beside it.</li>
+          <li>Play to the moment you want to talk about and pause there.</li>
+          <li>Type what you'd like changed. The time is attached for you, so we know exactly where you mean — untick it if your note is about the whole edit.</li>
+          <li>Add your name and press <strong>Comment</strong>. Comments already left show as marks under the video; click one to jump straight to that moment.</li>
         </ol>
-        <p>Each note comes straight to us by email, and everything asked for stays listed under the video so you can see what's already been sent. Send as many as you like — it's easier for us in one round than a few at a time.</p>
+        <p>Each comment comes straight to us by email, and the thread stays on the video so you can see what's already been sent. Send as many as you like — it's easier for us in one round than a few at a time. Downloads are in the <strong>&#8942;</strong> menu at the top of that screen.</p>
       </aside>
     </section>
 
@@ -123,6 +128,58 @@
     <p class="foot-line">Journeys captured. Outcomes remembered<span class="dot">.</span></p>
     <p class="foot-links"><a class="foot-ig" href="https://www.instagram.com/joleromedia/" target="_blank" rel="noopener"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none"/></svg><span>@joleromedia</span></a><a href="mailto:info@joleromedia.com">info@joleromedia.com</a></p>
   </footer>
+
+  <!-- Review view: the video large on the left, what's been asked for on the
+       right, and the playhead deciding which moment a comment belongs to. -->
+  <div class="vreview" id="vreview" role="dialog" aria-modal="true" aria-label="Video review" hidden>
+    <div class="rv-head">
+      <span class="rv-title" id="rv-title"></span>
+      <span class="rv-meta" id="rv-meta"></span>
+      <div class="rv-tools">
+        <button class="rv-btn" id="rv-menu-btn" type="button" aria-haspopup="true" aria-expanded="false" aria-label="More">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.6" fill="currentColor" stroke="none"/></svg>
+        </button>
+        <div class="rv-menu" id="rv-menu" hidden>
+          <a class="rv-menu-item" id="rv-download">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 20h16"/></svg>
+            <span>Download original</span><span class="rv-menu-meta" id="rv-size"></span>
+          </a>
+          <button class="rv-menu-item" id="rv-copy" type="button">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 0 0-5.66-5.66l-1 1"/><path d="M14 10a4 4 0 0 0-5.66 0l-3 3A4 4 0 0 0 11 18.66l1-1"/></svg>
+            <span>Copy link to this gallery</span>
+          </button>
+        </div>
+        <button class="rv-btn" id="rv-close" type="button" aria-label="Close">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="rv-body">
+      <div class="rv-stage">
+        <video id="rv-video" playsinline controls controlslist="nodownload"></video>
+        <div class="rv-track" id="rv-track" aria-hidden="true"></div>
+      </div>
+
+      <aside class="rv-side">
+        <h3 class="rv-side-head">Comments<span class="rv-count" id="rv-count"></span></h3>
+        <ul class="rv-list" id="rv-list"></ul>
+        <form class="rv-form" id="rv-form">
+          <label class="rv-stamp">
+            <input type="checkbox" id="rv-at" checked>
+            <span id="rv-at-text">at 0:00</span>
+          </label>
+          <textarea class="field rv-text" id="rv-text" rows="3" maxlength="2000"
+                    placeholder="What would you like changed? Play to the moment you mean, then type."></textarea>
+          <div class="rv-send">
+            <input class="field rv-name" id="rv-name" type="text" maxlength="80" placeholder="Your name">
+            <button class="btn btn-primary btn-sm" id="rv-send" type="submit">Comment</button>
+          </div>
+          <p class="review-error" id="rv-error" role="alert" hidden></p>
+        </form>
+      </aside>
+    </div>
+  </div>
 
   <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer" hidden>
     <div class="lb-bar">
