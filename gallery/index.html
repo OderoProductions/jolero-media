@@ -15,8 +15,8 @@
   <meta name="theme-color" content="#0A0A0A">
   <title>Your gallery | Jolero Media</title>
   <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
-  <link rel="stylesheet" href="gallery.css?v=15">
-  <script src="gallery.js?v=15" defer></script>
+  <link rel="stylesheet" href="gallery.css?v=16">
+  <script src="gallery.js?v=16" defer></script>
 </head>
 <body>
 
@@ -136,19 +136,10 @@
       <span class="rv-title" id="rv-title"></span>
       <span class="rv-meta" id="rv-meta"></span>
       <div class="rv-tools">
-        <button class="rv-btn" id="rv-menu-btn" type="button" aria-haspopup="true" aria-expanded="false" aria-label="More">
-          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.6" fill="currentColor" stroke="none"/></svg>
-        </button>
-        <div class="rv-menu" id="rv-menu" hidden>
-          <a class="rv-menu-item" id="rv-download">
-            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 20h16"/></svg>
-            <span>Download original</span><span class="rv-menu-meta" id="rv-size"></span>
-          </a>
-          <button class="rv-menu-item" id="rv-copy" type="button">
-            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 0 0-5.66-5.66l-1 1"/><path d="M14 10a4 4 0 0 0-5.66 0l-3 3A4 4 0 0 0 11 18.66l1-1"/></svg>
-            <span>Copy link to this gallery</span>
-          </button>
-        </div>
+        <a class="btn btn-primary btn-sm rv-get" id="rv-download">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 20h16"/></svg>
+          <span>Download</span><span class="btn-meta" id="rv-size"></span>
+        </a>
         <button class="rv-btn" id="rv-close" type="button" aria-label="Close">
           <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
         </button>

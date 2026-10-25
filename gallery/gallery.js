@@ -420,8 +420,8 @@
     box: $("vreview"), video: $("rv-video"), list: $("rv-list"), track: $("rv-track"),
     title: $("rv-title"), meta: $("rv-meta"), count: $("rv-count"), form: $("rv-form"),
     text: $("rv-text"), name: $("rv-name"), send: $("rv-send"), error: $("rv-error"),
-    at: $("rv-at"), atText: $("rv-at-text"), menu: $("rv-menu"), menuBtn: $("rv-menu-btn"),
-    download: $("rv-download"), size: $("rv-size"), copy: $("rv-copy"), close: $("rv-close"),
+    at: $("rv-at"), atText: $("rv-at-text"),
+    download: $("rv-download"), size: $("rv-size"), close: $("rv-close"),
   };
   let rvItem = null;
   let rvOpener = null;
@@ -470,7 +470,6 @@
     rv.video.removeAttribute("src");
     rv.video.load();
     rvItem = null;
-    closeMenu();
     document.documentElement.classList.remove("is-locked");
     if (!viaHistory && history.state && history.state.review) { rvSkipPop = true; history.back(); }
     if (rvOpener) rvOpener.focus();
@@ -573,45 +572,11 @@
     rv.send.textContent = "Comment";
   });
 
-  /* the ⋮ menu: download, and the link to send on */
-  function closeMenu() {
-    rv.menu.hidden = true;
-    rv.menuBtn.setAttribute("aria-expanded", "false");
-  }
-  rv.menuBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    const open = rv.menu.hidden;
-    rv.menu.hidden = !open;
-    rv.menuBtn.setAttribute("aria-expanded", String(open));
-  });
-  document.addEventListener("click", (e) => {
-    if (!rv.menu.hidden && !rv.menu.contains(e.target) && e.target !== rv.menuBtn) closeMenu();
-  });
-  rv.copy.addEventListener("click", () => {
-    const link = location.href;
-    const done = () => {
-      const label = rv.copy.querySelector("span");
-      label.textContent = "Link copied";
-      setTimeout(() => { label.textContent = "Copy link to this gallery"; closeMenu(); }, 1200);
-    };
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(link).then(done, () => {});
-    } else {
-      const t = document.createElement("textarea");
-      t.value = link;
-      document.body.appendChild(t);
-      t.select();
-      try { document.execCommand("copy"); done(); } catch (e) { /* nothing to do */ }
-      t.remove();
-    }
-  });
-  rv.download.addEventListener("click", () => closeMenu());
   rv.close.addEventListener("click", () => closeReview(false));
 
   document.addEventListener("keydown", (e) => {
     if (rv.box.hidden) return;
     if (e.key === "Escape") {
-      if (!rv.menu.hidden) { closeMenu(); return; }
       if (document.activeElement === rv.text && rv.text.value) return;  // don't lose a half-typed note
       closeReview(false);
     }
