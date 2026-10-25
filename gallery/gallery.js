@@ -348,6 +348,17 @@
 
   let listed = [];   // what the page is showing now, to draw again when a comment lands
 
+  /* A file is named in full so it downloads that way, but under a heading
+     that already says "Greenpower International Finals 2026" the card only
+     needs "Highlight Film". */
+  function label(name) {
+    const text = stem(name || "");
+    const title = (man && man.title || "").trim();
+    if (!title) return text;
+    const lead = new RegExp(`^${title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*[-–—:]\\s*`, "i");
+    return text.replace(lead, "").trim() || text;
+  }
+
   function renderItems(items) {
     listed = items;
     const photos = items.filter((it) => it.type === "photo");
@@ -372,7 +383,7 @@
       // a still that opens the video full size, rather than a player in the grid
       const open = el("button", "vopen");
       open.type = "button";
-      open.setAttribute("aria-label", `Open ${stem(it.name || "video")}`);
+      open.setAttribute("aria-label", `Open ${label(it.name || "video")}`);
       const frame = el("div", "vframe");
       if (url(it.t)) {
         const img = document.createElement("img");
@@ -397,7 +408,7 @@
 
       const info = el("div", "vinfo");
       const text = el("div");
-      text.appendChild(el("h3", "vname", stem(it.name || "Video")));
+      text.appendChild(el("h3", "vname", label(it.name || "Video")));
       const meta = [clock(it.dur)];
       if (it.w && it.h) meta.push(`${it.w}×${it.h}`);
       meta.push(size(it.bytes || 0));
@@ -442,7 +453,7 @@
     document.documentElement.classList.add("is-locked");
     history.pushState({ ...(history.state || {}), review: true }, "");
 
-    rv.title.textContent = stem(rvItem.name || "Video");
+    rv.title.textContent = label(rvItem.name || "Video");
     const bits = [];
     if (rvItem.w && rvItem.h) bits.push(`${rvItem.w}×${rvItem.h}`);
     bits.push(size(rvItem.bytes || 0));
