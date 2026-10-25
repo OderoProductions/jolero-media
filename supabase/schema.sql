@@ -506,3 +506,26 @@ on conflict (key) do nothing;
 -- granted to 'authenticated' only; this makes that explicit.
 revoke all on all tables in schema public from anon;
 revoke all on all functions in schema public from anon;
+
+-- =============================================================
+-- 7. KEEPING THE LIGHTS ON
+--
+-- A free project is paused after about a week without activity,
+-- which takes the whole portal down. The gallery worker calls this
+-- once a day. It is the ONE thing an anonymous caller may do, and
+-- all it can learn is the time, which they already know.
+--
+-- It has to be a real query: asking for a table anon cannot read is
+-- refused by the API before Postgres is ever touched, so it does not
+-- count as activity. That is why the project paused anyway.
+-- =============================================================
+
+create or replace function public.ping()
+  returns timestamptz
+  language sql
+  security definer
+  set search_path = ''
+as $$ select now() $$;
+
+-- after the revoke above, or it would be taken straight back
+grant execute on function public.ping() to anon;
