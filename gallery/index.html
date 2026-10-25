@@ -15,7 +15,7 @@
   <meta name="theme-color" content="#0A0A0A">
   <title>Your gallery | Jolero Media</title>
   <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
-  <link rel="stylesheet" href="gallery.css?v=13">
+  <link rel="stylesheet" href="gallery.css?v=14">
   <script src="gallery.js?v=14" defer></script>
 </head>
 <body>
@@ -54,6 +54,17 @@
     <section class="block" id="videos" hidden>
       <h2 class="block-head">Videos<span class="dot">.</span><span class="block-count" id="videos-count"></span></h2>
       <div class="video-row" id="video-row"></div>
+      <!-- Shown only when the gallery has notes switched on (manifest.notes) -->
+      <aside class="howto" id="howto" hidden>
+        <h3>Need a change<span class="dot">?</span></h3>
+        <ol>
+          <li>Play the video and pause at the moment you want to talk about.</li>
+          <li>Press <strong>Ask for a change</strong> under that video.</li>
+          <li>The time is filled in for you, so we know exactly where you mean. Untick it if your note is about the whole edit.</li>
+          <li>Write what you'd like changed, add your name, and send it.</li>
+        </ol>
+        <p>Each note comes straight to us by email, and everything asked for stays listed under the video so you can see what's already been sent. Send as many as you like — it's easier for us in one round than a few at a time.</p>
+      </aside>
     </section>
 
     <section class="block" id="photos" hidden>

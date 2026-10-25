@@ -111,6 +111,8 @@
 
   let man = null;
   let isLocked = false;
+  let notesOn = false;      // manifest.notes: the client can ask for changes
+  let notes = [];           // what's already been asked, by file key
   let root = [];          // items that aren't in a folder
   let folders = [];       // [{id, name, cover, zip, items}]
   let flat = null;        // the one folder, when a gallery is a single folder shown flat
@@ -135,6 +137,8 @@
       folders = [];
     }
 
+    notesOn = man.notes === true;
+    applyTheme(man.theme);
     document.title = `${man.title || "Your gallery"} | Jolero Media`;
     const name = slug(man.title || "");
     if (name && location.hash.slice(1) !== `${name}/${id}`) {
@@ -144,7 +148,48 @@
     $("usage").hidden = false;
     setupReview();
     route(history.state);
+    if (notesOn) loadNotes();
     maybeAdmin();
+  }
+
+  /* ---------- a client's own colours and mark ----------
+     manifest.theme = { accent, accentInk, logo, name, site }. Only the
+     accent and the client's logo change; the room stays dark, because
+     that's what photographs and video look right in. */
+  const HEX = /^#[0-9a-f]{3,8}$/i;
+  function applyTheme(theme) {
+    const bar = document.querySelector(".bar-inner");
+    const old = document.getElementById("client-mark");
+    if (old) old.remove();
+    const root = document.documentElement.style;
+    root.removeProperty("--accent");
+    root.removeProperty("--accent-ink");
+    if (!theme || typeof theme !== "object") return;
+
+    if (HEX.test(theme.accent || "")) root.setProperty("--accent", theme.accent);
+    if (HEX.test(theme.accentInk || "")) root.setProperty("--accent-ink", theme.accentInk);
+
+    // the client's logo sits beside ours: their delivery, our room
+    if (url(theme.logo)) {
+      const mark = el("span", "client-mark");
+      mark.id = "client-mark";
+      const img = document.createElement("img");
+      img.src = url(theme.logo);
+      img.alt = theme.name ? `${theme.name} logo` : "";
+      img.decoding = "async";
+      mark.appendChild(img);
+      let node = mark;
+      if (theme.site && /^https:\/\/[\w.-]+/.test(theme.site)) {
+        const a = el("a", "client-mark-link");
+        a.href = theme.site;
+        a.target = "_blank";
+        a.rel = "noopener";
+        a.appendChild(mark);
+        node = a;
+      }
+      const wordmark = bar.querySelector(".wordmark");
+      if (wordmark) wordmark.after(node); else bar.insertBefore(node, bar.firstChild);
+    }
   }
 
   function route(state) {
@@ -298,6 +343,7 @@
     const videos = items.filter((it) => it.type === "video");
     const files = items.filter((it) => it.type !== "photo" && it.type !== "video");
     renderVideos(videos);
+    $("howto").hidden = !(notesOn && videos.length);
     renderPhotos(photos);
     renderFiles(files);
   }
@@ -330,8 +376,16 @@
       meta.push(size(it.bytes || 0));
       text.appendChild(el("p", "vmeta", meta.join("  ·  ")));
       info.appendChild(text);
+      if (notesOn) {
+        const ask = el("button", "btn btn-ghost btn-sm");
+        ask.type = "button";
+        ask.textContent = "Ask for a change";
+        ask.addEventListener("click", () => toggleNotes(card, it, v));
+        info.appendChild(ask);
+      }
       if (!isLocked) info.appendChild(downloadLink(url(it.o, true), "Download", "btn btn-ghost btn-sm"));
       card.appendChild(info);
+      if (notesOn) card.appendChild(buildNotes(it, v));
       row.appendChild(card);
     }
   }
@@ -635,6 +689,151 @@
     if (stage.dataset.dragged) { delete stage.dataset.dragged; return; }
     if (e.target.classList.contains("lb-slide")) closeBox(false); // a click beside the photo closes
   });
+
+  /* ---------- asking for a change ----------
+     A note on a video, with the moment it's about, so a revision round is
+     "at 0:42, cut earlier" rather than an email describing a frame. Same
+     door as the gallery: whoever has the link can leave one and read the
+     thread. */
+
+  async function loadNotes() {
+    try {
+      const res = await fetch(`${base}notes`, { cache: "no-store", referrerPolicy: "no-referrer" });
+      if (res.ok) notes = await res.json();
+    } catch (e) { /* the form still works; the thread just starts empty */ }
+    for (const panel of document.querySelectorAll(".notes")) paintNotes(panel);
+  }
+
+  function notesFor(key) {
+    return notes.filter((n) => n && n.file === key);
+  }
+
+  function paintNotes(panel) {
+    const list = panel.querySelector(".note-list");
+    const mine = notesFor(panel.dataset.key);
+    list.textContent = "";
+    for (const n of mine) {
+      const li = el("li", "note");
+      const head = el("p", "note-head");
+      if (n.at !== null && n.at !== undefined) {
+        const at = el("b", "note-at", clock(n.at));
+        at.title = "Jump to this moment";
+        at.addEventListener("click", () => {
+          const v = panel.previousElementSibling && panel.parentElement.querySelector("video");
+          if (v) { v.currentTime = n.at; v.play().catch(() => {}); }
+        });
+        head.appendChild(at);
+      }
+      head.appendChild(el("span", null, n.name ? `${n.name}` : "You"));
+      head.appendChild(el("span", "note-when", day(n.sent)));
+      li.appendChild(head);
+      li.appendChild(el("p", "note-text", n.text));
+      list.appendChild(li);
+    }
+    panel.querySelector(".note-count").textContent = mine.length
+      ? `${pad(mine.length, 2)} ${plural(mine.length, "note")} so far`
+      : "No changes asked for yet";
+  }
+
+  function buildNotes(it, video) {
+    const panel = el("div", "notes");
+    panel.dataset.key = it.p || it.o || "";
+    panel.hidden = true;
+
+    panel.appendChild(el("p", "note-count"));
+    const list = el("ul", "note-list");
+    panel.appendChild(list);
+
+    const form = el("form", "note-form");
+    const stamp = el("label", "note-stamp");
+    const useTime = document.createElement("input");
+    useTime.type = "checkbox";
+    useTime.checked = true;
+    const stampText = el("span", null, "at 0:00");
+    stamp.appendChild(useTime);
+    stamp.appendChild(stampText);
+    const refresh = () => { stampText.textContent = `at ${clock(video.currentTime)}`; };
+    video.addEventListener("timeupdate", () => { if (!form.dataset.held) refresh(); });
+    video.addEventListener("seeked", () => { if (!form.dataset.held) refresh(); });
+    panel.refreshStamp = refresh;
+    refresh();
+
+    const text = el("textarea", "field note-field");
+    text.rows = 3;
+    text.maxLength = 2000;
+    text.placeholder = "What would you like changed? e.g. cut this shot earlier, swap the track, fix the caption.";
+    text.required = true;
+    // hold the timestamp still once they start typing about that moment
+    text.addEventListener("focus", () => { form.dataset.held = "1"; });
+
+    const name = el("input", "field note-name");
+    name.type = "text";
+    name.maxLength = 80;
+    name.placeholder = "Your name";
+    name.value = man.client || "";
+
+    const send = el("button", "btn btn-primary btn-sm");
+    send.type = "submit";
+    send.textContent = "Send note";
+    const error = el("p", "review-error");
+    error.hidden = true;
+
+    const row = el("div", "note-actions");
+    row.appendChild(name);
+    row.appendChild(send);
+
+    form.appendChild(stamp);
+    form.appendChild(text);
+    form.appendChild(row);
+    form.appendChild(error);
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const body = text.value.trim();
+      if (!body) return;
+      send.disabled = true;
+      send.textContent = "Sending…";
+      error.hidden = true;
+      try {
+        const res = await fetch(`${base}note`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          referrerPolicy: "no-referrer",
+          body: JSON.stringify({
+            text: body,
+            name: name.value.trim(),
+            at: useTime.checked ? Math.round(video.currentTime) : null,
+            file: panel.dataset.key,
+            title: stem(it.name || ""),
+          }),
+        });
+        if (!res.ok) throw new Error(String(res.status));
+        const out = await res.json();
+        notes.push(out.note);
+        text.value = "";
+        delete form.dataset.held;
+        refresh();
+        paintNotes(panel);
+      } catch (err) {
+        error.textContent = "That didn't send. Please try again, or email info@joleromedia.com.";
+        error.hidden = false;
+      }
+      send.disabled = false;
+      send.textContent = "Send note";
+    });
+    panel.appendChild(form);
+    return panel;
+  }
+
+  function toggleNotes(card, it, video) {
+    const panel = card.querySelector(".notes");
+    panel.hidden = !panel.hidden;
+    if (!panel.hidden) {
+      paintNotes(panel);
+      if (panel.refreshStamp) panel.refreshStamp();   // show the moment they're on now
+      panel.querySelector(".note-field").focus({ preventScroll: true });
+      panel.scrollIntoView({ block: "nearest", behavior: reduceMotion ? "auto" : "smooth" });
+    }
+  }
 
   /* ---------- review form: stars and a few words, sent privately to us ---------- */
 

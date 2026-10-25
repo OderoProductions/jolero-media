@@ -797,6 +797,106 @@ a { color: inherit; }
 .lb-next { right: max(8px, calc(var(--gutter) - 20px)); }
 .lb-nav[disabled] { opacity: 0.2; cursor: default; }
 
+/* ---------- the client's own mark, beside ours ---------- */
+
+.client-mark {
+  display: inline-flex;
+  align-items: center;
+  padding-left: 14px;
+  margin-left: 2px;
+  border-left: 1px solid var(--line);
+}
+/* keep our wordmark and their mark together on the left, actions right */
+.bar-inner > .client-mark, .bar-inner > .client-mark-link { margin-right: auto; }
+.client-mark img { height: 34px; width: auto; }
+.client-mark-link { display: inline-flex; text-decoration: none; }
+@media (max-width: 640px) {
+  .client-mark { padding-left: 10px; }
+  .client-mark img { height: 26px; }
+}
+
+/* ---------- asking for a change ---------- */
+
+.notes {
+  margin-top: 18px;
+  padding: 20px;
+  background: var(--ink-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.note-count {
+  margin: 0 0 14px;
+  font: 500 0.7rem/1 var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--paper-40);
+}
+.note-list { list-style: none; margin: 0 0 18px; padding: 0; display: grid; gap: 10px; }
+.note-list:empty { margin: 0; }
+.note {
+  padding: 12px 14px;
+  background: var(--ink);
+  border-left: 2px solid var(--accent);
+  border-radius: var(--radius);
+}
+.note-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0 0 6px;
+  font: 500 0.68rem/1 var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--paper-60);
+}
+.note-at {
+  color: var(--accent);
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+}
+.note-at:hover { text-decoration: underline; }
+.note-when { margin-left: auto; color: var(--paper-40); }
+.note-text { margin: 0; font-size: 0.94rem; line-height: 1.55; white-space: pre-line; overflow-wrap: anywhere; }
+
+.note-form { display: grid; gap: 12px; }
+.note-stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  justify-self: start;
+  font: 500 0.7rem/1 var(--font-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--paper-60);
+  cursor: pointer;
+}
+.note-stamp input { width: 16px; height: 16px; margin: 0; accent-color: var(--accent); cursor: pointer; }
+.note-field, .note-name { margin: 0; }
+.note-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.note-name { flex: 1 1 180px; min-width: 0; }
+.note-actions .btn { flex: none; }
+
+/* ---------- how revisions work ---------- */
+
+.howto {
+  margin-top: clamp(28px, 4vw, 40px);
+  padding: 22px 24px;
+  background: var(--soft);
+  border-left: 2px solid var(--accent);
+  border-radius: var(--radius);
+}
+.howto h3 {
+  margin: 0 0 10px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.3rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.howto ol { margin: 0; padding-left: 1.2em; display: grid; gap: 7px; }
+.howto li { font-size: 0.95rem; line-height: 1.55; color: rgba(255, 255, 255, 0.86); }
+.howto p { margin: 12px 0 0; font-size: 0.88rem; color: var(--paper-60); }
+
 /* ---------- Edit tab (portal admins only; see gallery-admin.js) ---------- */
 
 .edit-tab .icon { width: 16px; height: 16px; }
