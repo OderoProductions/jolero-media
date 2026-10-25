@@ -14,6 +14,15 @@
   <meta name="referrer" content="no-referrer">
   <meta name="theme-color" content="#0A0A0A">
   <title>Your gallery | Jolero Media</title>
+  <!-- Sharing. The gallery id lives in the #hash, which no server ever sees,
+       so WhatsApp can only fetch this one page: the card it draws is the same
+       for every client and cannot name the gallery. Naming it needs a server
+       on this domain to answer for the link (jolero-gallery/README.md). -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Jolero Media">
+  <meta property="og:title" content="Your gallery from Jolero Media">
+  <meta property="og:description" content="Photos and video from your shoot — watch it, ask for a change, download it.">
+  <meta property="og:url" content="https://joleromedia.com/gallery/">
   <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg">
   <link rel="stylesheet" href="gallery.css?v=18">
   <script src="gallery.js?v=18" defer></script>
