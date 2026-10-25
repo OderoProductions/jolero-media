@@ -346,7 +346,10 @@
 
   /* ---------- a list of items: videos, photos, other files ---------- */
 
+  let listed = [];   // what the page is showing now, to draw again when a comment lands
+
   function renderItems(items) {
+    listed = items;
     const photos = items.filter((it) => it.type === "photo");
     const videos = items.filter((it) => it.type === "video");
     const files = items.filter((it) => it.type !== "photo" && it.type !== "video");
@@ -473,7 +476,7 @@
     document.documentElement.classList.remove("is-locked");
     if (!viaHistory && history.state && history.state.review) { rvSkipPop = true; history.back(); }
     if (rvOpener) rvOpener.focus();
-    renderItems(shownItems);     // comment counts on the cards may have changed
+    renderItems(listed);     // comment counts on the cards may have changed
   }
 
   function rvStamp() {
@@ -893,7 +896,7 @@
       if (res.ok) notes = await res.json();
     } catch (e) { /* the form still works; the thread just starts empty */ }
     if (!rv.box.hidden) paintReview();
-    renderItems(shownItems);
+    renderItems(listed);
   }
 
   function notesFor(key) {
