@@ -315,7 +315,7 @@
     host.innerHTML = rows.map(function (p) {
       return "<tr>" +
         '<td><button class="row-btn" type="button" data-project="' + esc(p.id) + '">' + esc(p.title) + "</button></td>" +
-        "<td>" + esc(clientName[p.clientId] || "—") + "</td>" +
+        "<td>" + esc(clientName[p.clientId] || "None") + "</td>" +
         "<td>" + esc(p.type) + "</td>" +
         "<td>" + statusBadge(p.status) + "</td>" +
         "<td>" + fmtDate(p.shootDate) + "</td>" +
@@ -387,7 +387,7 @@
       var overdue = i.status === "unpaid" && i.due < todayISO();
       return "<tr>" +
         "<td>" + esc(i.number) + "</td>" +
-        "<td>" + esc(clientName[i.clientId] || "—") + "</td>" +
+        "<td>" + esc(clientName[i.clientId] || "None") + "</td>" +
         "<td>" + fmtDate(i.issued) + "</td>" +
         '<td class="' + (overdue ? "num overdue-cell" : "num") + '">' + fmtDate(i.due) +
         (overdue ? " ⚠" : "") + "</td>" +
@@ -432,7 +432,7 @@
 
   // UK tax year: 6 April – 5 April. "2026/27" starts 2026-04-06.
   function taxYearOf(dateISO) {
-    if (!dateISO) return "—";
+    if (!dateISO) return "Not set";
     var y = Number(dateISO.slice(0, 4));
     var start = y + "-04-06";
     return dateISO >= start
@@ -475,7 +475,7 @@
         "<td>" + fmtDate(r.date) + "</td>" +
         "<td>" + esc(r.description) + "</td>" +
         "<td>" + esc(r.category) + "</td>" +
-        "<td>" + esc(r.client || "—") + "</td>" +
+        "<td>" + esc(r.client || "None") + "</td>" +
         '<td class="num">' + amount + "</td>" +
         "<td>" + action + "</td>" +
         "</tr>";
@@ -654,13 +654,13 @@
     host.innerHTML = items.map(function (ct) {
       return '<article class="panel contract-row">' +
         '<span class="contract-title">' + esc(ct.title) + "</span>" +
-        '<span class="contract-sub">' + esc(clientName[ct.clientId] || "—") + " · sent " + fmtDate(ct.sentDate) + "</span>" +
+        '<span class="contract-sub">' + esc(clientName[ct.clientId] || "None") + " · sent " + fmtDate(ct.sentDate) + "</span>" +
         (ct.status === "signed"
           ? '<span class="pbadge">Signed by ' + esc(ct.signerName) + " · " + fmtDate(ct.signedDate) + "</span>" +
             '<button class="btn btn-ghost btn-mini" type="button" data-contract-pdf="' + esc(ct.id) + '">Download PDF</button>'
           : '<span class="pbadge pbadge-accent">Awaiting signature</span>') +
         "</article>";
-    }).join("") || '<p class="empty-note">No contracts yet — send one below.</p>';
+    }).join("") || '<p class="empty-note">No contracts yet. Send one below.</p>';
 
     if (el("contracts-count")) {
       var waiting = items.filter(function (c) { return c.status !== "signed"; }).length;
@@ -684,13 +684,13 @@
     host.innerHTML = items.map(function (t) {
       return '<article class="panel client-block">' +
         '<div class="client-block-head"><span class="star-display" aria-label="' + t.rating +
-        ' out of 5">' + star.repeat(t.rating) + "</span><h3>" + esc(clientName[t.clientId] || "—") + "</h3>" +
+        ' out of 5">' + star.repeat(t.rating) + "</span><h3>" + esc(clientName[t.clientId] || "None") + "</h3>" +
         '<span class="project-type">' + esc(projectTitle[t.projectId] || "") + "</span></div>" +
         (t.quote ? '<p class="testimonial-quote">&ldquo;' + esc(t.quote) + "&rdquo;</p>" : "") +
         '<p class="testimonial-meta">' + fmtDate(t.date) + " · " +
-        (t.allowPublic ? "OK to use publicly" : "Private — not for public use") + "</p>" +
+        (t.allowPublic ? "OK to use publicly" : "Private, not for public use") + "</p>" +
         "</article>";
-    }).join("") || '<p class="empty-note">No reviews yet — delivered projects prompt clients for one.</p>';
+    }).join("") || '<p class="empty-note">No reviews yet. Delivered projects prompt clients for one.</p>';
     if (el("reviews-count")) el("reviews-count").textContent = items.length ? "(" + items.length + ")" : "";
   }
 
@@ -727,7 +727,7 @@
     }
 
     host.innerHTML = (open.map(row).join("") + done.map(row).join("")) ||
-      '<p class="empty-note">No tasks yet — add one below.</p>';
+      '<p class="empty-note">No tasks yet. Add one below.</p>';
     if (el("tasks-count")) el("tasks-count").textContent = open.length ? "(" + open.length + " open)" : "";
   }
 
@@ -766,7 +766,7 @@
     }
 
     host.innerHTML = (live.map(row).join("") + posted.map(row).join("")) ||
-      '<p class="empty-note">Nothing planned yet — add your first post below.</p>';
+      '<p class="empty-note">Nothing planned yet. Add your first post below.</p>';
     if (el("posts-count")) {
       var ready = live.filter(function (p) { return p.status === "Ready"; }).length;
       el("posts-count").textContent = live.length
@@ -858,7 +858,7 @@
     el("bell-list").innerHTML = notifications.map(function (n) {
       return '<li class="' + (n.read ? "" : "unread") + '"><span>' + esc(n.text) +
         '</span><span class="feed-date">' + fmtDate(n.date) + "</span></li>";
-    }).join("") || '<li class="bell-empty">Nothing yet — client actions land here.</li>';
+    }).join("") || '<li class="bell-empty">Nothing yet. Client actions land here.</li>';
   }
 
   /* ================= REFRESH ================= */
@@ -893,7 +893,7 @@
       if (current) sel.value = current;
     });
 
-    var projectOpts = '<option value="">— none —</option>' + data.projects.map(function (p) {
+    var projectOpts = '<option value="">None</option>' + data.projects.map(function (p) {
       return '<option value="' + esc(p.id) + '">' + esc(p.title) + "</option>";
     }).join("");
     ["nt-project", "td-project", "pod-project"].forEach(function (id) {
@@ -911,7 +911,7 @@
     var sel = el("nc2-project");
     if (!sel || !el("nc2-client")) return;
     var clientId = el("nc2-client").value;
-    sel.innerHTML = '<option value="">— none —</option>' + data.projects
+    sel.innerHTML = '<option value="">None</option>' + data.projects
       .filter(function (p) { return p.clientId === clientId; })
       .map(function (p) { return '<option value="' + esc(p.id) + '">' + esc(p.title) + "</option>"; })
       .join("");
@@ -948,14 +948,14 @@
           '<div><button class="btn btn-ghost" type="button" data-request-brief="' + esc(p.id) + '">Request brief from client</button></div>';
       } else if (brief.status === "requested") {
         briefEl.innerHTML = "<label>Pre-shoot brief</label>" +
-          '<div><span class="pbadge pbadge-accent">Requested ' + fmtDate(brief.requestedDate) + " — waiting on client</span></div>";
+          '<div><span class="pbadge pbadge-accent">Requested ' + fmtDate(brief.requestedDate) + ", waiting on client</span></div>";
       } else {
         var a = brief.answers || {};
-        briefEl.innerHTML = "<label>Pre-shoot brief — submitted " + fmtDate(brief.submittedDate) + "</label>" +
-          '<div class="contract-body">Goal: ' + esc(a.goal || "—") +
-          "\nMust capture: " + esc(a.mustCapture || "—") +
-          "\nAccess notes: " + esc(a.access || "—") +
-          "\nTag: " + esc(a.handles || "—") +
+        briefEl.innerHTML = "<label>Pre-shoot brief, submitted " + fmtDate(brief.submittedDate) + "</label>" +
+          '<div class="contract-body">Goal: ' + esc(a.goal || "None") +
+          "\nMust capture: " + esc(a.mustCapture || "None") +
+          "\nAccess notes: " + esc(a.access || "None") +
+          "\nTag: " + esc(a.handles || "None") +
           (a.extra ? "\nExtra: " + esc(a.extra) : "") + "</div>";
       }
     }
@@ -1053,7 +1053,7 @@
       await PortalStore.requestBrief(btn.dataset.requestBrief);
       if (el("ep-brief")) {
         el("ep-brief").innerHTML = "<label>Pre-shoot brief</label>" +
-          '<div><span class="pbadge pbadge-accent">Requested — waiting on client</span></div>';
+          '<div><span class="pbadge pbadge-accent">Requested, waiting on client</span></div>';
       }
       renderAll(); return;
     }
@@ -1271,7 +1271,7 @@
           (r.kind === "expense" ? "−" : "+") + money2(r.amount) + "</td></tr>";
       }).join("");
       preview.innerHTML =
-        '<p class="hint"><strong>' + mapped.rows.length + " rows ready</strong> — " +
+        '<p class="hint"><strong>' + mapped.rows.length + " rows ready</strong>: " +
         inc + " income · " + exp + " expense" +
         (mapped.bad ? " · " + mapped.bad + " skipped (bad date or amount)" : "") + "</p>" +
         (sample
@@ -1394,7 +1394,7 @@
 
   on("reset-all", "click", async function () {
     var typed = prompt(
-      "This deletes EVERYTHING in the portal — clients, projects, invoices, " +
+      "This deletes EVERYTHING in the portal: clients, projects, invoices, " +
       "accounting, calendar and content.\n\nExport a backup first if you want one.\n\n" +
       "Type ERASE to confirm:");
     if (typed !== "ERASE") return;

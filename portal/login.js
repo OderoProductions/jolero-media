@@ -64,7 +64,7 @@
     if (mode !== "team" && email.value === TEAM_EMAIL) email.value = "";
     toAdmin.hidden = mode === "team";
     toClient.hidden = mode !== "team";
-    document.title = c.title + " — Jolero Media Portal";
+    document.title = c.title + " | Jolero Media Portal";
     if (pushUrl) {
       // keep it bookmarkable without a reload
       history.replaceState(null, "", mode === "team" ? "?admin=1" : location.pathname);
@@ -162,7 +162,7 @@
     if (!PortalAuth.configured()) {
       form.hidden = true;
       intro.textContent = "";
-      say("Sign-in isn't switched on yet — the portal is still in preview. " +
+      say("Sign-in isn't switched on yet. The portal is still in preview. " +
           "Fill in portal/supabase-config.js to enable it.", "warn");
       return;
     }

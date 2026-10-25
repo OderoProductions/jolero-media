@@ -232,8 +232,8 @@
       // A status change posts an update to that client's feed
       if (patch.status && patch.status !== before.status) {
         var text =
-          patch.status === "Delivered" ? "Your delivery is ready — " + before.title :
-          patch.status === "Review" ? "An edit is ready for your review — " + before.title :
+          patch.status === "Delivered" ? "Your delivery is ready: " + before.title :
+          patch.status === "Review" ? "An edit is ready for your review: " + before.title :
           before.title + " moved to " + patch.status;
         await logActivity(before.clientId, text);
       }
@@ -706,7 +706,7 @@
     },
 
     fmtDate: function (iso) {
-      if (!iso) return "—";
+      if (!iso) return "Not set";
       var d = new Date(iso + "T00:00:00");
       if (isNaN(d)) return iso;
       var opts = { day: "numeric", month: "short" };

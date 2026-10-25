@@ -85,8 +85,8 @@
       // A status change posts an update to that client's feed
       if (patch.status && patch.status !== oldStatus) {
         var text =
-          patch.status === "Delivered" ? "Your delivery is ready — " + p.title :
-          patch.status === "Review" ? "An edit is ready for your review — " + p.title :
+          patch.status === "Delivered" ? "Your delivery is ready: " + p.title :
+          patch.status === "Review" ? "An edit is ready for your review: " + p.title :
           p.title + " moved to " + patch.status;
         s.activity.push({ id: uid("a"), clientId: p.clientId, date: todayISO(), text: text });
       }
@@ -110,7 +110,7 @@
         notes: fields.notes || ""
       };
       s.projects.push(p);
-      s.activity.push({ id: uid("a"), clientId: p.clientId, date: todayISO(), text: "New project booked — " + p.title });
+      s.activity.push({ id: uid("a"), clientId: p.clientId, date: todayISO(), text: "New project booked: " + p.title });
       save(s);
       return p;
     },
@@ -146,7 +146,7 @@
         body: fields.body || ""
       };
       s.contracts.push(ct);
-      s.activity.push({ id: uid("a"), clientId: ct.clientId, date: todayISO(), text: "A contract is ready to sign — " + ct.title });
+      s.activity.push({ id: uid("a"), clientId: ct.clientId, date: todayISO(), text: "A contract is ready to sign: " + ct.title });
       save(s);
       return ct;
     },
@@ -161,7 +161,7 @@
       ct.signedDate = todayISO();
       ct.signerName = signerName;
       var client = s.clients.find(function (c) { return c.id === ct.clientId; });
-      notify(s, "Contract signed — " + ct.title + (client ? " (" + client.name + ")" : ""));
+      notify(s, "Contract signed: " + ct.title + (client ? " (" + client.name + ")" : ""));
       save(s);
       return ct;
     },
@@ -184,7 +184,7 @@
         answers: null
       };
       s.briefs.push(b);
-      s.activity.push({ id: uid("a"), clientId: p.clientId, date: todayISO(), text: "Pre-shoot brief requested — " + p.title });
+      s.activity.push({ id: uid("a"), clientId: p.clientId, date: todayISO(), text: "Pre-shoot brief requested: " + p.title });
       save(s);
       return b;
     },
@@ -197,7 +197,7 @@
       b.submittedDate = todayISO();
       b.answers = answers;
       var p = s.projects.find(function (x) { return x.id === b.projectId; });
-      notify(s, "Pre-shoot brief submitted — " + (p ? p.title : "project"));
+      notify(s, "Pre-shoot brief submitted: " + (p ? p.title : "project"));
       save(s);
       return b;
     },
@@ -218,7 +218,7 @@
       s.testimonials.push(t);
       var client = s.clients.find(function (c) { return c.id === t.clientId; });
       var p = s.projects.find(function (x) { return x.id === t.projectId; });
-      notify(s, "New " + t.rating + "★ review from " + (client ? client.name : "a client") + (p ? " — " + p.title : ""));
+      notify(s, "New " + t.rating + "★ review from " + (client ? client.name : "a client") + (p ? ": " + p.title : ""));
       save(s);
       return t;
     },
@@ -644,7 +644,7 @@
         .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
     },
     fmtDate: function (iso) {
-      if (!iso) return "—";
+      if (!iso) return "Not set";
       var d = new Date(iso + "T00:00:00");
       if (isNaN(d)) return iso;
       var opts = { day: "numeric", month: "short" };

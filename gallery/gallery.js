@@ -536,7 +536,7 @@
       const pin = el("button", "rv-pin");
       pin.type = "button";
       pin.style.left = `${Math.min(Math.max(n.at / dur, 0), 1) * 100}%`;
-      pin.title = `${clock(n.at)} — ${n.text.slice(0, 60)}`;
+      pin.title = `${clock(n.at)}: ${n.text.slice(0, 60)}`;
       pin.setAttribute("aria-label", `Comment at ${clock(n.at)}`);
       pin.addEventListener("click", () => {
         rv.video.currentTime = n.at;

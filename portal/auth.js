@@ -195,7 +195,7 @@
   /* ---------- public actions ---------- */
 
   async function signIn(email, redirectTo) {
-    if (!configured()) throw new Error("Supabase isn't connected yet — fill in portal/supabase-config.js.");
+    if (!configured()) throw new Error("Supabase isn't connected yet. Fill in portal/supabase-config.js.");
     var target = redirectTo || (location.origin + location.pathname);
     // redirect_to is a QUERY parameter on this endpoint. Nesting it in
     // the body as options.email_redirect_to is the JS SDK's shape, not

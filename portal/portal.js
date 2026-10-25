@@ -27,7 +27,7 @@
         '<span class="step-label">' + esc(s) + "</span></li>";
     }).join("");
     return '<ol class="stepper" aria-label="Project progress: stage ' + (idx + 1) + ' of ' + STATUSES.length + ', ' + esc(status) + '">' + lis + "</ol>" +
-      '<p class="stage-now"><span class="n">Stage ' + (idx + 1) + "/" + STATUSES.length + " — </span>" + esc(status) + "</p>";
+      '<p class="stage-now"><span class="n">Stage ' + (idx + 1) + "/" + STATUSES.length + ": </span>" + esc(status) + "</p>";
   }
 
   function projectCard(p, bundle) {
@@ -90,14 +90,14 @@
     var c = bundle.client;
     document.getElementById("welcome").textContent = "Welcome back, " + (c ? c.name : "…");
     document.getElementById("welcome-sub").textContent = c
-      ? "Here's where everything stands — updated as your projects move."
+      ? "Here's where everything stands, updated as your projects move."
       : "";
 
     // Feed (latest 4)
     var feed = bundle.activity.slice(0, 4).map(function (a) {
       return "<li><span>" + esc(a.text) + '</span><span class="feed-date">' + fmtDate(a.date) + "</span></li>";
     }).join("");
-    document.getElementById("feed").innerHTML = feed || '<li class="empty-note">Nothing new yet — updates land here as your projects move.</li>';
+    document.getElementById("feed").innerHTML = feed || '<li class="empty-note">Nothing new yet. Updates land here as your projects move.</li>';
 
     // Projects: live ones first (by deadline), delivered last
     var projects = bundle.projects.slice().sort(function (a, b) {
@@ -108,7 +108,7 @@
     });
     document.getElementById("projects").innerHTML =
       projects.map(function (p) { return projectCard(p, bundle); }).join("") ||
-      '<p class="empty-note">No projects yet — once something is booked it appears here.</p>';
+      '<p class="empty-note">No projects yet. Once something is booked it appears here.</p>';
     document.getElementById("projects-count").textContent = projects.length ? "(" + projects.length + ")" : "";
 
     // Contracts (section only appears when the client has any)

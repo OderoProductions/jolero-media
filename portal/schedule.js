@@ -105,7 +105,7 @@
     var r = rangeFor(ev);
     var params = new URLSearchParams({
       action: "TEMPLATE",
-      text: (ev.label ? ev.label + " — " : "") + ev.title,
+      text: (ev.label ? ev.label + ": " : "") + ev.title,
       dates: r.start + "/" + r.end,
       details: (ev.who ? "For: " + ev.who + "\n" : "") + (ev.sub ? ev.sub + "\n" : "") +
         "Added from the Jolero Media portal."
@@ -165,7 +165,7 @@
         lines.push("DTSTART;VALUE=DATE:" + r.start);
         lines.push("DTEND;VALUE=DATE:" + r.end);
       }
-      lines.push("SUMMARY:" + icsEscape((ev.label ? ev.label + " — " : "") + ev.title));
+      lines.push("SUMMARY:" + icsEscape((ev.label ? ev.label + ": " : "") + ev.title));
       if (ev.sub) lines.push("DESCRIPTION:" + icsEscape(ev.sub));
       lines.push("END:VEVENT");
     });
@@ -195,7 +195,7 @@
   }
 
   // "13 Oct – 20 Oct"
-  function spanText(ev) { return fmtDate(ev.date) + " – " + fmtDate(lastDay(ev)); }
+  function spanText(ev) { return fmtDate(ev.date) + " to " + fmtDate(lastDay(ev)); }
 
   function renderCalendar() {
     document.getElementById("cal-month").textContent = MONTHS[view.m] + " " + view.y;
@@ -229,7 +229,7 @@
           '" data-open-event="' + dISO + "|" + idx + '"' +
           (e.kind === "invoice" || !DRAG_OK ? "" : ' draggable="true"') +
           (showTitle ? "" : ' aria-label="' + esc(e.title) + '"') + ' title="' +
-          esc((e.label ? e.label + " — " : "") + e.title + (isMulti(e) ? " (" + spanText(e) + ")" : "")) + '">' +
+          esc((e.label ? e.label + ": " : "") + e.title + (isMulti(e) ? " (" + spanText(e) + ")" : "")) + '">' +
           (e.who && showTitle ? '<span class="chip-who">' + esc(PortalUtil.whoInitials(e.who)) + "</span>" : "") +
           (e.time && first ? '<span class="chip-time">' + esc(e.time) + "</span> " : "") +
           (showTitle ? esc(e.title) : "&nbsp;") +
@@ -283,7 +283,7 @@
       actions += '<a class="btn btn-ghost" href="' + esc(gcalUrl(e)) +
         '" target="_blank" rel="noopener">Add to Google Calendar</a>';
 
-      var when = e.time ? e.time + (e.endTime ? "–" + e.endTime : "") : "All day";
+      var when = e.time ? e.time + (e.endTime ? " to " + e.endTime : "") : "All day";
       if (isMulti(e)) {
         when = spanText(e) + " · Day " + (daysBetween(e.date, selected) + 1) + " of " +
           (daysBetween(e.date, lastDay(e)) + 1) +
@@ -633,7 +633,7 @@
 
 
     document.getElementById("ed-client").innerHTML =
-      '<option value="">— none —</option>' + data.clients.map(function (c) {
+      '<option value="">None</option>' + data.clients.map(function (c) {
         return '<option value="' + esc(c.id) + '">' + esc(c.name) + "</option>";
       }).join("");
 

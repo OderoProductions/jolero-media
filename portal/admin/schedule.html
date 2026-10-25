@@ -13,7 +13,7 @@
   <meta name="theme-color" content="#F5F5F3" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#0A0A0A">
   <meta name="robots" content="noindex">
-  <title>Schedule — Jolero Media Portal</title>
+  <title>Schedule | Jolero Media Portal</title>
   <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
   <link rel="stylesheet" href="../../styles.css?v=20261013">
   <link rel="stylesheet" href="../portal.css?v=20261017">
@@ -23,7 +23,7 @@
 
   <header class="portal-top">
     <div class="portal-top-inner">
-      <a class="wordmark" href="../../" aria-label="Jolero Media — back to main site"><img class="logo-mark" src="../../assets/logo.svg" alt="" width="40" height="40"><img class="logo-mark logo-mark-dark" src="../../assets/logo-dark.svg" alt="" width="40" height="40"><span class="wordmark-text">JOLERO MEDIA</span></a>
+      <a class="wordmark" href="../../" aria-label="Jolero Media, back to main site"><img class="logo-mark" src="../../assets/logo.svg" alt="" width="40" height="40"><img class="logo-mark logo-mark-dark" src="../../assets/logo-dark.svg" alt="" width="40" height="40"><span class="wordmark-text">JOLERO MEDIA</span></a>
       <nav class="admin-nav" aria-label="Admin sections">
         <a href="index.html">Dashboard</a>
         <a href="projects.html">Projects</a>
@@ -64,7 +64,7 @@
   <main class="portal-shell">
     <header>
       <h1 class="portal-h1">Schedule</h1>
-      <p class="portal-sub">Shoot days, deadlines, content, invoices and tasks — one view. Pulled live from the board, so nothing is entered twice.</p>
+      <p class="portal-sub">Shoot days, deadlines, content, invoices and tasks, all in one view. Pulled live from the board, so nothing is entered twice.</p>
     </header>
 
     <section class="portal-section" aria-labelledby="cal-h">
@@ -75,7 +75,7 @@
           <button type="button" id="cal-prev" aria-label="Previous month">&larr;</button>
           <button type="button" id="cal-next" aria-label="Next month">&rarr;</button>
         </div>
-        <span class="cal-month" id="cal-month">—</span>
+        <span class="cal-month" id="cal-month">…</span>
         <button class="cal-today" type="button" id="cal-today-btn">Today</button>
         <select class="cal-today cal-who" id="cal-who" aria-label="Whose schedule to show"></select>
         <div class="cal-actions">
@@ -104,7 +104,7 @@
         <span><i style="background:#4FA3FF"></i>Task</span>
         <span><i style="background:#9B7BFF"></i>Invoice due</span>
       </div>
-      <p class="empty-note">Click any entry to edit it. Shoots and deadlines belong to a project — editing those moves the project's date on the board too.</p>
+      <p class="empty-note">Click any entry to edit it. Shoots and deadlines belong to a project, so editing those moves the project's date on the board too.</p>
 
       <p class="preview-note">
         <strong>Google Calendar.</strong> Use <em>Export .ics</em> to import everything in one go
@@ -238,7 +238,7 @@
           <label for="pd2-date">Date</label>
           <input id="pd2-date" name="date" type="date" required>
         </div>
-        <p class="hint">This belongs to a project — changing it here updates the board as well.</p>
+        <p class="hint">This belongs to a project, so changing it here updates the board as well.</p>
         <div class="form-actions">
           <button class="btn btn-primary" type="submit">Save date</button>
           <button class="btn btn-ghost" type="button" data-close="pdate-dialog">Cancel</button>
@@ -260,7 +260,7 @@
         <input type="hidden" name="id">
         <div class="field field-wide">
           <label for="pod-name">What's the post?</label>
-          <input id="pod-name" name="title" type="text" placeholder="e.g. Matchday reel — vs Horsham" required>
+          <input id="pod-name" name="title" type="text" placeholder="e.g. Matchday reel vs Horsham" required>
         </div>
         <div class="field">
           <label for="pod-platform">Platform</label>
@@ -340,15 +340,15 @@
     </div>
   </dialog>
 
-  <footer class="portal-foot">Jolero Media · internal — schedule runs on the same mock data as the board</footer>
+  <footer class="portal-foot">Jolero Media · internal · schedule runs on the same mock data as the board</footer>
 
   <script src="../../theme.js?v=20261013b"></script>
   <script src="../supabase-config.js?v=20261013b"></script>
-  <script src="../auth.js?v=20261016"></script>
+  <script src="../auth.js?v=20261025"></script>
   <script src="../data.js?v=20261017"></script>
-  <script src="../store.js?v=20261017"></script>
-  <script src="../admin.js?v=20261017"></script>
-  <script src="../schedule.js?v=20261017"></script>
+  <script src="../store.js?v=20261025"></script>
+  <script src="../admin.js?v=20261025"></script>
+  <script src="../schedule.js?v=20261025"></script>
 
   <!-- Set/change your own admin password. Requires a live session, so it can
        only ever change the account you are signed in as. autocomplete
@@ -359,7 +359,7 @@
       <h2>Set your password</h2>
       <p class="pdialog-note">
         For the admin side only. Clients always sign in with a one-time link.
-        Let your browser generate and save one — it'll be stronger than anything
+        Let your browser generate and save one. It'll be stronger than anything
         you'd invent.
       </p>
       <label class="field">
