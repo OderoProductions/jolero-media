@@ -527,7 +527,13 @@ a { color: inherit; }
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
-.review-form, .review-thanks { max-width: 640px; }
+/* The review is the last thing to do, set well below the films so a client
+   watches and comments first, and centred so it reads as a closing section. */
+.review { margin-top: clamp(96px, 13vw, 170px); text-align: center; }
+.review .block-head { justify-content: center; }
+.review .field { text-align: left; }
+.review .check { justify-content: center; }
+.review-form, .review-thanks { max-width: 640px; margin-inline: auto; }
 .review-intro { margin: 0 0 26px; color: var(--paper-60); font-size: 1.02rem; }
 .review-label {
   display: block;
@@ -548,7 +554,7 @@ a { color: inherit; }
 .star {
   position: relative;
   display: inline-grid;
-  margin-right: 6px;
+  margin-inline: 3px;
   vertical-align: top;
   place-items: center;
   width: 48px;
@@ -635,7 +641,9 @@ a { color: inherit; }
   margin-top: clamp(56px, 8vw, 96px);
   padding-top: 20px;
   border-top: 1px solid var(--line);
-  max-width: 72ch;
+  max-width: 62ch;
+  margin-inline: auto;
+  text-align: center;
 }
 .usage-head {
   margin: 0 0 10px;
