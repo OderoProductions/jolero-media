@@ -37,6 +37,10 @@
 (function () {
   "use strict";
 
+  // Refuse to run inside another site's frame (clickjacking). GitHub Pages
+  // can't send frame-ancestors / X-Frame-Options, so the guard lives here.
+  if (window.top !== window.self) { document.documentElement.style.display = "none"; return; }
+
   var SESSION_KEY = "jolero_session";
   var LOGIN_PAGE = "login.html";
 

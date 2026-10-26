@@ -106,3 +106,15 @@ normal refresh picks it up:
 ```bash
 grep -rl 'styles.css?v=' . --include=*.html | xargs sed -i '' 's/?v=20261013/?v=NEWDATE/g'
 ```
+
+## Security notes
+
+- Every page's Content-Security-Policy names only what it uses: this
+  Supabase project (not `*.supabase.co`), the gallery worker, Vimeo on
+  project pages. Proposal pages allow no scripts at all.
+- Live pages do NOT allow `http://localhost:8787`. To test the gallery or
+  portal against a local `wrangler dev`, add it back on the local mirror's
+  copy only (img-src, media-src, connect-src), never in the repo.
+- `gallery/gallery.js` and `portal/auth.js` blank the page if it's loaded
+  inside another site's frame (clickjacking), because GitHub Pages can't
+  send `frame-ancestors` / `X-Frame-Options` headers.

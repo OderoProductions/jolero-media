@@ -9,6 +9,10 @@
 (() => {
   "use strict";
 
+  // Refuse to run inside another site's frame (clickjacking): the page
+  // stays blank. GitHub Pages can't send frame-ancestors, so it's done here.
+  if (window.top !== window.self) { document.documentElement.style.display = "none"; return; }
+
   const LOCAL = location.hostname === "localhost" || location.hostname === "127.0.0.1";
   const API = LOCAL ? "http://localhost:8787" : "https://jolero-gallery.jolero-gallery-worker.workers.dev";
   const ID_RE = /^[A-Za-z0-9_-]{12,64}$/;
@@ -33,9 +37,10 @@
     return s;
   };
 
-  // Links look like #coach-manowar/k3J9xQ2mPa7Z: the name is only for people,
+  // Links look like #client-name/XXXXXXXXXXXX: the name is only for people,
   // the code after the last slash is what finds the gallery
-  const id = decodeURIComponent(location.hash.slice(1)).trim().split("/").pop();
+  let id = "";
+  try { id = decodeURIComponent(location.hash.slice(1)).trim().split("/").pop(); } catch (e) { id = ""; }
   const slug = (s) => s.normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase()
     .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60);
   const base = `${API}/g/${id}/`;
@@ -554,7 +559,7 @@
       head.appendChild(el("span", "rv-who", n.name || "You"));
       head.appendChild(el("span", "rv-when", day(n.sent)));
       li.appendChild(head);
-      li.appendChild(el("p", "rv-note-text", n.text));
+      li.appendChild(el("p", "rv-note-text", String(n.text || "")));
       rv.list.appendChild(li);
     }
     paintTrack(mine);
@@ -570,7 +575,7 @@
       const pin = el("button", "rv-pin");
       pin.type = "button";
       pin.style.left = `${Math.min(Math.max(n.at / dur, 0), 1) * 100}%`;
-      pin.title = `${clock(n.at)}: ${n.text.slice(0, 60)}`;
+      pin.title = `${clock(n.at)}: ${String(n.text || "").slice(0, 60)}`;
       pin.setAttribute("aria-label", `Comment at ${clock(n.at)}`);
       pin.addEventListener("click", () => {
         rv.video.currentTime = n.at;
@@ -1068,7 +1073,7 @@
       document.head.appendChild(tag);
     });
     add("../portal/supabase-config.js?v=20261014")
-      .then(() => add("../portal/auth.js?v=20261016"))
+      .then(() => add("../portal/auth.js?v=20261026"))
       .then(() => add("gallery-admin.js?v=2"))
       .catch(() => { /* no portal on this site: nothing to edit with */ });
   }
