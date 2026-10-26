@@ -370,59 +370,93 @@
     renderFiles(files);
   }
 
+  /* A gallery can label its videos ("Highlight videos", then "Social edits"),
+     and each label then gets its own head and row, in the order the labels
+     first appear. With nothing labelled it stays one Videos block. */
   function renderVideos(videos) {
     const row = $("video-row");
+    const box = $("video-groups");
     row.textContent = "";
+    box.textContent = "";
     $("videos").hidden = !videos.length;
     $("videos-count").textContent = pad(videos.length, 2);
+
+    const named = videos.some((it) => (it.g || "").trim());
+    $("videos-head").hidden = named;
+    row.hidden = named;
+    if (!named) {
+      videos.forEach((it, i) => row.appendChild(videoCard(it, videos, i)));
+      return;
+    }
+
+    const groups = [];
     videos.forEach((it, i) => {
-      const card = el("article", "vcard");
-      const ar = it.w && it.h ? Math.min(Math.max(it.w / it.h, 0.4), 2.6) : 16 / 9;
-      card.style.setProperty("--ar", ar.toFixed(4));
-
-      // a still that opens the video full size, rather than a player in the grid
-      const open = el("button", "vopen");
-      open.type = "button";
-      open.setAttribute("aria-label", `Open ${label(it.name || "video")}`);
-      const frame = el("div", "vframe");
-      if (url(it.t)) {
-        const img = document.createElement("img");
-        img.alt = "";
-        img.loading = "lazy";
-        img.decoding = "async";
-        img.src = url(it.t);
-        frame.appendChild(img);
-      }
-      const play = el("span", "vplay");
-      play.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>';
-      frame.appendChild(play);
-      frame.appendChild(el("span", "vdur", clock(it.dur)));
-      if (notesOn) {
-        const n = notesFor(it.p || it.o || "").length;
-        const tag = el("span", "vnotes", n ? `${n} ${plural(n, "comment")}` : "Comment");
-        frame.appendChild(tag);
-      }
-      open.appendChild(frame);
-      open.addEventListener("click", () => openReview(videos, i));
-      card.appendChild(open);
-
-      const info = el("div", "vinfo");
-      const text = el("div");
-      text.appendChild(el("h3", "vname", label(it.name || "Video")));
-      const meta = [clock(it.dur)];
-      if (it.w && it.h) meta.push(`${it.w}×${it.h}`);
-      meta.push(size(it.bytes || 0));
-      text.appendChild(el("p", "vmeta", meta.join("  ·  ")));
-      info.appendChild(text);
-      const watch = el("button", "btn btn-primary btn-sm");
-      watch.type = "button";
-      watch.textContent = notesOn ? "Watch & comment" : "Watch";
-      watch.addEventListener("click", () => openReview(videos, i));
-      info.appendChild(watch);
-      if (!isLocked) info.appendChild(downloadLink(url(it.o, true), "Download", "btn btn-ghost btn-sm"));
-      card.appendChild(info);
-      row.appendChild(card);
+      const name = (it.g || "").trim() || "Videos";
+      let g = groups.find((x) => x.name.toLowerCase() === name.toLowerCase());
+      if (!g) groups.push((g = { name, cards: [] }));
+      g.cards.push(videoCard(it, videos, i));
     });
+    for (const g of groups) {
+      const sec = el("section", "video-group");
+      const h = el("h2", "block-head", g.name);
+      h.appendChild(el("span", "dot", "."));
+      h.appendChild(el("span", "block-count", pad(g.cards.length, 2)));
+      sec.appendChild(h);
+      const r = el("div", "video-row");
+      for (const c of g.cards) r.appendChild(c);
+      sec.appendChild(r);
+      box.appendChild(sec);
+    }
+  }
+
+  // one card: the still that opens it, the name, the size and the buttons
+  function videoCard(it, videos, i) {
+    const card = el("article", "vcard");
+    const ar = it.w && it.h ? Math.min(Math.max(it.w / it.h, 0.4), 2.6) : 16 / 9;
+    card.style.setProperty("--ar", ar.toFixed(4));
+
+    // a still that opens the video full size, rather than a player in the grid
+    const open = el("button", "vopen");
+    open.type = "button";
+    open.setAttribute("aria-label", `Open ${label(it.name || "video")}`);
+    const frame = el("div", "vframe");
+    if (url(it.t)) {
+      const img = document.createElement("img");
+      img.alt = "";
+      img.loading = "lazy";
+      img.decoding = "async";
+      img.src = url(it.t);
+      frame.appendChild(img);
+    }
+    const play = el("span", "vplay");
+    play.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>';
+    frame.appendChild(play);
+    frame.appendChild(el("span", "vdur", clock(it.dur)));
+    if (notesOn) {
+      const n = notesFor(it.p || it.o || "").length;
+      const tag = el("span", "vnotes", n ? `${n} ${plural(n, "comment")}` : "Comment");
+      frame.appendChild(tag);
+    }
+    open.appendChild(frame);
+    open.addEventListener("click", () => openReview(videos, i));
+    card.appendChild(open);
+
+    const info = el("div", "vinfo");
+    const text = el("div");
+    text.appendChild(el("h3", "vname", label(it.name || "Video")));
+    const meta = [clock(it.dur)];
+    if (it.w && it.h) meta.push(`${it.w}×${it.h}`);
+    meta.push(size(it.bytes || 0));
+    text.appendChild(el("p", "vmeta", meta.join("  ·  ")));
+    info.appendChild(text);
+    const watch = el("button", "btn btn-primary btn-sm");
+    watch.type = "button";
+    watch.textContent = notesOn ? "Watch & comment" : "Watch";
+    watch.addEventListener("click", () => openReview(videos, i));
+    info.appendChild(watch);
+    if (!isLocked) info.appendChild(downloadLink(url(it.o, true), "Download", "btn btn-ghost btn-sm"));
+    card.appendChild(info);
+    return card;
   }
 
   /* ---------- review view: the film on the left, the notes on the right ----------

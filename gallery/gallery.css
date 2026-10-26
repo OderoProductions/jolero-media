@@ -243,6 +243,9 @@ a { color: inherit; }
 
 /* ---------- videos: each card keeps its own shape, reels sit beside films ---------- */
 
+/* a labelled run of videos, each with its own head */
+.video-group + .video-group { margin-top: clamp(40px, 6vw, 72px); }
+
 .video-row {
   --vh: min(56vh, 460px);
   display: flex;
