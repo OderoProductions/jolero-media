@@ -12,6 +12,11 @@
      · every photo and video, folder by folder: drag to reorder or into
        another folder, tap to select, then delete, move or make a cover
      · folder names and folder order
+     · adding files: Add files on a folder, or drop them onto it from the
+       desktop. They upload straight away (gallery-upload.js) but only
+       join the gallery on Save; Cancel deletes them again
+     · a video's heading ("Highlight videos", "Social edits") from the
+       selection bar
    Nothing is saved until Save. Deleted files are removed from R2 then,
    and Download all needs no rebuilding: the worker builds it on the fly. */
 (() => {
@@ -187,6 +192,8 @@
   let lastClicked = null;
   let clients = [];
   let dirty = false;
+  let uploaded = [];        // keys this edit has written to R2 (for Cancel to clean up)
+  let busy = false;         // an upload is running
   let ed = null;            // the editor's root element
   let fields = {};          // title, note, client select, ...
 
@@ -248,6 +255,7 @@
       galleryCover = man.cover || "";
       removed = [];
       selected = new Set();
+      uploaded = [];
       dirty = false;
       try { clients = await getClients(); } catch (e) { clients = null; }
       render();
@@ -304,11 +312,21 @@
     st.id = "ed-status";
     label.appendChild(st);
     inner.appendChild(label);
+    const prog = el("div", "ed-progress");
+    prog.id = "ed-progress";
+    prog.hidden = true;
+    prog.appendChild(el("span", "ed-progress-text"));
+    const track = el("span", "ed-progress-track");
+    track.appendChild(el("span", "ed-progress-fill"));
+    prog.appendChild(track);
+    inner.appendChild(prog);
     const actions = el("div", "ed-bar-actions");
     const cancel = el("button", "btn btn-ghost btn-sm", "Cancel");
     cancel.type = "button";
-    cancel.addEventListener("click", () => {
-      if (dirty && !confirm("Leave without saving? Your changes will be lost.")) return;
+    cancel.addEventListener("click", async () => {
+      if (busy && !confirm("A file is still uploading. Stop and leave without saving?")) return;
+      if (!busy && dirty && !confirm("Leave without saving? Your changes will be lost.")) return;
+      await discardUploads();
       close();
     });
     const save = el("button", "btn btn-primary btn-sm", "Save changes");
@@ -327,9 +345,9 @@
     const count = groups.reduce((n, g) => n + g.items.length, 0);
     const parts = [plural(count, "file")];
     if (removed.length) parts.push(`${removed.length} to delete`);
-    parts.push(dirty ? "unsaved changes" : "no changes yet");
+    parts.push(busy ? "uploading" : dirty ? "unsaved changes" : "no changes yet");
     st.textContent = parts.join("  ·  ");
-    $("ed-save").disabled = !dirty;
+    $("ed-save").disabled = !dirty || busy;
   }
 
   function labelled(text, control, hint) {
@@ -498,6 +516,14 @@
     cover.type = "button";
     cover.id = "ed-cover";
     cover.addEventListener("click", makeCover);
+    const head = el("select", "field ed-select ed-move");
+    head.id = "ed-head";
+    head.setAttribute("aria-label", "Heading for the selected videos");
+    head.addEventListener("change", () => {
+      const v = head.value;
+      head.value = "";
+      if (v) setHeading(v);
+    });
     const del = el("button", "btn btn-sm ed-delete", "Delete");
     del.type = "button";
     del.id = "ed-del";
@@ -505,7 +531,7 @@
     const clear = el("button", "btn btn-ghost btn-sm", "Clear");
     clear.type = "button";
     clear.addEventListener("click", () => { selected.clear(); paintSelection(); });
-    inner.append(count, move, gcover, cover, del, clear);
+    inner.append(count, move, head, gcover, cover, del, clear);
     bar.appendChild(inner);
     return bar;
   }
@@ -537,6 +563,18 @@
       }
       head.appendChild(el("span", "ed-gcount", g.items.length ? plural(g.items.length, "file") : "Empty: removed when you save"));
       const tools = el("div", "ed-gtools");
+      if (window.JoleroUpload) {
+        const pick = el("input");
+        pick.type = "file";
+        pick.multiple = true;
+        pick.hidden = true;
+        pick.addEventListener("change", () => { const f = [...pick.files]; pick.value = ""; addFiles(g, f); });
+        const add = el("button", "ed-link ed-add", "+ Add files");
+        add.type = "button";
+        add.disabled = busy;
+        add.addEventListener("click", () => pick.click());
+        tools.append(pick, add);
+      }
       if (g.items.length) {
         const all = el("button", "ed-link", "Select all");
         all.type = "button";
@@ -564,7 +602,8 @@
 
       const grid = el("div", "ed-grid");
       grid.dataset.g = String(gi);
-      if (!g.items.length) grid.appendChild(el("p", "ed-empty", "Drag files here"));
+      if (!g.items.length) grid.appendChild(el("p", "ed-empty", window.JoleroUpload ? "Drag files here, or drop them in from your computer" : "Drag files here"));
+      wireFileDrop(grid, g);
       g.items.forEach((it, i) => grid.appendChild(tile(it, g, i)));
       sec.appendChild(grid);
       host.appendChild(sec);
@@ -613,6 +652,7 @@
     grip.appendChild(icon(ICON.grip));
     t.appendChild(grip);
     t.appendChild(el("span", "ed-name", it.name || ""));
+    if (it.type === "video" && it.g) t.appendChild(el("span", "ed-vhead", it.g));
     return t;
   }
 
@@ -656,6 +696,149 @@
     const home = only && groups.find((g) => g.items.includes(only));
     $("ed-cover").hidden = !(only && home && home.id && only.t);
     $("ed-gcover").hidden = !(only && only.t);
+
+    // headings group videos on the client's page ("Highlight videos", "Social edits")
+    const vids = [...selected].filter((it) => it.type === "video");
+    const hs = $("ed-head");
+    hs.hidden = !vids.length;
+    hs.textContent = "";
+    const first = el("option", null, "Video heading…");
+    first.value = "";
+    hs.appendChild(first);
+    for (const h of headings()) {
+      const o = el("option", null, h);
+      o.value = `h:${h}`;
+      hs.appendChild(o);
+    }
+    const nh = el("option", null, "New heading…");
+    nh.value = "new";
+    hs.appendChild(nh);
+    const none = el("option", null, "No heading");
+    none.value = "none";
+    hs.appendChild(none);
+  }
+
+  function headings() {
+    const seen = [];
+    for (const g of groups) for (const it of g.items) {
+      const h = (it.type === "video" && it.g || "").trim();
+      if (h && !seen.some((x) => x.toLowerCase() === h.toLowerCase())) seen.push(h);
+    }
+    return seen;
+  }
+
+  function setHeading(v) {
+    let label = "";
+    if (v === "new") {
+      label = (prompt("Heading for these videos, e.g. Social edits") || "").trim().slice(0, 60);
+      if (!label) return;
+    } else if (v.startsWith("h:")) {
+      label = v.slice(2);
+    }
+    for (const it of selected) {
+      if (it.type !== "video") continue;
+      if (label) it.g = label; else delete it.g;
+    }
+    changed();
+    renderGroups();
+  }
+
+  /* ---------- adding files ---------- */
+
+  function setProgress(text, fraction) {
+    const p = $("ed-progress");
+    if (!p) return;
+    p.hidden = text == null;
+    if (text == null) return;
+    p.querySelector(".ed-progress-text").textContent = text;
+    p.querySelector(".ed-progress-fill").style.width = `${Math.round(Math.min(Math.max(fraction || 0, 0), 1) * 100)}%`;
+  }
+
+  // the next free number for a file's keys (o/0007-name.jpg, t/0007.jpg)
+  function nextNumber() {
+    const all = (original.items || []).concat(groups.flatMap((g) => g.items), removed);
+    return 1 + all.reduce((m, it) => {
+      const x = /^[ov]\/(\d+)-/.exec(it.o || "");
+      return x ? Math.max(m, +x[1]) : m;
+    }, all.length);
+  }
+
+  async function addFiles(g, list) {
+    const files = [...list].filter((f) => f.size > 0 && !f.name.startsWith("."));
+    if (!files.length || busy) return;
+    busy = true;
+    status();
+    renderGroups();
+    const batch = [];
+    setProgress("Starting…", 0);
+    try {
+      const items = await JoleroUpload.upload({
+        api: G.api,
+        getToken: token,
+        gid: G.id,
+        files,
+        start: nextNumber(),
+        progress: setProgress,
+        written: (k) => { batch.push(k); uploaded.push(k); },
+      });
+      g.items.push(...items);
+      selected = new Set(items);
+      changed();
+      const vids = items.filter((it) => it.type === "video").length;
+      flash(`${plural(items.length, "file")} added. Save to show ${items.length === 1 ? "it" : "them"} to the client`
+        + (vids && headings().length ? ", and pick a video heading below." : "."));
+    } catch (err) {
+      // nothing half-uploaded is left behind
+      const keys = batch.filter((k) => FILE_RE.test(k));
+      if (keys.length) {
+        try { await api("POST", `/admin/g/${G.id}/delete`, JSON.stringify({ files: keys }), { "content-type": "application/json" }); } catch (e) { /* best effort */ }
+        uploaded = uploaded.filter((k) => !keys.includes(k));
+      }
+      alert(err.message || String(err));
+    } finally {
+      busy = false;
+      setProgress(null);
+      if (ed) { renderGroups(); status(); }
+    }
+  }
+
+  // drop files from the desktop onto a folder
+  function wireFileDrop(grid, g) {
+    if (!window.JoleroUpload) return;
+    const hasFiles = (e) => e.dataTransfer && [...e.dataTransfer.types].includes("Files");
+    grid.addEventListener("dragover", (e) => {
+      if (!hasFiles(e)) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = busy ? "none" : "copy";
+      grid.classList.add("drop-files");
+    });
+    grid.addEventListener("dragleave", (e) => {
+      if (!grid.contains(e.relatedTarget)) grid.classList.remove("drop-files");
+    });
+    grid.addEventListener("drop", (e) => {
+      if (!hasFiles(e)) return;
+      e.preventDefault();
+      grid.classList.remove("drop-files");
+      // folders arrive with no type and no extension: leave them out
+      addFiles(g, [...e.dataTransfer.files].filter((f) => f.type || /\.[a-z0-9]{1,10}$/i.test(f.name)));
+    });
+  }
+
+  // a file dropped beside a folder shouldn't make the browser open it
+  for (const type of ["dragover", "drop"]) {
+    window.addEventListener(type, (e) => {
+      if (ed && e.dataTransfer && [...e.dataTransfer.types].includes("Files") && !e.target.closest(".ed-grid")) e.preventDefault();
+    });
+  }
+
+  // Cancel: files this edit uploaded but never saved are deleted again
+  async function discardUploads() {
+    const saved = new Set((original.items || []).flatMap(keysOf));
+    const keys = uploaded.filter((k) => !saved.has(k) && FILE_RE.test(k));
+    uploaded = [];
+    if (!keys.length) return;
+    try { await api("POST", `/admin/g/${G.id}/delete`, JSON.stringify({ files: keys }), { "content-type": "application/json" }); }
+    catch (e) { /* a leftover file is harmless; the gallery never points at it */ }
   }
 
   /* ---------- selecting ---------- */
@@ -950,6 +1133,7 @@
       await api("POST", `/admin/g/${G.id}/drop-zips`);
 
       const fresh = await getManifest();
+      uploaded = [];
       dirty = false;
       close();
       G.show(fresh);
