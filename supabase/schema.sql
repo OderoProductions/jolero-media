@@ -545,6 +545,8 @@ grant execute on function public.ping() to anon;
 --    if that client is deleted).
 -- d) Anonymous callers can run ping() and nothing else; the client
 --    functions are for signed-in users only.
+-- e) trigger functions and the email lookup cannot be called over the API.
+-- f) size caps on client-written text.
 -- =============================================================
 
 -- a) link at sign-up only if already confirmed (an invite made from
@@ -658,3 +660,26 @@ grant execute on function public.leave_testimonial(uuid, int, text, boolean) to 
 grant execute on function public.ping() to anon;
 alter default privileges in schema public revoke execute on functions from public, anon;
 alter default privileges in schema public revoke all on tables from anon;
+
+-- e) (added 2026-11-01) the trigger functions and the email lookup are
+--    only ever run by the database itself, never over the API. Signed-in
+--    users kept the default right to call them, which would let any
+--    login ask which client an email address belongs to. Triggers still
+--    fire: Postgres only checks this right when a trigger is created.
+revoke execute on function public.handle_new_user() from public, anon, authenticated;
+revoke execute on function public.handle_user_confirmed() from public, anon, authenticated;
+revoke execute on function public.link_client_email() from public, anon, authenticated;
+revoke execute on function public.client_for_email(text) from public, anon, authenticated;
+
+-- f) (added 2026-11-01) size caps on what a client can write through the
+--    three client functions, so one form can't store megabytes.
+--    NOT VALID: enforced on new writes without checking old rows.
+alter table public.testimonials drop constraint if exists testimonials_quote_len;
+alter table public.testimonials add constraint testimonials_quote_len
+  check (char_length(quote) <= 2000) not valid;
+alter table public.briefs drop constraint if exists briefs_answers_size;
+alter table public.briefs add constraint briefs_answers_size
+  check (answers is null or octet_length(answers::text) <= 20000) not valid;
+alter table public.contracts drop constraint if exists contracts_signer_len;
+alter table public.contracts add constraint contracts_signer_len
+  check (char_length(signer_name) <= 200) not valid;
