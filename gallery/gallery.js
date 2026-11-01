@@ -414,6 +414,18 @@
     }
   }
 
+  // "9:16", "4:3"...: the familiar name when it's close to one, else the exact one
+  const RATIOS = [[9, 16], [16, 9], [4, 5], [5, 4], [4, 3], [3, 4], [1, 1], [2, 3], [3, 2], [21, 9], [1.91, 1]];
+  function ratio(w, h) {
+    const r = w / h;
+    const near = RATIOS.find(([a, b]) => Math.abs(r / (a / b) - 1) < 0.02);
+    if (near) return `${near[0]}:${near[1]}`;
+    const gcd = (a, b) => (b ? gcd(b, a % b) : a);
+    const d = gcd(w, h);
+    return `${w / d}:${h / d}`;
+  }
+  const dims = (it) => `${it.w}×${it.h} (${ratio(it.w, it.h)})`;
+
   // one card: the still that opens it, the name, the size and the buttons
   function videoCard(it, videos, i) {
     const card = el("article", "vcard");
@@ -450,9 +462,13 @@
     const text = el("div");
     text.appendChild(el("h3", "vname", label(it.name || "Video")));
     const meta = [clock(it.dur)];
-    if (it.w && it.h) meta.push(`${it.w}×${it.h}`);
+    if (it.w && it.h) meta.push(dims(it));
     meta.push(size(it.bytes || 0));
     text.appendChild(el("p", "vmeta", meta.join("  ·  ")));
+    // only 9:16 fills a reel; anything else gets black bars there
+    if (it.w && it.h && ratio(it.w, it.h) !== "9:16") {
+      text.appendChild(el("p", "vpost", "Post this one on Instagram as a feed post, not a reel, so it shows full frame with no black bars."));
+    }
     info.appendChild(text);
     const watch = el("button", "btn btn-primary btn-sm");
     watch.type = "button";
@@ -494,7 +510,7 @@
 
     rv.title.textContent = label(rvItem.name || "Video");
     const bits = [];
-    if (rvItem.w && rvItem.h) bits.push(`${rvItem.w}×${rvItem.h}`);
+    if (rvItem.w && rvItem.h) bits.push(dims(rvItem));
     bits.push(size(rvItem.bytes || 0));
     rv.meta.textContent = bits.join("  ·  ");
     rv.video.poster = url(rvItem.t);

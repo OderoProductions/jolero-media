@@ -291,6 +291,16 @@ a { color: inherit; }
   letter-spacing: 0.05em;
   color: var(--paper-40);
 }
+/* the reminder under a video that isn't 9:16 */
+.vpost {
+  margin: 8px 0 0;
+  padding-left: 10px;
+  border-left: 2px solid var(--accent);
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: var(--paper-60);
+  max-width: 46ch;
+}
 
 /* ---------- photos: justified rows, widths set by gallery.js ---------- */
 
