@@ -1546,6 +1546,20 @@ html.theme-light .theme-btn .icon-sun { display: none; }
 .clip-rail-film { justify-content: center; overflow: visible; }
 .clip-rail-film .clip { width: min(100%, calc(82vh * 4 / 3)); }
 .clip-rail-film .clip-frame { aspect-ratio: 4 / 3; }
+/* a 16:9 film rather than the default 4:3 */
+.clip-rail-film-wide .clip { width: min(100%, calc(82vh * 16 / 9)); }
+.clip-rail-film-wide .clip-frame { aspect-ratio: 16 / 9; }
+/* feed posts of different shapes: the same height side by side on desktop */
+.clip-rail-posts { margin-top: 32px; }
+.clip-rail-posts .clip { width: 90%; }
+.clip-rail-posts .clip-43 .clip-frame { aspect-ratio: 4 / 3; }
+.clip-rail-posts .clip-169 .clip-frame { aspect-ratio: 16 / 9; }
+@media (min-width: 760px) {
+  .clip-rail-posts { max-width: 980px; margin-inline: auto; overflow: visible; }
+  .clip-rail-posts .clip { width: auto; min-width: 0; }
+  .clip-rail-posts .clip-43 { flex: 4 1 0; }
+  .clip-rail-posts .clip-169 { flex: 5.333 1 0; }
+}
 .clip-big-play {
   position: absolute;
   inset: 0;
@@ -1758,6 +1772,8 @@ html.plb-open { overflow: hidden; }
 }
 /* A busier photo can sit back a little behind the title */
 .project-hero-img-dim { opacity: 0.78; }
+/* Show more of the top of the photo, for a subject near the top of frame */
+.project-hero-img-high { object-position: center 20%; }
 .project-hero::after {
   content: "";
   position: absolute;
