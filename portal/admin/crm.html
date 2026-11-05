@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="portal-role" content="admin">
+  <!-- Security policy. GitHub Pages cannot send real HTTP headers, so this
+       meta tag is the enforcement point. Scripts are allowed by SHA-256 hash:
+       if you EDIT ANY INLINE <script> on this page you must recompute its
+       hash (shasum -a 256 of the exact script contents, base64) or the
+       script silently stops running. External scripts: same-origin only. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9hUOTyB0SoibSiWOZkJw2eqQFml00iDkRip2DzmnPus=' 'sha256-JssKZq7Zz1tMpFd4T9itCjnPwy3MNAE7DIQFnyVS3Ec='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://hrdjikuadcqrddbeszzb.supabase.co; form-action 'self'; object-src 'none'; base-uri 'self'; upgrade-insecure-requests">
+  <meta name="theme-color" content="#F5F5F3" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0A0A0A">
+  <meta name="robots" content="noindex">
+  <title>CRM | Jolero Media Portal</title>
+  <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+  <link rel="stylesheet" href="../../styles.css?v=20261104">
+  <link rel="stylesheet" href="../portal.css?v=20261105">
+  <script>/* theme before first paint: saved choice, else OS, else dark */try{var s=localStorage.getItem("jolero_theme");if(s?s==="light":matchMedia("(prefers-color-scheme: light)").matches)document.documentElement.classList.add("theme-light")}catch(e){}</script>
+</head>
+<body>
+
+  <header class="portal-top">
+    <div class="portal-top-inner">
+      <a class="wordmark" href="../../" aria-label="Jolero Media, back to main site"><img class="logo-mark" src="../../assets/logo.svg" alt="" width="40" height="40"><img class="logo-mark logo-mark-dark" src="../../assets/logo-dark.svg" alt="" width="40" height="40"><span class="wordmark-text">JOLERO MEDIA</span></a>
+      <nav class="admin-nav" aria-label="Admin sections">
+        <a href="index.html">Dashboard</a>
+        <a href="projects.html">Projects</a>
+        <a href="galleries.html">Galleries</a>
+        <a href="schedule.html">Schedule</a>
+        <a href="invoices.html">Accounting</a>
+        <a href="contracts.html">Contracts</a>
+        <a href="clients.html">Clients</a>
+        <a href="crm.html" aria-current="page">CRM</a>
+      </nav>
+      <div class="portal-top-right">
+        <button class="link-quiet" id="set-password" type="button" style="font-size:0.8rem;" hidden>Password</button>
+        <button class="link-quiet" id="sign-out" type="button" style="font-size:0.8rem;">Sign out</button>
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to light mode">
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        </button>
+        <div class="bell-wrap">
+          <button class="bell-btn" id="bell-btn" type="button" aria-label="Notifications" aria-expanded="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+            <span class="bell-count" id="bell-count" hidden></span>
+          </button>
+          <div class="bell-panel" id="bell-panel" hidden>
+            <div class="bell-panel-head">Notifications
+              <button class="link-quiet" id="bell-read-all" type="button">Mark all read</button>
+            </div>
+            <ol class="bell-list" id="bell-list"></ol>
+          </div>
+        </div>
+        <a href="../" target="_blank" rel="noopener">Client view</a>
+        <button class="link-quiet" id="export-data" type="button" style="font-size:0.8rem;">Back up</button>
+        <button class="link-quiet" id="import-data" type="button" style="font-size:0.8rem;">Restore</button>
+        <input type="file" id="import-file" accept="application/json,.json" hidden>
+        <button class="link-quiet" id="reset-all" type="button" style="font-size:0.8rem;">Erase all</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="portal-shell">
+    <header>
+      <h1 class="portal-h1">CRM</h1>
+      <p class="portal-sub">Everyone we've reached out to, or mean to.</p>
+    </header>
+
+    <section class="portal-section" aria-labelledby="crm-h">
+      <h2 id="crm-h">Contacts<span class="count" id="crm-count"></span></h2>
+
+      <div class="crm-stats" id="crm-stats"></div>
+
+      <div class="crm-tools">
+        <input class="crm-search" id="crm-search" type="search" placeholder="Search names, sports, notes" aria-label="Search contacts">
+        <select id="crm-kind" aria-label="Filter by type"></select>
+        <select id="crm-rel" aria-label="Filter by existing or new">
+          <option value="">Existing and new</option>
+          <option>Existing</option>
+          <option>New</option>
+        </select>
+        <select id="crm-who" aria-label="Filter by who's handling it"></select>
+        <div class="crm-actions">
+          <button class="btn btn-primary btn-mini" id="crm-add" type="button">Add contact</button>
+          <button class="btn btn-ghost btn-mini" id="crm-import" type="button">Import CSV</button>
+          <button class="btn btn-ghost btn-mini" id="crm-export" type="button">Export CSV</button>
+          <input type="file" id="crm-import-file" accept=".csv,text/csv" hidden>
+        </div>
+      </div>
+
+      <p class="crm-error" id="crm-error" role="alert" hidden></p>
+      <div class="table-wrap">
+        <table class="ptable crm-table">
+          <thead>
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">Sport</th>
+              <th scope="col">Instagram</th>
+              <th scope="col" class="num">Followers</th>
+              <th scope="col">Status</th>
+              <th scope="col">Who</th>
+              <th scope="col">Last contact</th>
+              <th scope="col">Follow up</th>
+              <th scope="col">Notes</th>
+            </tr>
+          </thead>
+          <tbody id="crm-rows"></tbody>
+        </table>
+      </div>
+      <p class="empty-note" id="crm-empty" hidden></p>
+    </section>
+  </main>
+
+  <dialog class="pdialog" id="crm-dialog" aria-labelledby="crm-d-title">
+    <div class="pdialog-head">
+      <h3 id="crm-d-title">Contact</h3>
+      <button class="pdialog-close" id="crm-d-close" type="button" aria-label="Close">&times;</button>
+    </div>
+    <div class="pdialog-body">
+      <form class="portal-form" id="crm-form">
+        <input type="hidden" name="id">
+        <div class="field field-wide"><label for="cf-name">Name</label><input id="cf-name" name="name" type="text" maxlength="120" required></div>
+        <div class="field"><label for="cf-kind">Type</label><select id="cf-kind" name="kind"></select></div>
+        <div class="field"><label for="cf-sport">Sport</label><input id="cf-sport" name="sport" type="text" maxlength="80"></div>
+        <div class="field"><label for="cf-instagram">Instagram <span class="optional">(link or @handle)</span></label><input id="cf-instagram" name="instagram" type="text" maxlength="200" autocomplete="off"></div>
+        <div class="field"><label for="cf-followers">Followers</label><input id="cf-followers" name="followers" type="number" min="0" step="1"></div>
+        <div class="field"><label for="cf-email">Email</label><input id="cf-email" name="email" type="email" maxlength="200"></div>
+        <div class="field"><label for="cf-rel">Existing or new</label><select id="cf-rel" name="relationship"><option>New</option><option>Existing</option></select></div>
+        <div class="field"><label for="cf-status">Status</label><select id="cf-status" name="status"></select></div>
+        <div class="field"><label for="cf-who">Who's handling it</label><select id="cf-who" name="who"></select></div>
+        <div class="field"><label for="cf-last">Last contact</label><input id="cf-last" name="lastContact" type="date"></div>
+        <div class="field"><label for="cf-follow">Follow up on</label><input id="cf-follow" name="followUp" type="date"></div>
+        <div class="field field-wide"><label for="cf-notes">Notes</label><textarea id="cf-notes" name="notes" rows="3" maxlength="4000"></textarea></div>
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit">Save</button>
+          <button class="btn btn-ghost" type="button" id="crm-d-cancel">Cancel</button>
+          <button class="btn btn-ghost crm-delete" type="button" id="crm-d-delete">Delete</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <footer class="portal-foot">Jolero Media · internal · Phase 1/4 preview running on mock data</footer>
+
+  <script src="../../theme.js?v=20261013b"></script>
+  <script src="../supabase-config.js?v=20261013b"></script>
+  <script src="../auth.js?v=20261026"></script>
+  <script src="../data.js?v=20261105"></script>
+  <script src="../store.js?v=20261105"></script>
+  <script src="../admin.js?v=20261025"></script>
+  <script src="../crm.js?v=1"></script>
+
+  <!-- Set/change your own admin password. Requires a live session, so it can
+       only ever change the account you are signed in as. autocomplete
+       "new-password" makes browsers and password managers offer to generate a
+       strong one and save it — which is a better password than anyone types. -->
+  <dialog class="pdialog" id="pw-dialog">
+    <form method="dialog" id="pw-form">
+      <h2>Set your password</h2>
+      <p class="pdialog-note">
+        For the admin side only. Clients always sign in with a one-time link.
+        Let your browser generate and save one. It'll be stronger than anything
+        you'd invent.
+      </p>
+      <label class="field">
+        <span>New password</span>
+        <input type="password" id="pw-new" autocomplete="new-password" minlength="12" required
+               placeholder="At least 12 characters">
+      </label>
+      <label class="field">
+        <span>Confirm</span>
+        <input type="password" id="pw-confirm" autocomplete="new-password" minlength="12" required
+               placeholder="Type it again">
+      </label>
+      <p class="login-msg" id="pw-msg" role="status" aria-live="polite" hidden></p>
+      <div class="pdialog-actions">
+        <button class="btn btn-ghost" type="button" id="pw-cancel">Cancel</button>
+        <button class="btn btn-primary" type="button" id="pw-save">Save password</button>
+      </div>
+    </form>
+  </dialog>
+</body>
+</html>

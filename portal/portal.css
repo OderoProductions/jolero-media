@@ -1655,3 +1655,47 @@ html:not(.is-admin) .admin-only { display: none !important; }
 .mproj-dates b.is-late { color: var(--accent); }
 
 @media (max-width: 560px) { .nx-tag { display: none; } }
+
+/* ---------- CRM ---------- */
+.crm-stats { display: flex; flex-wrap: wrap; gap: 8px; }
+.crm-stat {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  min-height: 40px;
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--paper-60);
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+.crm-stat b { font-weight: 600; font-size: 0.9rem; color: var(--paper); }
+.crm-stat:hover { color: var(--paper); border-color: var(--paper-40); }
+.crm-stat.is-on { border-color: var(--paper); color: var(--paper); }
+.crm-stat.is-hot, .crm-stat.is-hot b { color: var(--accent); }
+.crm-stat.is-hot { border-color: var(--accent); }
+.crm-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.crm-tools input, .crm-tools select, .crm-status {
+  min-height: 40px;
+  padding: 6px 10px;
+  background: var(--ink-2);
+  color: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font: inherit;
+  font-size: 0.86rem;
+}
+.crm-search { flex: 1 1 220px; min-width: 0; }
+.crm-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-left: auto; }
+.crm-error { color: var(--accent); font-size: 0.9rem; }
+.crm-name .row-btn { font-weight: 600; text-align: left; white-space: normal; }
+.crm-sub { display: block; margin-top: 2px; font-size: 0.76rem; color: var(--paper-40); }
+.crm-table a { color: var(--paper); text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 3px; }
+.crm-table .crm-status { min-height: 34px; padding: 3px 8px; font-size: 0.82rem; }
+.crm-due { color: var(--accent); font-weight: 600; }
+.crm-notes { max-width: 280px; overflow: hidden; text-overflow: ellipsis; color: var(--paper-60); }
+.crm-delete { margin-left: auto; color: var(--accent); }

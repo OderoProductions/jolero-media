@@ -683,3 +683,39 @@ alter table public.briefs add constraint briefs_answers_size
 alter table public.contracts drop constraint if exists contracts_signer_len;
 alter table public.contracts add constraint contracts_signer_len
   check (char_length(signer_name) <= 200) not valid;
+
+-- =============================================================
+-- 9. CRM (2026-11-05)
+--
+-- Who we've reached out to, or mean to: portal/admin/crm.html.
+-- Admin only. Clients and anonymous visitors have no policy on this
+-- table, so it does not exist as far as they are concerned.
+-- =============================================================
+
+create table if not exists public.contacts (
+  id           uuid primary key default gen_random_uuid(),
+  name         text not null,
+  kind         text default '',            -- Athlete, Team or club, Brand...
+  sport        text default '',
+  instagram    text default '',            -- full link or @handle
+  followers    integer,
+  email        text default '',
+  relationship text not null default 'New',  -- 'Existing' or 'New'
+  status       text not null default 'To contact',
+  who          text default '',            -- who's handling it, as on tasks
+  last_contact date,
+  follow_up    date,
+  notes        text default '',
+  source       text default '',            -- where the name came from
+  created_at   timestamptz not null default now()
+);
+
+alter table public.contacts enable row level security;
+
+drop policy if exists contacts_admin_all on public.contacts;
+create policy contacts_admin_all on public.contacts
+  for all to authenticated
+  using (public.is_admin()) with check (public.is_admin());
+
+revoke all on public.contacts from anon;
+grant select, insert, update, delete on public.contacts to authenticated;

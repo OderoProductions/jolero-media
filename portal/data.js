@@ -36,6 +36,10 @@ window.JOLERO_SEED = {
   postPlatforms: ["Instagram Reel", "Instagram Post", "Instagram Story", "TikTok", "YouTube", "Other"],
   postStatuses: ["Idea", "Drafted", "Ready", "Posted"],
 
+  // CRM: where someone is, in order, and what sort of contact they are
+  contactStatuses: ["To contact", "Messaged", "Replied", "In talks", "Client", "Not now"],
+  contactKinds: ["Athlete", "Team or club", "Brand", "Gym", "Coach", "Media", "Other"],
+
   // Ledger categories — the expense list loosely follows the HMRC
   // self-assessment headings, so the yearly total maps onto the form.
   txCategories: {

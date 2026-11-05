@@ -505,6 +505,21 @@
       invalidate();
     },
 
+    /* ---------- CRM ----------
+       Fetched on its own rather than in the snapshot: only the CRM page
+       needs it, and no other page should depend on this table. */
+
+    getContacts: async function () {
+      var rows = await selectAll("contacts");
+      return (rows || []).map(toApp);
+    },
+
+    addContact: function (c) { return insert("contacts", c); },
+
+    updateContact: function (id, patch) { return update("contacts", id, patch); },
+
+    deleteContact: function (id) { return remove("contacts", id); },
+
     /* ---------- the calendar's combined view ---------- */
 
     getScheduleEvents: async function () {
@@ -630,7 +645,9 @@
        lift data out of the old browser-storage version into here. */
 
     exportAll: async function () {
-      return JSON.stringify(await ready(), null, 2);
+      var all = Object.assign({}, await ready());
+      try { all.contacts = await selectAll("contacts"); } catch (e) { /* no CRM table yet */ }
+      return JSON.stringify(all, null, 2);
     },
 
     /* Restores an export. Old browser-storage backups used ids like
@@ -670,6 +687,7 @@
       await restore("testimonials", incoming.testimonials, ["clientId", "projectId"]);
       await restore("activity", incoming.activity, ["clientId"]);
       await restore("transactions", incoming.transactions, ["clientId"]);
+      if (incoming.contacts) await restore("contacts", incoming.contacts.map(toApp), []);
       await restore("events", incoming.events, ["clientId"]);
       await restore("tasks", incoming.tasks, ["projectId"]);
       await restore("posts", incoming.posts, ["projectId"]);
@@ -691,6 +709,7 @@
       for (var i = 0; i < order.length; i++) {
         await rest("/" + order[i] + "?id=not.is.null", { method: "DELETE" });
       }
+      try { await rest("/contacts?id=not.is.null", { method: "DELETE" }); } catch (e) { /* no CRM table yet */ }
       invalidate();
       return ready();
     }
