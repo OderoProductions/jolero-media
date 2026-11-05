@@ -1,3 +1,59 @@
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('assets/fonts/poppins/Poppins-Light.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('assets/fonts/poppins/Poppins-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Poppins';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('assets/fonts/poppins/Poppins-Italic.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('assets/fonts/poppins/Poppins-Medium.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('assets/fonts/poppins/Poppins-SemiBold.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('assets/fonts/poppins/Poppins-Bold.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url('assets/fonts/poppins/Poppins-ExtraBold.ttf') format('truetype');
+}
+
 /* ---------- Fonts (self-hosted) ----------
    Served from our own domain rather than Google's, so no visitor IP is
    handed to a third party just to render type — and one less DNS lookup
@@ -120,9 +176,9 @@ html.theme-light {
 }
 
 :root {
-  --font-display: "Anton", "Arial Narrow", sans-serif;
-  --font-body: "Inter", system-ui, -apple-system, sans-serif;
-  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --font-display: "Poppins", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Poppins", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Poppins", "Helvetica Neue", Arial, sans-serif;
 
   --container: 1200px;
   --gutter: clamp(20px, 5vw, 48px);
@@ -1821,3 +1877,52 @@ html.plb-open { overflow: hidden; }
   border-top: 1px solid var(--line);
 }
 .project-piece-soon p:last-child { margin-top: 8px; }
+
+
+/* ---------- Poppins look (preview) ----------
+   Titles: ExtraBold caps. Paragraphs: Regular. Small labels: Light caps.
+   Poppins is far wider than Anton, so display sizes come down to fit. */
+
+body { line-height: 1.7; }
+
+h1, h2, h3,
+.project-name,
+.mobile-menu nav a,
+.form-success-title,
+.legal h1, .legal h2, .legal h3,
+.founder strong {
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+h1, h2, h3 { line-height: 1.08; }
+h2 { font-size: clamp(1.7rem, 3.8vw, 2.8rem); }
+h3 { font-size: clamp(1.05rem, 1.7vw, 1.3rem); font-weight: 700; letter-spacing: 0; }
+
+.hero-title { font-size: clamp(2.3rem, 7vw, 5.4rem); line-height: 1.04; letter-spacing: -0.02em; }
+.project-piece h2 { font-size: clamp(1.5rem, 3.4vw, 2.4rem); line-height: 1.1; }
+.project-name { font-size: clamp(1.05rem, 1.9vw, 1.45rem); line-height: 1.12; letter-spacing: 0; }
+.mobile-menu nav a { font-size: clamp(1.7rem, 7vw, 2.4rem); line-height: 1.3; }
+.form-success-title { font-size: clamp(1.5rem, 3vw, 2.1rem); line-height: 1.1; }
+.legal h1 { font-size: clamp(1.7rem, 4.4vw, 2.6rem); line-height: 1.08; }
+.legal h2 { font-size: clamp(1rem, 1.8vw, 1.2rem); letter-spacing: 0; }
+.legal h3 { font-size: clamp(0.95rem, 1.5vw, 1.05rem); letter-spacing: 0; }
+.founder strong { font-size: 0.98rem; letter-spacing: 0; }
+
+.wordmark { font-weight: 700; font-size: 1.08rem; letter-spacing: 0.01em; }
+.footer .wordmark { font-size: 0.95rem; }
+
+/* small labels and captions: Light */
+.eyebrow, .vf, .scroll-cue, .filter-btn, .tag, .package-tag,
+.legal-updated, .project-video figcaption, .clip figcaption,
+.clip-time, .rail-count, .plb-count, .plb-caption, .piece-label,
+.founder span, .contact-note, .footer-slogan, .footer-loc, .footer-right {
+  font-weight: 300;
+}
+
+/* buttons and interactive labels stay strong */
+.btn { font-weight: 700; letter-spacing: 0.06em; font-size: 0.84rem; }
+.nav-links a { font-weight: 600; font-size: 0.78rem; letter-spacing: 0.08em; }
+.audience a { font-weight: 700; font-size: 0.82rem; }
+.field label { font-weight: 600; font-size: 0.74rem; }
+.badge { font-weight: 700; }
