@@ -3,6 +3,55 @@
    Dark only, on purpose: photos read best on black, like a viewing room. */
 
 @font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('../assets/fonts/poppins/Poppins-Light.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../assets/fonts/poppins/Poppins-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Poppins';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../assets/fonts/poppins/Poppins-Italic.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('../assets/fonts/poppins/Poppins-Medium.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('../assets/fonts/poppins/Poppins-SemiBold.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../assets/fonts/poppins/Poppins-Bold.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url('../assets/fonts/poppins/Poppins-ExtraBold.ttf') format('truetype');
+}
+@font-face {
   font-family: 'Anton';
   font-style: normal;
   font-weight: 400;
@@ -50,10 +99,10 @@
   --ghost-border: rgba(255, 255, 255, 0.28);
   --glass: rgba(10, 10, 10, 0.86);
   --glass-solid: rgba(6, 6, 7, 0.97);
-  --font-display: "Anton", "Arial Narrow", sans-serif;
-  --font-body: "Inter", system-ui, -apple-system, sans-serif;
-  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  --radius: 2px;
+  --font-display: "Poppins", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Poppins", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Poppins", "Helvetica Neue", Arial, sans-serif;
+  --radius: 8px;
   --gutter: clamp(16px, 4vw, 40px);
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
 }
@@ -201,7 +250,7 @@ a { color: inherit; }
   flex-wrap: wrap;
   gap: 6px 22px;
   margin: 22px 0 0;
-  font: 500 0.78rem/1.4 var(--font-mono);
+  font: 300 0.78rem/1.4 var(--font-mono);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--paper-60);
@@ -236,7 +285,7 @@ a { color: inherit; }
 }
 .block-count {
   margin-left: auto;
-  font: 500 0.78rem/1 var(--font-mono);
+  font: 300 0.78rem/1 var(--font-mono);
   letter-spacing: 0.1em;
   color: var(--paper-40);
 }
@@ -287,7 +336,7 @@ a { color: inherit; }
 }
 .vmeta {
   margin: 4px 0 0;
-  font: 500 0.74rem/1.3 var(--font-mono);
+  font: 300 0.74rem/1.3 var(--font-mono);
   letter-spacing: 0.05em;
   color: var(--paper-40);
 }
@@ -375,7 +424,7 @@ a { color: inherit; }
   border-radius: var(--radius);
   background: none;
   color: var(--paper-60);
-  font: 500 0.75rem/1 var(--font-mono);
+  font: 300 0.75rem/1 var(--font-mono);
   letter-spacing: 0.16em;
   text-transform: uppercase;
   cursor: pointer;
@@ -460,7 +509,7 @@ a { color: inherit; }
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font: 500 0.72rem/1 var(--font-mono);
+  font: 300 0.72rem/1 var(--font-mono);
   letter-spacing: 0.14em;
   color: rgba(255, 255, 255, 0.8);
 }
@@ -490,7 +539,7 @@ a { color: inherit; }
   overflow-wrap: anywhere;
 }
 .folder-meta {
-  font: 500 0.72rem/1.4 var(--font-mono);
+  font: 300 0.72rem/1.4 var(--font-mono);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.72);
@@ -522,7 +571,7 @@ a { color: inherit; }
   border-bottom: 1px solid var(--line);
 }
 .file-name { flex: 1; min-width: 0; font-weight: 500; overflow-wrap: anywhere; }
-.file-size { font: 500 0.78rem/1 var(--font-mono); color: var(--paper-40); white-space: nowrap; }
+.file-size { font: 300 0.78rem/1 var(--font-mono); color: var(--paper-40); white-space: nowrap; }
 
 /* ---------- not found / expired ---------- */
 
@@ -552,7 +601,7 @@ a { color: inherit; }
   display: block;
   margin: 0 0 10px;
   padding: 0;
-  font: 500 0.72rem/1 var(--font-mono);
+  font: 300 0.72rem/1 var(--font-mono);
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--paper-60);
@@ -660,7 +709,7 @@ a { color: inherit; }
 }
 .usage-head {
   margin: 0 0 10px;
-  font: 500 0.75rem/1 var(--font-mono);
+  font: 300 0.75rem/1 var(--font-mono);
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--paper-60);
@@ -713,7 +762,7 @@ a { color: inherit; }
   padding: calc(12px + env(safe-area-inset-top)) var(--gutter) 12px;
 }
 .lb-count {
-  font: 500 0.8rem/1 var(--font-mono);
+  font: 300 0.8rem/1 var(--font-mono);
   letter-spacing: 0.1em;
   color: var(--paper);
   white-space: nowrap;
@@ -725,7 +774,7 @@ a { color: inherit; }
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font: 500 0.8rem/1 var(--font-mono);
+  font: 300 0.8rem/1 var(--font-mono);
   color: var(--paper-40);
 }
 .lb-btn {
@@ -920,7 +969,7 @@ a { color: inherit; }
   text-overflow: ellipsis;
 }
 .rv-meta {
-  font: 500 0.7rem/1 var(--font-mono);
+  font: 300 0.7rem/1 var(--font-mono);
   letter-spacing: 0.08em;
   color: var(--paper-40);
   white-space: nowrap;
@@ -1007,7 +1056,7 @@ a { color: inherit; }
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
-.rv-count { font: 500 0.72rem/1 var(--font-mono); color: var(--accent); }
+.rv-count { font: 300 0.72rem/1 var(--font-mono); color: var(--accent); }
 .rv-list {
   list-style: none;
   margin: 0;
@@ -1025,7 +1074,7 @@ a { color: inherit; }
   align-items: center;
   gap: 8px;
   margin: 0 0 5px;
-  font: 500 0.68rem/1 var(--font-mono);
+  font: 300 0.68rem/1 var(--font-mono);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--paper-60);
@@ -1051,7 +1100,7 @@ a { color: inherit; }
   align-items: center;
   gap: 8px;
   justify-self: start;
-  font: 500 0.7rem/1 var(--font-mono);
+  font: 300 0.7rem/1 var(--font-mono);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--paper-60);
@@ -1123,7 +1172,7 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
   align-items: baseline;
   gap: 14px;
   flex-wrap: wrap;
-  font: 500 0.74rem/1.4 var(--font-mono);
+  font: 300 0.74rem/1.4 var(--font-mono);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--paper-60);
@@ -1134,7 +1183,7 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
 .ed-intro { margin-top: clamp(24px, 4vw, 40px); }
 .ed-kicker {
   margin: 0 0 10px;
-  font: 500 0.72rem/1 var(--font-mono);
+  font: 300 0.72rem/1 var(--font-mono);
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--paper-60);
@@ -1168,7 +1217,7 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
 .ed-label {
   display: block;
   margin: 0 0 10px;
-  font: 500 0.72rem/1 var(--font-mono);
+  font: 300 0.72rem/1 var(--font-mono);
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--paper-60);
@@ -1219,14 +1268,14 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
 }
 .ed-gname:hover { border-color: var(--paper-60); }
 .ed-gname:focus { outline: none; border-style: solid; border-color: var(--accent); }
-.ed-gcount { font: 500 0.74rem/1 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--paper-40); }
+.ed-gcount { font: 300 0.74rem/1 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--paper-40); }
 .ed-gtools { margin-left: auto; display: flex; align-items: center; gap: 6px; }
 .ed-link {
   padding: 8px 10px;
   border: 0;
   background: none;
   color: var(--paper-60);
-  font: 500 0.74rem/1 var(--font-mono);
+  font: 300 0.74rem/1 var(--font-mono);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   cursor: pointer;
@@ -1265,7 +1314,7 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
   min-height: 112px;
   border: 1px dashed var(--line);
   color: var(--paper-40);
-  font: 500 0.74rem/1 var(--font-mono);
+  font: 300 0.74rem/1 var(--font-mono);
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
@@ -1358,7 +1407,7 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
   inset: auto 0 0 0;
   padding: 18px 8px 6px;
   background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
-  font: 500 0.66rem/1.2 var(--font-mono);
+  font: 300 0.66rem/1.2 var(--font-mono);
   color: rgba(255, 255, 255, 0.85);
   white-space: nowrap;
   overflow: hidden;
@@ -1492,7 +1541,7 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
   display: grid;
   gap: 6px;
   min-width: 0;
-  font: 500 0.72rem/1.2 var(--font-mono);
+  font: 300 0.72rem/1.2 var(--font-mono);
   letter-spacing: 0.06em;
   color: var(--paper-60);
 }
@@ -1517,3 +1566,30 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
   text-overflow: ellipsis;
   pointer-events: none;
 }
+
+
+/* ---------- Poppins look (preview) ----------
+   Titles: ExtraBold caps. Paragraphs: Regular. Small labels: Light.
+   Poppins is far wider than Anton, so display sizes come down to fit. */
+.title, .block-head, .folder-name, .thanks-title, .foot-line, .rv-title,
+.rv-side-head, .howto h3, .ed-title, .ed-gtitle, .ed-gname, .wordmark {
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+.title { font-size: clamp(1.8rem, 5vw, 4rem); line-height: 1.06; letter-spacing: -0.02em; }
+.ed-title { font-size: clamp(1.6rem, 4.2vw, 3.4rem); line-height: 1.1; letter-spacing: -0.02em; }
+.block-head { font-size: clamp(1.2rem, 2.2vw, 1.6rem); line-height: 1.12; }
+.folder-name { font-size: clamp(1.2rem, 2vw, 1.6rem); line-height: 1.1; }
+.thanks-title { font-size: clamp(1.5rem, 3vw, 2.1rem); line-height: 1.1; }
+.ed-gtitle, .ed-gname { font-size: clamp(1.15rem, 2.1vw, 1.5rem); line-height: 1.15; }
+.rv-title { font-size: clamp(0.92rem, 1.7vw, 1.15rem); letter-spacing: 0; }
+.rv-side-head { font-size: 0.92rem; letter-spacing: 0; }
+.howto h3 { font-size: 1rem; letter-spacing: 0; }
+.foot-line { font-size: 0.86rem; letter-spacing: 0; }
+.wordmark { font-weight: 700; font-size: 1.02rem; letter-spacing: 0.01em; }
+.btn { font-weight: 700; letter-spacing: 0.06em; font-size: 0.8rem; }
+
+/* Rounded corners: controls use --radius (8px). Pictures and video keep
+   near-square corners; small labels get a tighter curve. */
+.vframe, .tile, .lb-thumb, .ed-tile, .ed-ghost img { border-radius: 2px; }
+.vdur, .vnotes, .ed-badge, .ed-cover-badge, .rv-chip { border-radius: 6px; }
