@@ -1,8 +1,10 @@
 /* ============================================================
    JOLERO MEDIA PORTAL — crm.js  (admin/crm.html)
 
-   Who we've reached out to, or mean to: a list you can filter, with the
-   status changed right in the table. Everything goes through PortalStore,
+   Who we've reached out to, or mean to. It works like a spreadsheet:
+   every cell is editable where it sits, and saves itself when you leave
+   it. Only the field that changed is sent, so two people editing different
+   things can't overwrite each other. Everything goes through PortalStore,
    and the database only lets an admin near this table.
 
    Moving someone to Messaged notes today as the last contact and, if no
@@ -19,7 +21,6 @@
   "use strict";
 
   var esc = PortalUtil.esc;
-  var fmtDate = PortalUtil.fmtDate;
   var seed = window.JOLERO_SEED || {};
   var STATUSES = seed.contactStatuses || [];
   var KINDS = seed.contactKinds || [];
@@ -31,6 +32,7 @@
 
   var contacts = [];
   var statusFilter = "";     // "" for all, "due" for follow ups due, or a status
+  var newestId = "";         // a contact just added stays at the top until the next load
 
   function todayISO() {
     var d = new Date();
@@ -55,7 +57,7 @@
   }
   function igLink(value) {
     var h = igHandle(value);
-    return h ? "https://www.instagram.com/" + h + "/" : PortalUtil.safeUrl(value);
+    return h ? "https://www.instagram.com/" + h + "/" : PortalUtil.safeUrl(String(value || "").trim());
   }
 
   /* ---------- filling the dropdowns ---------- */
@@ -66,9 +68,6 @@
   }
   $("crm-kind").innerHTML = options(KINDS, "All types");
   $("crm-who").innerHTML = options(TEAM, "Anyone");
-  $("cf-kind").innerHTML = options(KINDS, "");
-  $("cf-status").innerHTML = options(STATUSES);
-  $("cf-who").innerHTML = options(TEAM, "Not assigned");
 
   /* ---------- drawing ---------- */
 
@@ -90,7 +89,7 @@
 
   // what needs doing first: follow ups due, then by where they are, then A to Z
   function order(a, b) {
-    return (isDue(b) ? 1 : 0) - (isDue(a) ? 1 : 0) ||
+    return (b.id === newestId ? 1 : 0) - (a.id === newestId ? 1 : 0) || (isDue(b) ? 1 : 0) - (isDue(a) ? 1 : 0) ||
       STATUSES.indexOf(a.status) - STATUSES.indexOf(b.status) ||
       a.name.localeCompare(b.name, undefined, { sensitivity: "base" });
   }
@@ -108,31 +107,112 @@
     }).join("");
   }
 
+  /* ---------- the table ----------
+     Built with DOM calls and .value, so nothing anyone types can become
+     markup. Rows aren't re-sorted while you edit, or a row would jump out
+     from under you: the order refreshes when you filter or reload. */
+
+  function cell(tr, cls) {
+    var td = document.createElement("td");
+    if (cls) td.className = cls;
+    tr.appendChild(td);
+    return td;
+  }
+
+  function field(tag, c, key, label, attrs) {
+    var n = document.createElement(tag);
+    n.className = "crm-input";
+    n.setAttribute("aria-label", label + " for " + c.name);
+    n.setAttribute("data-field", key);
+    Object.keys(attrs || {}).forEach(function (k) { n.setAttribute(k, attrs[k]); });
+    return n;
+  }
+
+  function input(c, key, label, attrs) {
+    var n = field("input", c, key, label, Object.assign({ type: "text" }, attrs));
+    n.value = c[key] == null ? "" : c[key];
+    return n;
+  }
+
+  function select(c, key, label, list, blank) {
+    var n = field("select", c, key, label);
+    var value = c[key] == null ? "" : String(c[key]);
+    var all = list.slice();
+    if (value && all.indexOf(value) === -1) all.push(value);   // an old value still shows
+    n.innerHTML = options(all, blank);
+    n.value = value;
+    return n;
+  }
+
+  function fitNotes(t) {
+    t.style.height = "auto";
+    t.style.height = t.scrollHeight + 2 + "px";
+  }
+
+  function igButton(c) {
+    var a = document.createElement("a");
+    a.className = "crm-open";
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.textContent = "↗";
+    a.setAttribute("aria-label", "Open Instagram for " + c.name);
+    a.title = "Open";
+    var link = igLink(c.instagram);
+    if (link) a.href = link; else a.hidden = true;
+    return a;
+  }
+
+  function row(c) {
+    var tr = document.createElement("tr");
+    tr.setAttribute("data-id", c.id);
+    if (isDue(c)) tr.className = "is-due";
+
+    var who = cell(tr);
+    who.append(input(c, "name", "Name", { class: "crm-input crm-input-name", maxlength: "120", required: "" }),
+      input(c, "email", "Email", { type: "email", class: "crm-input crm-input-sub", placeholder: "Email", maxlength: "200" }));
+
+    var kind = cell(tr);
+    kind.append(select(c, "kind", "Type", KINDS, "Type"), select(c, "relationship", "Existing or new", ["New", "Existing"]));
+
+    cell(tr).append(input(c, "sport", "Sport", { maxlength: "80", placeholder: "Sport" }));
+
+    var ig = cell(tr, "crm-ig");
+    var igBox = input(c, "instagram", "Instagram", { maxlength: "200", placeholder: "Link or @handle", autocomplete: "off" });
+    if (igHandle(c.instagram)) igBox.value = "@" + igHandle(c.instagram);   // a pasted link shows tidily
+    ig.append(igBox, igButton(c));
+
+    cell(tr).append(input(c, "followers", "Followers", { type: "number", min: "0", step: "1", class: "crm-input crm-input-num" }));
+    cell(tr).append(select(c, "status", "Status", STATUSES));
+    cell(tr).append(select(c, "who", "Who's handling it", TEAM, "Anyone"));
+    cell(tr).append(input(c, "lastContact", "Last contact", { type: "date" }));
+    cell(tr, "crm-follow").append(input(c, "followUp", "Follow up", { type: "date" }));
+
+    var notes = field("textarea", c, "notes", "Notes", { rows: "1", maxlength: "4000", placeholder: "Notes" });
+    notes.value = c.notes || "";
+    cell(tr).append(notes);
+
+    var del = document.createElement("button");
+    del.type = "button";
+    del.className = "crm-remove";
+    del.textContent = "×";
+    del.title = "Delete";
+    del.setAttribute("aria-label", "Delete " + c.name);
+    del.setAttribute("data-delete", c.id);
+    cell(tr, "crm-del").append(del);
+    return tr;
+  }
+
+  function renderCount(shown) {
+    $("crm-count").textContent = shown === contacts.length ? contacts.length : shown + " of " + contacts.length;
+  }
+
   function renderRows() {
     var shown = contacts.filter(matches).sort(order);
-    $("crm-count").textContent = shown.length === contacts.length ? contacts.length : shown.length + " of " + contacts.length;
-    $("crm-rows").innerHTML = shown.map(function (c) {
-      var h = igHandle(c.instagram);
-      var link = igLink(c.instagram);
-      var ig = link
-        ? '<a href="' + esc(link) + '" target="_blank" rel="noopener noreferrer">' + esc(h ? "@" + h : "Link") + "</a>"
-        : "";
-      var statusOpts = STATUSES.concat(STATUSES.indexOf(c.status) === -1 ? [c.status] : []).map(function (s) {
-        return "<option" + (s === c.status ? " selected" : "") + ">" + esc(s) + "</option>";
-      }).join("");
-      return '<tr data-id="' + esc(c.id) + '">' +
-        '<td class="crm-name"><button class="row-btn" type="button" data-edit="' + esc(c.id) + '">' + esc(c.name) + "</button>" +
-          '<span class="crm-sub">' + esc([c.kind, c.relationship].filter(Boolean).join(" · ")) + "</span></td>" +
-        "<td>" + esc(c.sport) + "</td>" +
-        "<td>" + ig + "</td>" +
-        '<td class="num">' + (c.followers === "" || c.followers == null ? "" : Number(c.followers).toLocaleString("en-GB")) + "</td>" +
-        '<td><select class="crm-status" data-status-of="' + esc(c.id) + '" aria-label="Status of ' + esc(c.name) + '">' + statusOpts + "</select></td>" +
-        "<td>" + esc(c.who) + "</td>" +
-        "<td>" + (c.lastContact ? esc(fmtDate(c.lastContact)) : "") + "</td>" +
-        '<td class="' + (isDue(c) ? "crm-due" : "") + '">' + (c.followUp ? esc(fmtDate(c.followUp)) : "") + "</td>" +
-        '<td class="crm-notes" title="' + esc(c.notes) + '">' + esc(c.notes) + "</td>" +
-        "</tr>";
-    }).join("");
+    renderCount(shown.length);
+    var body = $("crm-rows");
+    body.textContent = "";
+    shown.forEach(function (c) { body.appendChild(row(c)); });
+    body.querySelectorAll("textarea").forEach(fitNotes);
     var empty = $("crm-empty");
     empty.hidden = shown.length > 0;
     empty.textContent = contacts.length ? "Nobody matches that." : "Nobody here yet. Add someone, or import a list.";
@@ -164,7 +244,7 @@
     render();
   }
 
-  /* ---------- changing a status in the table ---------- */
+  /* ---------- editing in the table ---------- */
 
   function statusPatch(c, status) {
     var patch = { status: status };
@@ -174,20 +254,81 @@
     return patch;
   }
 
+  function showValue(tr, key, value) {
+    var n = tr.querySelector('[data-field="' + key + '"]');
+    if (n && n !== document.activeElement) n.value = value == null ? "" : value;
+  }
+
+  // a green flash on the cell when it has saved
+  function flash(n, cls) {
+    n.classList.remove("is-saved", "is-failed");
+    void n.offsetWidth;
+    n.classList.add(cls);
+  }
+
+  $("crm-rows").addEventListener("input", function (e) {
+    if (e.target.tagName === "TEXTAREA") fitNotes(e.target);
+  });
+
   $("crm-rows").addEventListener("change", async function (e) {
-    var id = e.target.getAttribute("data-status-of");
+    var n = e.target;
+    var key = n.getAttribute("data-field");
+    var tr = n.closest("tr");
+    if (!key || !tr) return;
+    var c = contacts.find(function (x) { return x.id === tr.getAttribute("data-id"); });
+    if (!c) return;
+
+    var value = n.value.trim();
+    if (key === "name" && !value) { n.value = c.name; return; }   // everyone needs a name
+    if (key === "instagram" && igHandle(value)) value = "@" + igHandle(value);
+    if (key === "followers") value = value === "" ? "" : Math.max(0, Math.round(Number(value))) || 0;
+
+    var patch = key === "status" ? statusPatch(c, value) : {};
+    patch[key] = value;
+    try {
+      var saved = await PortalStore.updateContact(c.id, patch);
+      Object.assign(c, saved);
+      Object.keys(patch).forEach(function (k) { showValue(tr, k, c[k]); });
+      if (key === "instagram") tr.querySelector(".crm-open").replaceWith(igButton(c));
+      tr.classList.toggle("is-due", !!isDue(c));
+      renderStats();
+      flash(n, "is-saved");
+      showError(null);
+    } catch (err) {
+      flash(n, "is-failed");
+      showError(err);
+    }
+  });
+
+  $("crm-rows").addEventListener("click", async function (e) {
+    var id = e.target.getAttribute("data-delete");
     if (!id) return;
     var c = contacts.find(function (x) { return x.id === id; });
-    if (!c) return;
-    e.target.disabled = true;
+    if (!c || !confirm("Delete " + c.name + " from the CRM?")) return;
     try {
-      var row = await PortalStore.updateContact(id, statusPatch(c, e.target.value));
-      Object.assign(c, row);
-      showError(null);
+      await PortalStore.deleteContact(id);
+      contacts = contacts.filter(function (x) { return x.id !== id; });
+      render();
     } catch (err) {
       showError(err);
     }
-    render();
+  });
+
+  // Add contact: a new row at the top, with its name ready to type over
+  $("crm-add").addEventListener("click", async function () {
+    try {
+      var made = await PortalStore.addContact({ name: "New contact", relationship: "New", status: STATUSES[0], source: "Added by hand" });
+      contacts.push(made);
+      newestId = made.id;
+      statusFilter = "";
+      ["crm-search", "crm-kind", "crm-rel", "crm-who"].forEach(function (id) { $(id).value = ""; });
+      render();
+      var first = $("crm-rows").querySelector('[data-field="name"]');
+      first.focus();
+      first.select();
+    } catch (err) {
+      showError(err);
+    }
   });
 
   /* ---------- filters ---------- */
@@ -200,79 +341,6 @@
   });
   ["crm-search", "crm-kind", "crm-rel", "crm-who"].forEach(function (id) {
     $(id).addEventListener("input", renderRows);
-  });
-
-  /* ---------- add / edit ---------- */
-
-  var dialog = $("crm-dialog");
-  var form = $("crm-form");
-
-  function openDialog(c) {
-    form.reset();
-    var editing = !!c;
-    $("crm-d-title").textContent = editing ? "Edit contact" : "Add contact";
-    $("crm-d-delete").hidden = !editing;
-    c = c || { status: STATUSES[0], relationship: "New" };
-    ["id", "name", "kind", "sport", "instagram", "followers", "email", "relationship", "status", "who", "lastContact", "followUp", "notes"]
-      .forEach(function (k) {
-        if (form.elements[k]) form.elements[k].value = c[k] == null ? "" : c[k];
-      });
-    dialog.showModal();
-    form.elements.name.focus();
-  }
-  function closeDialog() { dialog.close(); }
-
-  $("crm-add").addEventListener("click", function () { openDialog(null); });
-  $("crm-d-close").addEventListener("click", closeDialog);
-  $("crm-d-cancel").addEventListener("click", closeDialog);
-  $("crm-rows").addEventListener("click", function (e) {
-    var b = e.target.closest("[data-edit]");
-    if (!b) return;
-    openDialog(contacts.find(function (x) { return x.id === b.getAttribute("data-edit"); }));
-  });
-
-  form.addEventListener("submit", async function (e) {
-    e.preventDefault();
-    var f = form.elements;
-    var patch = {
-      name: f.name.value.trim(),
-      kind: f.kind.value,
-      sport: f.sport.value.trim(),
-      instagram: f.instagram.value.trim(),
-      followers: f.followers.value === "" ? "" : Number(f.followers.value),
-      email: f.email.value.trim(),
-      relationship: f.relationship.value,
-      status: f.status.value,
-      who: f.who.value,
-      lastContact: f.lastContact.value,
-      followUp: f.followUp.value,
-      notes: f.notes.value.trim()
-    };
-    if (!patch.name) return;
-    form.classList.add("is-busy");
-    try {
-      if (f.id.value) await PortalStore.updateContact(f.id.value, patch);
-      else await PortalStore.addContact(Object.assign({ source: "Added by hand" }, patch));
-      closeDialog();
-      await load();
-    } catch (err) {
-      closeDialog();
-      showError(err);
-    }
-    form.classList.remove("is-busy");
-  });
-
-  $("crm-d-delete").addEventListener("click", async function () {
-    var id = form.elements.id.value;
-    if (!id || !confirm("Delete " + form.elements.name.value + " from the CRM?")) return;
-    try {
-      await PortalStore.deleteContact(id);
-      closeDialog();
-      await load();
-    } catch (err) {
-      closeDialog();
-      showError(err);
-    }
   });
 
   /* ---------- CSV ---------- */

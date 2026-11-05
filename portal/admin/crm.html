@@ -16,7 +16,7 @@
   <title>CRM | Jolero Media Portal</title>
   <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
   <link rel="stylesheet" href="../../styles.css?v=20261104">
-  <link rel="stylesheet" href="../portal.css?v=20261105">
+  <link rel="stylesheet" href="../portal.css?v=20261105d">
   <script>/* theme before first paint: saved choice, else OS, else dark */try{var s=localStorage.getItem("jolero_theme");if(s?s==="light":matchMedia("(prefers-color-scheme: light)").matches)document.documentElement.classList.add("theme-light")}catch(e){}</script>
 </head>
 <body>
@@ -62,7 +62,7 @@
     </div>
   </header>
 
-  <main class="portal-shell">
+  <main class="portal-shell portal-shell-wide">
     <header>
       <h1 class="portal-h1">CRM</h1>
       <p class="portal-sub">Everyone we've reached out to, or mean to.</p>
@@ -95,15 +95,17 @@
         <table class="ptable crm-table">
           <thead>
             <tr>
-              <th scope="col">Name</th>
+              <th scope="col">Name and email</th>
+              <th scope="col">Type</th>
               <th scope="col">Sport</th>
               <th scope="col">Instagram</th>
-              <th scope="col" class="num">Followers</th>
+              <th scope="col">Followers</th>
               <th scope="col">Status</th>
               <th scope="col">Who</th>
               <th scope="col">Last contact</th>
               <th scope="col">Follow up</th>
               <th scope="col">Notes</th>
+              <th scope="col" aria-label="Delete"></th>
             </tr>
           </thead>
           <tbody id="crm-rows"></tbody>
@@ -113,35 +115,6 @@
     </section>
   </main>
 
-  <dialog class="pdialog" id="crm-dialog" aria-labelledby="crm-d-title">
-    <div class="pdialog-head">
-      <h3 id="crm-d-title">Contact</h3>
-      <button class="pdialog-close" id="crm-d-close" type="button" aria-label="Close">&times;</button>
-    </div>
-    <div class="pdialog-body">
-      <form class="portal-form" id="crm-form">
-        <input type="hidden" name="id">
-        <div class="field field-wide"><label for="cf-name">Name</label><input id="cf-name" name="name" type="text" maxlength="120" required></div>
-        <div class="field"><label for="cf-kind">Type</label><select id="cf-kind" name="kind"></select></div>
-        <div class="field"><label for="cf-sport">Sport</label><input id="cf-sport" name="sport" type="text" maxlength="80"></div>
-        <div class="field"><label for="cf-instagram">Instagram <span class="optional">(link or @handle)</span></label><input id="cf-instagram" name="instagram" type="text" maxlength="200" autocomplete="off"></div>
-        <div class="field"><label for="cf-followers">Followers</label><input id="cf-followers" name="followers" type="number" min="0" step="1"></div>
-        <div class="field"><label for="cf-email">Email</label><input id="cf-email" name="email" type="email" maxlength="200"></div>
-        <div class="field"><label for="cf-rel">Existing or new</label><select id="cf-rel" name="relationship"><option>New</option><option>Existing</option></select></div>
-        <div class="field"><label for="cf-status">Status</label><select id="cf-status" name="status"></select></div>
-        <div class="field"><label for="cf-who">Who's handling it</label><select id="cf-who" name="who"></select></div>
-        <div class="field"><label for="cf-last">Last contact</label><input id="cf-last" name="lastContact" type="date"></div>
-        <div class="field"><label for="cf-follow">Follow up on</label><input id="cf-follow" name="followUp" type="date"></div>
-        <div class="field field-wide"><label for="cf-notes">Notes</label><textarea id="cf-notes" name="notes" rows="3" maxlength="4000"></textarea></div>
-        <div class="form-actions">
-          <button class="btn btn-primary" type="submit">Save</button>
-          <button class="btn btn-ghost" type="button" id="crm-d-cancel">Cancel</button>
-          <button class="btn btn-ghost crm-delete" type="button" id="crm-d-delete">Delete</button>
-        </div>
-      </form>
-    </div>
-  </dialog>
-
   <footer class="portal-foot">Jolero Media · internal · Phase 1/4 preview running on mock data</footer>
 
   <script src="../../theme.js?v=20261013b"></script>
@@ -150,7 +123,7 @@
   <script src="../data.js?v=20261105"></script>
   <script src="../store.js?v=20261105"></script>
   <script src="../admin.js?v=20261025"></script>
-  <script src="../crm.js?v=1"></script>
+  <script src="../crm.js?v=3"></script>
 
   <!-- Set/change your own admin password. Requires a live session, so it can
        only ever change the account you are signed in as. autocomplete

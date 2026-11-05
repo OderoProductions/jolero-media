@@ -1692,10 +1692,79 @@ html:not(.is-admin) .admin-only { display: none !important; }
 .crm-search { flex: 1 1 220px; min-width: 0; }
 .crm-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-left: auto; }
 .crm-error { color: var(--accent); font-size: 0.9rem; }
-.crm-name .row-btn { font-weight: 600; text-align: left; white-space: normal; }
-.crm-sub { display: block; margin-top: 2px; font-size: 0.76rem; color: var(--paper-40); }
-.crm-table a { color: var(--paper); text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 3px; }
-.crm-table .crm-status { min-height: 34px; padding: 3px 8px; font-size: 0.82rem; }
-.crm-due { color: var(--accent); font-weight: 600; }
-.crm-notes { max-width: 280px; overflow: hidden; text-overflow: ellipsis; color: var(--paper-60); }
-.crm-delete { margin-left: auto; color: var(--accent); }
+/* The CRM uses the whole width of the screen, not the portal's usual column */
+.portal-shell-wide { max-width: none; padding-inline: clamp(12px, 1.6vw, 24px); }
+/* Fixed columns so it fits a laptop with no sideways scrolling; below this
+   width (tablets, phones) the table scrolls inside its own box instead. */
+.crm-table { table-layout: fixed; min-width: 1180px; }
+.crm-table th { padding: 8px 6px; white-space: normal; }
+.crm-table td { padding: 6px 4px; vertical-align: top; white-space: normal; }
+.crm-table th:nth-child(1) { width: 13%; }
+.crm-table th:nth-child(2) { width: 8%; }
+.crm-table th:nth-child(3) { width: 9%; }
+.crm-table th:nth-child(4) { width: 11%; }
+.crm-table th:nth-child(5) { width: 6%; }
+.crm-table th:nth-child(6) { width: 8.5%; }
+.crm-table th:nth-child(7) { width: 8%; }
+.crm-table th:nth-child(8), .crm-table th:nth-child(9) { width: 9%; }
+.crm-table th:nth-child(11) { width: 30px; }
+.crm-input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 32px;
+  padding: 4px 6px;
+  background: transparent;
+  color: var(--paper);
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  font: inherit;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+.crm-input::placeholder { color: var(--paper-40); opacity: 0.6; }
+.crm-input:hover { border-color: var(--line); }
+.crm-input:focus { outline: none; border-color: var(--accent); background: var(--ink-2); }
+select.crm-input { cursor: pointer; padding-right: 2px; }
+select.crm-input option { background: var(--ink-2); color: var(--paper); }
+textarea.crm-input { resize: none; overflow: hidden; }
+input[type="date"].crm-input { padding-inline: 3px; font-size: 0.76rem; font-variant-numeric: tabular-nums; }
+.crm-input-name { font-weight: 600; font-size: 0.88rem; }
+.crm-input-sub, td select.crm-input + select.crm-input { min-height: 26px; font-size: 0.74rem; color: var(--paper-60); }
+.crm-input-num { font-variant-numeric: tabular-nums; }
+.crm-input.is-saved { animation: crm-saved 1.2s ease; }
+.crm-input.is-failed { border-color: var(--accent); }
+@keyframes crm-saved { 0%, 40% { border-color: #2fa35a; } 100% { border-color: transparent; } }
+.crm-ig { position: relative; }
+.crm-ig .crm-input { padding-right: 24px; }
+.crm-open {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 22px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+.crm-open[hidden] { display: none; }
+.crm-open:hover { color: var(--paper); }
+.is-due .crm-follow .crm-input { color: var(--accent); font-weight: 600; }
+.crm-del { text-align: center; }
+.crm-remove {
+  width: 24px;
+  height: 32px;
+  color: var(--paper-40);
+  font-size: 1rem;
+  opacity: 0;
+  transition: opacity 0.15s ease, color 0.15s ease;
+}
+tr:hover .crm-remove, .crm-remove:focus-visible { opacity: 1; }
+.crm-remove:hover { color: var(--accent); }
+@media (hover: none) { .crm-remove { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .crm-input.is-saved { animation: none; } }
+.crm-input-num { -moz-appearance: textfield; appearance: textfield; }
+.crm-input-num::-webkit-inner-spin-button, .crm-input-num::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
