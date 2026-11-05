@@ -1768,3 +1768,13 @@ tr:hover .crm-remove, .crm-remove:focus-visible { opacity: 1; }
 @media (prefers-reduced-motion: reduce) { .crm-input.is-saved { animation: none; } }
 .crm-input-num { -moz-appearance: textfield; appearance: textfield; }
 .crm-input-num::-webkit-inner-spin-button, .crm-input-num::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+
+
+/* ---------- Poppins type system ----------
+   Figures and panel titles were sized for Anton, which is far narrower. */
+.dash-value { font-weight: 800; font-size: 1.6rem; letter-spacing: -0.01em; }
+.stat .stat-value { font-weight: 800; font-size: 1.2rem; letter-spacing: 0; }
+.cal-month { font-weight: 800; font-size: 1.05rem; letter-spacing: 0; }
+.dz-title { font-weight: 800; font-size: 1rem; letter-spacing: 0; }
+.gcard-title { font-weight: 800; font-size: 1.05rem; line-height: 1.15; letter-spacing: 0; }
+.dash-panel-head h2 { font-weight: 800; font-size: 1.1rem; line-height: 1.15; letter-spacing: 0; }

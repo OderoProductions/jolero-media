@@ -1,7 +1,6 @@
-Fonts bundled with this site, both under the SIL Open Font License 1.1:
+Fonts bundled with this site, under the SIL Open Font License 1.1:
 
-  Anton  — Copyright The Anton Project Authors (https://github.com/googlefonts/AntonFont)
-  Inter  — Copyright The Inter Project Authors (https://github.com/rsms/inter)
+  Poppins — Copyright The Poppins Project Authors (https://github.com/itfoundry/Poppins)
 
 The full licence text follows.
 
