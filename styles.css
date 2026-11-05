@@ -183,7 +183,7 @@ html.theme-light {
   --container: 1200px;
   --gutter: clamp(20px, 5vw, 48px);
   --section-y: clamp(88px, 12vw, 160px);
-  --radius: 2px;                /* near-square corners: broadcast, not bubbly */
+  --radius: 8px;                /* slightly rounded: buttons, boxes, fields */
 
   --nav-h: 72px;
 
@@ -1926,3 +1926,10 @@ h3 { font-size: clamp(1.05rem, 1.7vw, 1.3rem); font-weight: 700; letter-spacing:
 .audience a { font-weight: 700; font-size: 0.82rem; }
 .field label { font-weight: 600; font-size: 0.74rem; }
 .badge { font-weight: 700; }
+
+/* Rounded corners: controls and boxes use --radius (8px). Pictures and
+   video keep their near-square corners; small labels get a tighter curve. */
+.work-tile, .work-tile::after, .founder img,
+.video-embed, .clip-frame, .plb-thumb { border-radius: 2px; }
+.clip-frame:fullscreen { border-radius: 0; }
+.tag, .badge { border-radius: 6px; }
