@@ -5,28 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Same security policy as index.html / privacy.html. The inline theme
        script below is byte-identical to theirs, so the same hash covers it. -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9hUOTyB0SoibSiWOZkJw2eqQFml00iDkRip2DzmnPus=' 'sha256-JssKZq7Zz1tMpFd4T9itCjnPwy3MNAE7DIQFnyVS3Ec='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://hrdjikuadcqrddbeszzb.supabase.co; form-action 'self'; frame-src https://player.vimeo.com; object-src 'none'; base-uri 'self'; upgrade-insecure-requests">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9hUOTyB0SoibSiWOZkJw2eqQFml00iDkRip2DzmnPus=' 'sha256-JssKZq7Zz1tMpFd4T9itCjnPwy3MNAE7DIQFnyVS3Ec='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://jolero-gallery.jolero-gallery-worker.workers.dev; media-src 'self' https://jolero-gallery.jolero-gallery-worker.workers.dev; font-src 'self'; connect-src 'self' https://hrdjikuadcqrddbeszzb.supabase.co; form-action 'self'; frame-src https://player.vimeo.com; object-src 'none'; base-uri 'self'; upgrade-insecure-requests">
 
-  <!-- ============================================================
-       PROJECT — K-All Stars Volleyball
-       · Write-up: replace the TODO copy in the three sections below.
-       · Gallery: SWAP IMAGE — replace each placeholder src with a real shot
-         in assets/projects/k-all-stars-volleyball/ (portrait 4:5 looks best), keep
-         width/height and write a real alt. Add or remove <figure>s freely.
-       · Cover image on the homepage tile lives in index.html.
-       ============================================================ -->
+  <!-- PROJECT: K-All Stars Volleyball. The film is hosted on the gallery worker
+       under site/k-all-stars-volleyball/ (jolero-gallery site-put) and played by
+       clips.js; the hero and homepage stills are in assets/projects/k-all-stars-volleyball/. -->
 
   <title>K-All Stars Volleyball | Featured Project | Jolero Media</title>
-  <meta name="description" content="K-All Stars Volleyball: a featured volleyball project by Jolero Media, a sports media agency in West Sussex.">
-  <!-- hidden while this work is still in the pipeline: off the homepage and out of sitemap.xml too -->
-  <meta name="robots" content="noindex, follow">
+  <meta name="description" content="K-All Stars Volleyball: a story-led film of a tournament built so every player feels seen. By Jolero Media.">
   <link rel="canonical" href="https://joleromedia.com/projects/k-all-stars-volleyball/">
   <meta name="theme-color" content="#F5F5F3" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#0A0A0A">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Jolero Media">
   <meta property="og:title" content="K-All Stars Volleyball | Jolero Media">
-  <meta property="og:description" content="A featured volleyball project by Jolero Media.">
+  <meta property="og:description" content="A story-led film of a volleyball tournament built so every player feels seen.">
   <meta property="og:url" content="https://joleromedia.com/projects/k-all-stars-volleyball/">
 
   <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
@@ -51,45 +44,75 @@
   </header>
 
   <main id="legal-main" class="legal project-page">
-    <div class="container legal-inner">
 
-      <p class="eyebrow">Featured project · Volleyball</p>
-      <h1>K-All Stars Volleyball<span class="dot">.</span></h1>
-      <!-- TODO: one or two sentences: who they are and what we made together. -->
-      <p class="legal-lede">
-        The full story behind this project is on its way. Photos and video are being added now.
-      </p>
+    <!-- Hero still, a frame from the film (1:00). Swap the image to change
+         the page's backdrop. -->
+    <header class="project-hero">
+      <img class="project-hero-img project-hero-img-high project-hero-img-dim" src="../../assets/projects/k-all-stars-volleyball/k-all-stars-block.webp" alt="" width="1440" height="1080">
+      <div class="container project-hero-inner">
+        <p class="eyebrow">Featured project · Volleyball</p>
+        <h1>K-All Stars Volleyball<span class="dot">.</span></h1>
+        <p class="legal-lede">
+          A volleyball tournament built so that every player feels seen, and the
+          story of why it exists.
+        </p>
+      </div>
+    </header>
 
-      <h2>The brief</h2>
-      <!-- TODO: who the client is and what they needed. -->
-      <p>Coming soon.</p>
-
-      <h2>What we made</h2>
-      <!-- TODO: the shoot(s) and deliverables: photos, reels, highlight edits. -->
-      <p>Coming soon.</p>
-
-      <h2>The result</h2>
-      <!-- TODO: what it did for them: reach, sponsors, sign-ups, a quote. -->
-      <p>Coming soon.</p>
-    </div>
-
-    <div class="container">
-      <!-- SWAP IMAGE: gallery -->
-      <div class="work-grid project-grid project-gallery">
-        <figure class="work-tile">
-          <img src="../../assets/work-05.svg" alt="Placeholder for K-All Stars Volleyball image 1" loading="lazy" width="800" height="1000">
-        </figure>
-        <figure class="work-tile">
-          <img src="../../assets/work-05.svg" alt="Placeholder for K-All Stars Volleyball image 2" loading="lazy" width="800" height="1000">
-        </figure>
-        <figure class="work-tile">
-          <img src="../../assets/work-05.svg" alt="Placeholder for K-All Stars Volleyball image 3" loading="lazy" width="800" height="1000">
-        </figure>
-        <figure class="work-tile">
-          <img src="../../assets/work-05.svg" alt="Placeholder for K-All Stars Volleyball image 4" loading="lazy" width="800" height="1000">
-        </figure>
+    <!-- DRAFT COPY (Nov 2026): Justin to check the brief, scope, date and venue,
+         and add anything else made for the client as 02, 03... -->
+    <section class="project-piece" aria-labelledby="piece-01">
+      <div class="container legal-inner">
+        <p class="piece-label">01 · Tournament film</p>
+        <h2 id="piece-01">K-All Stars 2026</h2>
+        <p>
+          The story of the tournament, told in the words of its founder and
+          producer, Caye Genis.
+        </p>
       </div>
 
+      <div class="container">
+        <div class="clip-rail clip-rail-film" data-clips>
+          <figure class="clip">
+            <div class="clip-frame">
+              <video src="https://jolero-gallery.jolero-gallery-worker.workers.dev/s/k-all-stars-volleyball/k-all-stars-film-v1.mp4" poster="https://jolero-gallery.jolero-gallery-worker.workers.dev/s/k-all-stars-volleyball/k-all-stars-film-v1.jpg" controls playsinline preload="none" data-film aria-label="K-All Stars 2026: tournament film"></video>
+              <button class="clip-sound" type="button" aria-label="Turn sound on" aria-pressed="false" hidden><svg class="icon icon-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 9.5l4.5 5M21.5 9.5l-4.5 5"/></svg><svg class="icon icon-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg></button>
+            </div>
+            <figcaption>K-All Stars 2026: tournament film</figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <div class="container legal-inner">
+        <h3>The brief</h3>
+        <p>
+          K-All Stars started as a joke between friends. After too many
+          tournaments that cost players time and money and gave little back,
+          Caye decided to run a different one: competitive but enjoyable, and
+          recognising everyone who takes part, not just the top players. The
+          film needed to capture that feeling as well as the volleyball.
+        </p>
+
+        <h3>What we made</h3>
+        <p>
+          We filmed the 2026 tournament and cut a story-led film, carried by
+          Caye's voiceover about why the event exists. Alongside the rallies and
+          celebrations, it takes in what makes the day different: the people
+          behind the scoreboard, the merchandise and artists' stalls, and the
+          teams hugging it out at the end.
+        </p>
+
+        <h3>The result</h3>
+        <p>
+          A film that shows what the event is for, not just who won. It also
+          marks what the tournament gave back: sales of the K26 Constellation
+          Collection raised £431 for the Lavinia Norfolk Centre, which supports
+          students with physical, visual and sensory impairments.
+        </p>
+      </div>
+    </section>
+
+    <div class="container">
       <div class="project-next">
         <a class="btn btn-ghost" href="../../index.html#work">All projects</a>
         <a class="btn btn-ghost" href="../muay-thai-tom/">Next: Muay Thai Tom →</a>
@@ -115,6 +138,6 @@
   </footer>
 
   <script src="../../theme.js"></script>
-  <script src="../../lightbox.js?v=20261013" defer></script>
+  <script src="../../clips.js?v=20261013" defer></script>
 </body>
 </html>
