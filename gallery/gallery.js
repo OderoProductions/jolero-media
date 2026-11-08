@@ -389,6 +389,7 @@
     const named = videos.some((it) => (it.g || "").trim());
     $("videos-head").hidden = named;
     row.hidden = named;
+    $("photos").classList.toggle("in-cat", named);
     if (!named) {
       videos.forEach((it, i) => row.appendChild(videoCard(it, videos, i)));
       return;
@@ -401,9 +402,15 @@
       if (!g) groups.push((g = { name, cards: [] }));
       g.cards.push(videoCard(it, videos, i));
     });
+    // each label is a category ("PT Sessions", "Talking heads"): its name
+    // large, then a Videos head over its cards. With a single category the
+    // Photos block below reads as part of it too.
     for (const g of groups) {
       const sec = el("section", "video-group");
-      const h = el("h2", "block-head", g.name);
+      const cat = el("h2", "cat-head", g.name);
+      cat.appendChild(el("span", "dot", "."));
+      sec.appendChild(cat);
+      const h = el("h3", "block-head", "Videos");
       h.appendChild(el("span", "dot", "."));
       h.appendChild(el("span", "block-count", pad(g.cards.length, 2)));
       sec.appendChild(h);

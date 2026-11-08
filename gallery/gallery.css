@@ -1567,3 +1567,16 @@ body.is-dragging, body.is-dragging * { cursor: grabbing !important; user-select:
    near-square corners; small labels get a tighter curve. */
 .vframe, .tile, .lb-thumb, .ed-tile, .ed-ghost img { border-radius: 2px; }
 .vdur, .vnotes, .ed-badge, .ed-cover-badge, .rv-chip { border-radius: 6px; }
+
+/* a category over its videos and photos ("PT Sessions.") */
+.cat-head {
+  margin: 0 0 clamp(18px, 2.6vw, 28px);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(1.7rem, 4vw, 3rem);
+  line-height: 1.06;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+.video-group .block-head { margin-top: 0; }
+.block.in-cat { margin-top: clamp(36px, 5vw, 60px); }
