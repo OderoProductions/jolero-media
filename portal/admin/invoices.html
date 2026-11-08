@@ -16,7 +16,7 @@
   <title>Accounting | Jolero Media Portal</title>
   <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
   <link rel="stylesheet" href="../../styles.css?v=20261105p">
-  <link rel="stylesheet" href="../portal.css?v=20261105p">
+  <link rel="stylesheet" href="../portal.css?v=20261108">
   <script>/* theme before first paint: saved choice, else OS, else dark */try{var s=localStorage.getItem("jolero_theme");if(s?s==="light":matchMedia("(prefers-color-scheme: light)").matches)document.documentElement.classList.add("theme-light")}catch(e){}</script>
 </head>
 <body>
@@ -81,31 +81,55 @@
           <tbody></tbody>
         </table>
       </div>
-      <details class="adder">
-        <summary>Add invoice</summary>
+      <details class="adder" id="inv-builder">
+        <summary>New invoice</summary>
         <div class="adder-body">
-          <form class="portal-form" id="add-invoice">
+          <form class="portal-form" id="build-invoice" novalidate>
             <div class="field">
-              <label for="ni-number">Invoice number</label>
-              <input id="ni-number" name="number" type="text" placeholder="JM-2026-016" required>
+              <label for="bi-client">Client</label>
+              <select id="bi-client" name="clientId" required></select>
             </div>
             <div class="field">
-              <label for="ni-client">Client</label>
-              <select id="ni-client" name="clientId" required></select>
+              <label for="bi-number">Invoice number</label>
+              <input id="bi-number" name="number" type="text" required>
             </div>
             <div class="field">
-              <label for="ni-amount">Amount (£)</label>
-              <input id="ni-amount" name="amount" type="number" min="0" step="1" required>
+              <label for="bi-issued">Issued</label>
+              <input id="bi-issued" name="issued" type="date" required>
             </div>
             <div class="field">
-              <label for="ni-issued">Issued</label>
-              <input id="ni-issued" name="issued" type="date" required>
+              <label for="bi-due">Due</label>
+              <input id="bi-due" name="due" type="date" required>
             </div>
-            <div class="field">
-              <label for="ni-due">Due</label>
-              <input id="ni-due" name="due" type="date" required>
+
+            <div class="field field-wide">
+              <label>What it's for</label>
+              <div class="inv-items" id="bi-items"></div>
+              <div class="inv-items-foot">
+                <button class="btn btn-ghost btn-mini" type="button" id="bi-add">+ Add line</button>
+                <select id="bi-preset" aria-label="Add a common line">
+                  <option value="">Add a common line…</option>
+                </select>
+                <span class="inv-total">Total <b id="bi-total">£0.00</b></span>
+              </div>
             </div>
-            <div class="form-actions"><button class="btn btn-primary" type="submit">Add invoice</button></div>
+
+            <div class="field field-wide">
+              <label for="bi-notes">Note to the client <span class="optional">(optional)</span></label>
+              <textarea id="bi-notes" name="notes" rows="2" placeholder="e.g. Thanks for having us. Your gallery stays live until 10 January."></textarea>
+            </div>
+            <div class="field field-wide">
+              <label for="bi-payment">How to pay</label>
+              <textarea id="bi-payment" name="payment" rows="3" placeholder="Bank transfer to: Jolero Media&#10;Sort code: 00-00-00&#10;Account number: 00000000"></textarea>
+              <label class="agree-row"><input type="checkbox" id="bi-save-payment"> <span>Use these details on every new invoice</span></label>
+              <p class="hint">Until the bank account is open, leave this empty and the invoice says bank details will follow.</p>
+            </div>
+
+            <p class="login-msg field-wide" id="bi-msg" role="status" aria-live="polite" hidden></p>
+            <div class="form-actions">
+              <button class="btn btn-primary" type="submit">Save invoice</button>
+              <button class="btn btn-ghost" type="button" id="bi-preview">Preview PDF</button>
+            </div>
           </form>
         </div>
       </details>
@@ -253,8 +277,9 @@
   <script src="../auth.js?v=20261026"></script>
   <script src="../data.js?v=20261105"></script>
   <script src="../store.js?v=20261105"></script>
-  <script src="../pdf.js?v=20261013b"></script>
-  <script src="../admin.js?v=20261025"></script>
+  <script src="../pdf.js?v=20261108"></script>
+  <script src="../admin.js?v=20261108"></script>
+  <script src="../invoice-builder.js?v=1"></script>
 
   <!-- Set/change your own admin password. Requires a live session, so it can
        only ever change the account you are signed in as. autocomplete

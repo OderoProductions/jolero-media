@@ -550,7 +550,9 @@
         '<td><button class="row-btn" type="button" data-toggle-invoice="' + esc(i.id) + '">' +
         (i.status === "paid" ? "Mark unpaid" : "Mark paid") + "</button> " +
         '<button class="row-btn" type="button" data-invoice-pdf="' + esc(i.id) +
-        '" aria-label="Download PDF of invoice ' + esc(i.number) + '">PDF</button></td>' +
+        '" aria-label="Download PDF of invoice ' + esc(i.number) + '">PDF</button> ' +
+        '<button class="row-btn" type="button" data-invoice-email="' + esc(i.id) +
+        '" aria-label="Email invoice ' + esc(i.number) + ' to the client">Email</button></td>' +
         "</tr>";
     }).join("") || '<tr><td colspan="7" class="empty-note">No invoices yet.</td></tr>';
 
