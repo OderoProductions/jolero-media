@@ -9,17 +9,17 @@
        if you EDIT ANY INLINE <script> on this page you must recompute its
        hash (shasum -a 256 of the exact script contents, base64) or the
        script silently stops running. External scripts: same-origin only. -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9hUOTyB0SoibSiWOZkJw2eqQFml00iDkRip2DzmnPus=' 'sha256-JssKZq7Zz1tMpFd4T9itCjnPwy3MNAE7DIQFnyVS3Ec='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://hrdjikuadcqrddbeszzb.supabase.co; form-action 'self'; object-src 'none'; base-uri 'self'; upgrade-insecure-requests">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9hUOTyB0SoibSiWOZkJw2eqQFml00iDkRip2DzmnPus=' 'sha256-JssKZq7Zz1tMpFd4T9itCjnPwy3MNAE7DIQFnyVS3Ec='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://hrdjikuadcqrddbeszzb.supabase.co https://jolero-gallery.jolero-gallery-worker.workers.dev; form-action 'self'; object-src 'none'; base-uri 'self'; upgrade-insecure-requests">
   <meta name="theme-color" content="#F5F5F3" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#0A0A0A">
   <meta name="robots" content="noindex">
   <title>Dashboard | Jolero Media Portal</title>
   <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
   <link rel="stylesheet" href="../../styles.css?v=20261105p">
-  <link rel="stylesheet" href="../portal.css?v=20261105p">
+  <link rel="stylesheet" href="../portal.css?v=20261108">
   <script>/* theme before first paint: saved choice, else OS, else dark */try{var s=localStorage.getItem("jolero_theme");if(s?s==="light":matchMedia("(prefers-color-scheme: light)").matches)document.documentElement.classList.add("theme-light")}catch(e){}</script>
 </head>
-<body>
+<body class="dash-wide">
 
   <header class="portal-top">
     <div class="portal-top-inner">
@@ -93,6 +93,17 @@
         <ol class="mini-tasks" id="mini-tasks"></ol>
       </article>
 
+      <article class="panel dash-panel dash-panel-crm">
+        <div class="dash-panel-head">
+          <h2>Who to contact<span class="dot">.</span></h2>
+          <span class="dash-panel-meta" id="mcrm-meta"></span>
+          <a class="dash-panel-link" href="crm.html">Open</a>
+        </div>
+        <div class="mcrm-bar" id="mcrm-bar"></div>
+        <p class="mcrm-key" id="mcrm-key"></p>
+        <ol class="mini-crm" id="mini-crm"></ol>
+      </article>
+
       <article class="panel dash-panel dash-panel-projects">
         <div class="dash-panel-head">
           <h2>On the go<span class="dot">.</span></h2>
@@ -100,6 +111,16 @@
           <a class="dash-panel-link" href="projects.html">Open</a>
         </div>
         <div class="mini-projects" id="mini-projects"></div>
+      </article>
+
+      <article class="panel dash-panel dash-panel-galleries">
+        <div class="dash-panel-head">
+          <h2>Galleries<span class="dot">.</span></h2>
+          <span class="dash-panel-meta" id="mg-meta"></span>
+          <a class="dash-panel-link" href="galleries.html">Open</a>
+        </div>
+        <ol class="mini-galleries" id="mini-galleries"><li class="nx-empty">Loading…</li></ol>
+        <a class="mgal-new" href="galleries.html">+ New gallery</a>
       </article>
     </section>
   </main>
@@ -111,7 +132,7 @@
   <script src="../auth.js?v=20261026"></script>
   <script src="../data.js?v=20261105"></script>
   <script src="../store.js?v=20261105"></script>
-  <script src="../admin.js?v=20261025"></script>
+  <script src="../admin.js?v=20261108"></script>
 
   <!-- Set/change your own admin password. Requires a live session, so it can
        only ever change the account you are signed in as. autocomplete

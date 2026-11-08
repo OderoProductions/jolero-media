@@ -1778,3 +1778,90 @@ tr:hover .crm-remove, .crm-remove:focus-visible { opacity: 1; }
 .dz-title { font-weight: 800; font-size: 1rem; letter-spacing: 0; }
 .gcard-title { font-weight: 800; font-size: 1.05rem; line-height: 1.15; letter-spacing: 0; }
 .dash-panel-head h2 { font-weight: 800; font-size: 1.1rem; line-height: 1.15; letter-spacing: 0; }
+
+/* ============================================================
+   Dashboard, wide: the whole screen on a desktop, everything at once.
+   Schedule, tasks and who to contact across the top; what's running
+   and the galleries beneath. Two up on a tablet, one on a phone.
+   ============================================================ */
+.dash-wide .portal-shell,
+.dash-wide .portal-top-inner { max-width: 1680px; }
+
+.dash-panels {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-areas: "cal tasks" "crm gal" "proj proj";
+}
+.dash-panel-cal { grid-area: cal; }
+.dash-panel-tasks { grid-area: tasks; }
+.dash-panel-crm { grid-area: crm; }
+.dash-panel-galleries { grid-area: gal; }
+.dash-panel-projects { grid-area: proj; }
+@media (min-width: 1280px) {
+  .dash-panels {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    grid-template-areas:
+      "cal cal cal cal tasks tasks tasks tasks crm crm crm crm"
+      "proj proj proj proj proj proj proj proj gal gal gal gal";
+  }
+  .dash-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+}
+@media (max-width: 720px) {
+  .dash-panels { grid-template-columns: minmax(0, 1fr); grid-template-areas: "cal" "tasks" "crm" "gal" "proj"; }
+}
+
+/* ---------- who to contact ---------- */
+.mcrm-bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--ink); }
+.mcrm-bar:empty { display: none; }
+.mcrm-bar > span, .mcrm-key i { background: var(--paper-40); }
+.mcrm-bar .s1, .mcrm-key .s1 { background: #4FA3FF; }
+.mcrm-bar .s2, .mcrm-key .s2 { background: #FFB020; }
+.mcrm-bar .s3, .mcrm-key .s3 { background: var(--accent); }
+.mcrm-bar .s4, .mcrm-key .s4 { background: #35C46A; }
+.mcrm-bar .s5, .mcrm-key .s5 { background: var(--line); }
+.mcrm-key { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: -6px 0 0; font-size: 0.72rem; color: var(--paper-60); }
+.mcrm-key:empty { display: none; }
+.mcrm-key span { display: inline-flex; align-items: center; gap: 6px; }
+.mcrm-key i { width: 8px; height: 8px; border-radius: 2px; }
+.mcrm-key b { font-weight: 600; color: var(--paper); }
+
+.mini-crm, .mini-galleries { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; background: var(--line); border-radius: 2px; overflow: hidden; }
+.mcrm, .mgal { display: flex; align-items: center; gap: 12px; padding: 10px 12px; background: var(--ink); }
+.mcrm-body, .mgal-body { display: grid; gap: 2px; min-width: 0; flex: 1; color: inherit; text-decoration: none; }
+.mcrm-body:hover .mcrm-name, .mgal-body:hover .mgal-title { color: var(--accent); }
+.mcrm-name, .mgal-title { font-size: 0.9rem; font-weight: 500; line-height: 1.35; overflow-wrap: anywhere; }
+.mcrm-meta, .mgal-meta {
+  font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--paper-40); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.mcrm-side { display: grid; justify-items: end; gap: 3px; flex: none; }
+.mcrm-ig { font-size: 0.74rem; color: var(--paper-60); text-decoration: none; }
+.mcrm-ig:hover { color: var(--paper); text-decoration: underline; }
+.mcrm-when {
+  font-family: var(--font-mono); font-size: 0.64rem; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--paper-60); white-space: nowrap;
+}
+.mcrm.is-late .mcrm-when { color: var(--accent); font-weight: 600; }
+
+/* ---------- galleries ---------- */
+.mgal-lock {
+  font-style: normal; font-family: var(--font-mono); font-size: 0.56rem; letter-spacing: 0.08em;
+  text-transform: uppercase; padding: 2px 6px; border-radius: 6px; border: 1px solid var(--line); color: var(--paper-60);
+  vertical-align: 2px;
+}
+.mgal-copy {
+  flex: none; padding: 7px 11px; border: 1px solid var(--line); border-radius: var(--radius);
+  background: transparent; color: var(--paper-60); font: 600 0.66rem/1 var(--font-mono);
+  letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer;
+}
+.mgal-copy:hover { color: var(--paper); border-color: var(--hover-line); }
+.mgal-new {
+  justify-self: start; font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--paper-60); text-decoration: none;
+}
+.mgal-new:hover { color: var(--accent); }
+/* phones: the five numbers two up, accounting across the top */
+@media (max-width: 720px) {
+  .dash-wide .dash-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .dash-wide .dash-card { min-height: 0; padding: 16px; }
+  .dash-wide .dash-card:first-child { grid-column: 1 / -1; }
+}

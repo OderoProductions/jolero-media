@@ -204,6 +204,150 @@
     }).join("") : '<p class="nx-empty">No projects on the go.</p>';
   }
 
+  /* ---------- who to contact (CRM) ----------
+     Follow ups that are due come first, then the next ones booked in,
+     then people on the list nobody has messaged yet. */
+
+  var CONTACT_STATUSES = (window.JOLERO_SEED || {}).contactStatuses || [];
+  function contactDue(c) {
+    return c.followUp && c.followUp <= todayISO() && c.status !== "Client" && c.status !== "Not now";
+  }
+  function igHandle(v) {
+    v = String(v || "").trim();
+    var m = /^(?:https?:\/\/)?(?:www\.)?instagram\.com\/([A-Za-z0-9._]{1,30})/i.exec(v) || /^@?([A-Za-z0-9._]{1,30})$/.exec(v);
+    return m ? m[1].toLowerCase() : "";
+  }
+
+  function renderMiniCrm(contacts) {
+    var host = el("mini-crm");
+    if (!host) return;
+    var active = contacts.filter(function (c) { return c.status !== "Client" && c.status !== "Not now"; });
+    var due = active.filter(contactDue);
+    var toContact = active.filter(function (c) { return c.status === "To contact"; });
+    var talking = contacts.filter(function (c) { return c.status === "Replied" || c.status === "In talks"; });
+
+    var meta = el("mcrm-meta");
+    if (meta) {
+      meta.textContent = due.length ? due.length + " follow up" + (due.length === 1 ? "" : "s") + " due"
+        : contacts.length ? "Nothing due" : "No contacts yet";
+      meta.classList.toggle("is-accent", due.length > 0);
+    }
+    if (el("dc-crm-v")) {
+      el("dc-crm-v").textContent = due.length;
+      el("dc-crm-v").parentNode.classList.toggle("accent", due.length > 0);
+      el("dc-crm-s").textContent = "follow ups due · " + toContact.length + " to contact · " + talking.length + " talking";
+    }
+
+    // the pipeline as one bar, a segment per status
+    var bar = el("mcrm-bar");
+    if (bar) {
+      bar.innerHTML = contacts.length ? CONTACT_STATUSES.map(function (s, i) {
+        var n = contacts.filter(function (c) { return c.status === s; }).length;
+        return n ? '<span class="s' + i + '" style="flex:' + n + '" title="' + esc(s) + ": " + n + '"></span>' : "";
+      }).join("") : "";
+      el("mcrm-key").innerHTML = CONTACT_STATUSES.map(function (s, i) {
+        var n = contacts.filter(function (c) { return c.status === s; }).length;
+        return n ? '<span><i class="s' + i + '"></i>' + esc(s) + " <b>" + n + "</b></span>" : "";
+      }).join("");
+    }
+
+    var booked = active.filter(function (c) { return c.followUp && !contactDue(c); })
+      .sort(function (a, b) { return a.followUp < b.followUp ? -1 : 1; });
+    var fresh = toContact.filter(function (c) { return !c.followUp; });
+    var list = due.sort(function (a, b) { return a.followUp < b.followUp ? -1 : 1; })
+      .concat(booked, fresh).slice(0, 6);
+
+    host.innerHTML = list.length ? list.map(function (c) {
+      var late = contactDue(c);
+      var h = igHandle(c.instagram);
+      var sub = [c.kind, c.sport, c.who].filter(Boolean).join(" · ");
+      return '<li class="mcrm' + (late ? " is-late" : "") + '">' +
+        '<a class="mcrm-body" href="crm.html"><span class="mcrm-name">' + esc(c.name) + "</span>" +
+        '<span class="mcrm-meta">' + esc(c.status) + (sub ? " · " + esc(sub) : "") + "</span></a>" +
+        '<span class="mcrm-side">' +
+        (h ? '<a class="mcrm-ig" href="https://www.instagram.com/' + esc(h) + '/" target="_blank" rel="noopener" aria-label="Open @' + esc(h) + ' on Instagram">@' + esc(h) + "</a>" : "") +
+        '<span class="mcrm-when">' + esc(c.followUp ? (late ? "Due " : "") + whenWord(c.followUp) : "Not contacted") + "</span></span></li>";
+    }).join("") : '<li class="nx-empty">Nobody waiting on a message.</li>';
+  }
+
+  /* ---------- galleries ----------
+     Straight from the gallery worker, with this admin's sign-in. Kept for
+     a minute so ticking a task off doesn't refetch them. */
+
+  var GAL_LOCAL = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+  var GAL_API = GAL_LOCAL ? "http://localhost:8787" : "https://jolero-gallery.jolero-gallery-worker.workers.dev";
+  var GAL_SITE = GAL_LOCAL ? location.origin + "/gallery/" : "https://joleromedia.com/gallery/";
+  var galCache = null, galAt = 0;
+
+  function galSlug(s) {
+    var out = String(s || "").normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60).replace(/-+$/, "");
+    return out && out !== "file" ? out + "/" : "";
+  }
+  function galSize(n) {
+    var u = ["B", "KB", "MB", "GB", "TB"], i = 0;
+    while (n >= 1024 && i < u.length - 1) { n /= 1024; i++; }
+    return (i < 2 ? Math.round(n) : n.toFixed(1)) + " " + u[i];
+  }
+
+  async function loadGalleries() {
+    if (galCache && Date.now() - galAt < 60000) return galCache;
+    if (!window.PortalAuth || !PortalAuth.configured || !PortalAuth.configured()) return null;
+    var t = await PortalAuth.getToken();
+    if (!t) return null;
+    var res = await fetch(GAL_API + "/admin/galleries", { headers: { authorization: "Bearer " + t }, referrerPolicy: "no-referrer" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    galCache = await res.json();
+    galAt = Date.now();
+    return galCache;
+  }
+
+  async function renderMiniGalleries() {
+    var host = el("mini-galleries");
+    if (!host) return;
+    var all;
+    try { all = await loadGalleries(); } catch (e) { all = null; }
+    if (!all) {
+      host.innerHTML = '<li class="nx-empty">Couldn\'t reach the galleries just now.</li>';
+      if (el("dc-gal-s")) el("dc-gal-s").textContent = "Couldn't load";
+      return;
+    }
+    var now = Date.now();
+    var live = all.filter(function (g) {
+      return !g.incomplete && !(g.expires && Date.parse(g.expires) <= now);
+    }).sort(function (a, b) { return (b.created || "").localeCompare(a.created || ""); });
+    var downloads = all.reduce(function (n, g) { return n + (g.downloads || 0); }, 0);
+    var bytes = live.reduce(function (n, g) { return n + (g.bytes || 0); }, 0);
+
+    if (el("mg-meta")) el("mg-meta").textContent = live.length + " live · " + downloads + " download" + (downloads === 1 ? "" : "s");
+    if (el("dc-gal-v")) {
+      el("dc-gal-v").textContent = live.length;
+      el("dc-gal-s").textContent = "live · " + downloads + " downloads · " + galSize(bytes);
+    }
+
+    host.innerHTML = live.length ? live.slice(0, 5).map(function (g) {
+      var href = GAL_SITE + "#" + galSlug(g.title) + g.id;
+      var bits = [];
+      if (g.photos) bits.push(g.photos + " photo" + (g.photos === 1 ? "" : "s"));
+      if (g.videos) bits.push(g.videos + " video" + (g.videos === 1 ? "" : "s"));
+      if (g.downloads) bits.push(g.downloads + " download" + (g.downloads === 1 ? "" : "s"));
+      var until = g.expires ? "Until " + fmtDate(String(g.expires).slice(0, 10)) : "No expiry";
+      return '<li class="mgal">' +
+        '<a class="mgal-body" href="' + esc(href) + '" target="_blank" rel="noopener">' +
+        '<span class="mgal-title">' + esc(g.title || "Untitled") + (g.locked ? ' <i class="mgal-lock">Locked</i>' : "") + "</span>" +
+        '<span class="mgal-meta">' + esc(bits.join(" · ")) + "</span>" +
+        '<span class="mgal-meta">' + esc(until) + "</span></a>" +
+        '<button class="mgal-copy" type="button" data-copy-link="' + esc(href) + '">Copy link</button></li>';
+    }).join("") : '<li class="nx-empty">No live galleries.</li>';
+  }
+
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-copy-link]");
+    if (!b) return;
+    var done = function () { b.textContent = "Copied"; setTimeout(function () { b.textContent = "Copy link"; }, 1600); };
+    if (navigator.clipboard) navigator.clipboard.writeText(b.dataset.copyLink).then(done, function () {});
+  });
+
   async function renderDashPanels(data) {
     if (!el("mini-cal")) return;              // not the dashboard page
     var events = await PortalStore.getScheduleEvents();
@@ -211,6 +355,10 @@
     renderNextUp(events);
     renderMiniTasks(data);
     renderMiniProjects(data);
+    var contacts = [];
+    try { contacts = await PortalStore.getContacts(); } catch (e) {}
+    renderMiniCrm(contacts || []);
+    renderMiniGalleries();
   }
 
   function renderDashboard(data) {
@@ -283,7 +431,11 @@
       card("clients.html", "Clients", data.clients.length,
         reviews.length
           ? reviews.length + (reviews.length === 1 ? " review · " : " reviews · ") + avg + "★ average"
-          : "No reviews yet");
+          : "No reviews yet") +
+
+      // filled in by renderDashPanels once contacts and galleries load
+      card("crm.html", "CRM", '<span id="dc-crm-v">·</span>', '<span id="dc-crm-s">Loading</span>') +
+      card("galleries.html", "Galleries", '<span id="dc-gal-v">·</span>', '<span id="dc-gal-s">Loading</span>');
   }
 
   /* ================= PROJECTS ================= */
