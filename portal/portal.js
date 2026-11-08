@@ -69,12 +69,27 @@
     );
   }
 
+  // a drawn signature (pen strokes) as a small inline drawing
+  function sigSvg(sig) {
+    if (!sig || !Array.isArray(sig.strokes) || !sig.strokes.length) return "";
+    var w = Number(sig.w) || 1000, h = Number(sig.h) || 300;
+    var paths = sig.strokes.map(function (s) {
+      if (!Array.isArray(s) || s.length < 2) return "";
+      var d = "M" + Number(s[0]) + " " + Number(s[1]);
+      for (var i = 2; i + 1 < s.length; i += 2) d += "L" + Number(s[i]) + " " + Number(s[i + 1]);
+      if (s.length === 2) d += "l0.1 0";
+      return '<path d="' + d + '"/>';
+    }).join("");
+    return '<svg class="contract-sig" viewBox="0 0 ' + w + " " + h + '" aria-label="Signature" role="img">' + paths + "</svg>";
+  }
+
   // Phase 4: contract cards
   function contractCard(ct) {
     if (ct.status === "signed") {
       return '<article class="panel contract-row">' +
         '<span class="contract-title">' + esc(ct.title) + "</span>" +
         '<span class="contract-sub">Signed by ' + esc(ct.signerName) + " · " + fmtDate(ct.signedDate) + "</span>" +
+        sigSvg(ct.signature) +
         '<span class="pbadge">Signed</span>' +
         '<button class="btn btn-ghost btn-mini" type="button" data-contract-pdf="' + esc(ct.id) + '">Download PDF</button>' +
         "</article>";
@@ -338,7 +353,15 @@
       document.getElementById("cd-body").textContent = ct.body;
       signForm.reset();
       signForm.elements.contractId.value = ct.id;
+      document.getElementById("cd-msg").hidden = true;
       contractDialog.showModal();
+      if (!sigPad) {
+        sigPad = window.SignaturePad(document.getElementById("cd-sig"));
+        sigPad.onchange = function () { document.getElementById("cd-sig-hint").hidden = !sigPad.isEmpty(); };
+        document.getElementById("cd-sig-clear").addEventListener("click", function () { sigPad.clear(); });
+      }
+      sigPad.resize();
+      sigPad.clear();
     } else if ((b = e.target.closest("[data-brief]"))) {
       briefForm.reset();
       briefForm.elements.briefId.value = b.dataset.brief;
@@ -350,12 +373,29 @@
     }
   });
 
+  var sigPad = null;
+
   signForm.addEventListener("submit", async function (e) {
     e.preventDefault();
+    var msg = document.getElementById("cd-msg");
     if (!signForm.reportValidity()) return;
-    await PortalStore.signContract(signForm.elements.contractId.value, signForm.elements.signerName.value.trim());
-    contractDialog.close();
-    show(currentClientId, { replayEntrance: false });
+    if (!sigPad || sigPad.isEmpty()) {
+      msg.textContent = "Please draw your signature in the box.";
+      msg.hidden = false;
+      return;
+    }
+    var btn = signForm.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    try {
+      await PortalStore.signContractDrawn(signForm.elements.contractId.value,
+        signForm.elements.signerName.value.trim(), sigPad.data());
+      contractDialog.close();
+      show(currentClientId, { replayEntrance: false });
+    } catch (err) {
+      msg.textContent = "That didn't go through. Please try again, or email us if it keeps happening.";
+      msg.hidden = false;
+    }
+    btn.disabled = false;
   });
 
   briefForm.addEventListener("submit", async function (e) {

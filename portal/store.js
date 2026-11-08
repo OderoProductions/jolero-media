@@ -264,6 +264,21 @@
 
     // Client action: the database function re-checks the contract is
     // theirs and unsigned, then records it.
+    // Typed name plus a drawn signature (pen strokes). Falls back to the
+    // typed-name signing if the database hasn't had the drawn-signature
+    // update yet (supabase/run-2026-11-08.sql), so a client is never stuck.
+    signContractDrawn: async function (contractId, signerName, signature) {
+      var row;
+      try {
+        row = await rpc("sign_contract_drawn", { p_contract_id: contractId, p_signer_name: signerName, p_signature: signature });
+      } catch (e) {
+        if (!/sign_contract_drawn|function|schema cache|404/i.test(String(e && e.message))) throw e;
+        row = await rpc("sign_contract", { p_contract_id: contractId, p_signer_name: signerName });
+      }
+      invalidate();
+      return toApp(row);
+    },
+
     signContract: async function (contractId, signerName) {
       var row = await rpc("sign_contract", { p_contract_id: contractId, p_signer_name: signerName });
       invalidate();

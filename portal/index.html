@@ -27,7 +27,7 @@
 
 
   <link rel="stylesheet" href="../styles.css?v=20261105p">
-  <link rel="stylesheet" href="portal.css?v=20261108">
+  <link rel="stylesheet" href="portal.css?v=20261108b">
   <script>/* theme before first paint: saved choice, else OS, else dark */try{var s=localStorage.getItem("jolero_theme");if(s?s==="light":matchMedia("(prefers-color-scheme: light)").matches)document.documentElement.classList.add("theme-light")}catch(e){}</script>
 </head>
 <body>
@@ -110,14 +110,23 @@
         <input type="hidden" name="contractId">
         <div class="field-wide contract-body" id="cd-body"></div>
         <div class="field field-wide">
-          <label for="cd-name">Type your full name to sign</label>
+          <label for="cd-name">Your full name</label>
           <input id="cd-name" name="signerName" type="text" autocomplete="name" required>
+        </div>
+        <div class="field field-wide">
+          <label id="cd-sig-label">Sign here</label>
+          <div class="sig-box">
+            <canvas class="sig-pad" id="cd-sig" aria-labelledby="cd-sig-label" role="img"></canvas>
+            <span class="sig-line" aria-hidden="true"></span>
+            <span class="sig-hint" id="cd-sig-hint" aria-hidden="true">Draw your signature with your finger or mouse</span>
+            <button class="sig-clear" type="button" id="cd-sig-clear">Clear</button>
+          </div>
         </div>
         <label class="agree-row field-wide">
           <input type="checkbox" name="agree" required>
-          <span>I've read this agreement and I'm happy to go ahead.</span>
+          <span>I've read this agreement and I'm happy to go ahead. I agree that signing here is the same as signing on paper.</span>
         </label>
-        <p class="hint">Preview signing only. Phase 2 adds verified identity and an audit trail.</p>
+        <p class="login-msg field-wide" id="cd-msg" role="alert" hidden></p>
         <div class="form-actions">
           <button class="btn btn-primary" type="submit">Sign agreement</button>
           <button class="btn btn-ghost" type="button" data-close="contract-dialog">Cancel</button>
@@ -196,8 +205,9 @@
   <script src="supabase-config.js?v=20261013b"></script>
   <script src="auth.js?v=20261026"></script>
   <script src="data.js?v=20261105"></script>
-  <script src="store.js?v=20261105"></script>
+  <script src="store.js?v=20261108"></script>
   <script src="pdf.js?v=20261108"></script>
-  <script src="portal.js?v=20261025"></script>
+  <script src="signature-pad.js?v=1"></script>
+  <script src="portal.js?v=20261108"></script>
 </body>
 </html>

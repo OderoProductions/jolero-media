@@ -218,13 +218,40 @@
     });
 
     gap(10);
+    var sig = contract.signature;
+    var hasSig = sig && Array.isArray(sig.strokes) && sig.strokes.length;
+    doc.need(hasSig ? 150 : 90);
     rule();
     text("F2", 11, "0 0 0", "Signed", 17);
+    if (hasSig) {
+      // the drawn signature, fitted into a 220 x 64 pt box on a line
+      var bw = 220, bh = 64, top = doc.y() + 4;
+      var sw = Number(sig.w) || 1000, sh = Number(sig.h) || 300;
+      var k = Math.min(bw / sw, bh / sh);
+      var cmds = ["q 0.08 0.08 0.2 RG 1.4 w 1 J 1 j"];
+      sig.strokes.forEach(function (st) {
+        if (!Array.isArray(st) || st.length < 2) return;
+        var px = function (i) { return (M + Number(st[i]) * k).toFixed(2) + " " + (top - Number(st[i + 1]) * k).toFixed(2); };
+        var d = px(0) + " m ";
+        if (st.length === 2) d += (M + Number(st[0]) * k + 0.3).toFixed(2) + " " + (top - Number(st[1]) * k).toFixed(2) + " l ";
+        for (var i = 2; i + 1 < st.length; i += 2) d += px(i) + " l ";
+        cmds.push(d + "S");
+      });
+      cmds.push("Q");
+      doc.push(cmds.join("\n"));
+      doc.push("0.62 0.62 0.62 RG 0.5 w " + M + " " + (top - bh - 2).toFixed(1) + " m " + (M + bw) + " " + (top - bh - 2).toFixed(1) + " l S");
+      gap(bh + 16);
+    }
     text("F1", 10, "0 0 0", "Name:  " + signer, 15);
-    text("F1", 10, "0 0 0", "Date:  " + fmt(contract.signedDate), 15);
+    var when = fmt(contract.signedDate);
+    if (contract.signedAt) {
+      var t = new Date(contract.signedAt);
+      if (!isNaN(t)) when += ", " + t.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/London" }) + " UK time";
+    }
+    text("F1", 10, "0 0 0", "Date:  " + when, 15);
     text("F1", 10, "0 0 0", "For:   " + client, 15);
     gap(6);
-    text("F1", 8, "0.45 0.45 0.45", "Signed electronically through the Jolero Media client portal, by typing the name above.", 11);
+    text("F1", 8, "0.45 0.45 0.45", "Signed electronically through the Jolero Media client portal" + (hasSig ? ", by drawing the signature above." : ", by typing the name above."), 11);
 
     // Footer with page numbers
     var total = doc.pages.length;
