@@ -428,10 +428,7 @@
         awaiting.length ? awaiting.length + " awaiting signature" : "All signed",
         awaiting.length > 0) +
 
-      card("clients.html", "Clients", data.clients.length,
-        reviews.length
-          ? reviews.length + (reviews.length === 1 ? " review · " : " reviews · ") + avg + "★ average"
-          : "No reviews yet") +
+      card("clients.html", "Clients", data.clients.length, '<span id="dc-rev">Loading reviews</span>') +
 
       // filled in by renderDashPanels once contacts and galleries load
       card("crm.html", "CRM", '<span id="dc-crm-v">·</span>', '<span id="dc-crm-s">Loading</span>') +
@@ -824,28 +821,72 @@
 
   /* ================= REVIEWS ================= */
 
-  function renderTestimonials(data) {
-    var host = el("testimonials");
-    if (!host) return;
+  /* Reviews come from two places: the portal (a client reviewing a
+     delivered project) and the form at the foot of every gallery, which
+     the gallery worker keeps. Both show here, newest first. */
+  var galReviews = null, galReviewsAt = 0;
+  async function loadGalleryReviews() {
+    if (galReviews && Date.now() - galReviewsAt < 60000) return galReviews;
+    if (!window.PortalAuth || !PortalAuth.configured || !PortalAuth.configured()) return [];
+    var t = await PortalAuth.getToken();
+    if (!t) return [];
+    var res = await fetch(GAL_API + "/admin/reviews", { headers: { authorization: "Bearer " + t }, referrerPolicy: "no-referrer" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    galReviews = await res.json();
+    galReviewsAt = Date.now();
+    return galReviews;
+  }
 
+  function allReviews(data, fromGalleries) {
     var clientName = {}, projectTitle = {};
     data.clients.forEach(function (c) { clientName[c.id] = c.name; });
     data.projects.forEach(function (p) { projectTitle[p.id] = p.title; });
+    var portal = (data.testimonials || []).map(function (t) {
+      return { stars: Number(t.rating) || 0, who: clientName[t.clientId] || "None", what: projectTitle[t.projectId] || "",
+               quote: t.quote || "", date: String(t.date || "").slice(0, 10), pub: !!t.allowPublic, where: "Portal" };
+    });
+    var gal = (fromGalleries || []).map(function (r) {
+      return { stars: Number(r.stars) || 0, who: r.name || r.title || "Gallery visitor", what: r.title ? "Gallery: " + r.title : "Gallery",
+               quote: r.text || "", date: String(r.at || "").slice(0, 10), pub: !!r.consent, where: "Gallery" };
+    });
+    return portal.concat(gal).sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : 0; });
+  }
 
+  function drawTestimonials(items) {
+    var host = el("testimonials");
+    if (!host) return;
     var star = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.3 6.9.6-5.2 4.6 1.5 6.7L12 16.9 5.9 20.2l1.5-6.7L2.2 8.9l6.9-.6z"/></svg>';
-    var items = (data.testimonials || []).slice().sort(function (a, b) { return b.date < a.date ? -1 : 1; });
-
     host.innerHTML = items.map(function (t) {
+      var n = Math.max(0, Math.min(5, t.stars));
       return '<article class="panel client-block">' +
-        '<div class="client-block-head"><span class="star-display" aria-label="' + t.rating +
-        ' out of 5">' + star.repeat(t.rating) + "</span><h3>" + esc(clientName[t.clientId] || "None") + "</h3>" +
-        '<span class="project-type">' + esc(projectTitle[t.projectId] || "") + "</span></div>" +
+        '<div class="client-block-head"><span class="star-display" aria-label="' + n +
+        ' out of 5">' + star.repeat(n) + "</span><h3>" + esc(t.who) + "</h3>" +
+        '<span class="project-type">' + esc(t.what) + "</span></div>" +
         (t.quote ? '<p class="testimonial-quote">&ldquo;' + esc(t.quote) + "&rdquo;</p>" : "") +
         '<p class="testimonial-meta">' + fmtDate(t.date) + " · " +
-        (t.allowPublic ? "OK to use publicly" : "Private, not for public use") + "</p>" +
+        (t.pub ? "OK to use publicly" : "Private, not for public use") + " · left on the " + esc(t.where.toLowerCase()) + "</p>" +
         "</article>";
-    }).join("") || '<p class="empty-note">No reviews yet. Delivered projects prompt clients for one.</p>';
+    }).join("") || '<p class="empty-note">No reviews yet. Clients can leave one at the foot of their gallery, and delivered projects prompt them in the portal.</p>';
     if (el("reviews-count")) el("reviews-count").textContent = items.length ? "(" + items.length + ")" : "";
+  }
+
+  function reviewSummary(items) {
+    if (!items.length) return "No reviews yet";
+    var avg = (items.reduce(function (t, r) { return t + r.stars; }, 0) / items.length).toFixed(1);
+    return items.length + (items.length === 1 ? " review · " : " reviews · ") + avg + "★ average";
+  }
+
+  function renderTestimonials(data) {
+    var wantList = !!el("testimonials"), wantCard = !!el("dc-rev");
+    if (!wantList && !wantCard) return;
+    var now = allReviews(data, galReviews);
+    if (wantList) drawTestimonials(now);
+    if (wantCard) el("dc-rev").textContent = reviewSummary(now);
+    loadGalleryReviews().then(function (g) {
+      var full = allReviews(data, g);
+      if (wantList) drawTestimonials(full);
+      if (wantCard && el("dc-rev")) el("dc-rev").textContent = reviewSummary(full);
+    }, function () { /* the portal reviews still show */ });
   }
 
   /* ================= TASKS ================= */
