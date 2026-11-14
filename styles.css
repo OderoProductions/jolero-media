@@ -1890,3 +1890,34 @@ h3 { font-size: clamp(1.05rem, 1.7vw, 1.3rem); font-weight: 700; letter-spacing:
 .video-embed, .clip-frame, .plb-thumb { border-radius: 2px; }
 .clip-frame:fullscreen { border-radius: 0; }
 .tag, .badge { border-radius: 6px; }
+
+/* ---------- Project hero video + client quote (Coach ManoWar) ----------
+   A muted loop can sit in the hero in place of the still: give it the same
+   classes as the image so it covers the same box, and keep the still
+   underneath as its poster. Reduced motion drops the video, leaving the
+   still. */
+.project-hero-video { background: transparent; }
+@media (prefers-reduced-motion: reduce) {
+  .project-hero-video { display: none; }
+}
+
+.project-quote {
+  margin: 20px 0 0;
+  padding: clamp(20px, 4vw, 32px);
+  border-left: 3px solid var(--accent);
+  background: rgba(127, 127, 127, 0.08);
+  border-radius: 0 12px 12px 0;
+}
+.project-quote p {
+  margin: 0;
+  font-size: clamp(1.05rem, 2.2vw, 1.3rem);
+  line-height: 1.55;
+}
+.project-quote footer {
+  margin-top: 14px;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
