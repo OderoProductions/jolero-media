@@ -1938,3 +1938,50 @@ h3 { font-size: clamp(1.05rem, 1.7vw, 1.3rem); font-weight: 700; letter-spacing:
   text-transform: uppercase;
   opacity: 0.8;
 }
+
+/* ---------- Site-wide layout pass (2026-11-14) ----------
+   Bigger headings, section descriptions that run across the page instead
+   of breaking after a few words, and tighter gaps between sections so
+   there's less scrolling. */
+:root { --section-y: clamp(56px, 7vw, 96px); }
+.section-head { margin-bottom: clamp(28px, 4vw, 44px); }
+h2 { font-size: clamp(2rem, 4.8vw, 3.6rem); }
+.section-sub { max-width: 46ch; }
+@media (min-width: 900px) {
+  .section-sub { max-width: none; font-size: 1.1rem; }
+  .project-hero .legal-lede { max-width: none; }
+}
+.project-piece { padding-top: clamp(40px, 6vw, 72px); }
+.legal h1 { font-size: clamp(2.2rem, 6vw, 4.2rem); line-height: 1.02; }
+.project-piece h2 { font-size: clamp(1.8rem, 4vw, 3rem); }
+
+/* ---------- Featured projects: one row of 4:3 tiles ----------
+   Desktop: every project in a single row, however many there are.
+   Phones and tablets: the same row, swiped sideways. */
+.featured-row.work-grid {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-columns: none;
+  grid-auto-columns: 78%;
+  gap: 14px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+.featured-row::-webkit-scrollbar { display: none; }
+.featured-row .project-tile { aspect-ratio: 4 / 3; scroll-snap-align: start; }
+/* the covers are portrait: crop toward the top so heads stay in */
+.featured-row .project-tile img { object-position: center 18%; }
+@media (min-width: 640px) { .featured-row.work-grid { grid-auto-columns: 42%; } }
+@media (min-width: 1000px) {
+  .featured-row.work-grid { grid-auto-columns: minmax(0, 1fr); overflow: visible; gap: 14px; }
+}
+.featured-row .project-caption { padding: 40px 14px 14px; gap: 8px; }
+.featured-row .project-name { font-size: clamp(1rem, 1.25vw, 1.2rem); }
+/* On wide screens the row reaches out past the text column (up to 240px
+   each side), so the tiles aren't tiny, while the heading stays in line
+   with the rest of the page */
+@media (min-width: 1300px) {
+  .featured-row.work-grid { margin-inline: calc(-1 * min((100vw - 1200px) / 2, 240px)); }
+}
