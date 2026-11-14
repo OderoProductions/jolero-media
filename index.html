@@ -427,6 +427,9 @@
             <!-- Honeypot: hidden from people, catches bots. Leave as-is. -->
             <input type="text" name="_gotcha" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
 
+            <!-- Seven fields, five required. Field names match what the
+                 gallery worker already reads (level = who they are), so the
+                 enquiry email needs no server change. -->
             <div class="field">
               <label for="f-name">Name</label>
               <input id="f-name" name="name" type="text" autocomplete="name" required>
@@ -436,38 +439,13 @@
               <input id="f-email" name="email" type="email" autocomplete="email" required>
             </div>
             <div class="field">
-              <label for="f-instagram">Instagram handle</label>
-              <input id="f-instagram" name="instagram" type="text" placeholder="@yourhandle" required>
-            </div>
-            <div class="field">
-              <label for="f-sport">Sport</label>
-              <input id="f-sport" name="sport" type="text" placeholder="e.g. Football" required>
-            </div>
-            <div class="field">
-              <label for="f-level">Level</label>
+              <label for="f-level">Who are you?</label>
               <select id="f-level" name="level" required>
                 <option value="" selected disabled>Select…</option>
-                <option>Academy</option>
-                <option>Semi-pro</option>
-                <option>Professional</option>
-                <option>Club or Team</option>
-                <option>Brand</option>
-                <option>Other</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="f-club">Club / team <span class="optional">(optional)</span></label>
-              <input id="f-club" name="club" type="text">
-            </div>
-            <div class="field">
-              <label for="f-goal">What are you trying to achieve?</label>
-              <select id="f-goal" name="goal" required>
-                <option value="" selected disabled>Select…</option>
-                <option>Grow my following</option>
-                <option>Attract sponsors</option>
-                <option>Get seen by clubs &amp; scouts</option>
-                <option>Club or team coverage</option>
-                <option>Brand content</option>
+                <option>Athlete</option>
+                <option>Club or team</option>
+                <option>Brand or gym</option>
+                <option>Coach or PT</option>
                 <option>Other</option>
               </select>
             </div>
@@ -477,34 +455,29 @@
                 <option value="" selected disabled>Select…</option>
                 <option>Ongoing monthly content</option>
                 <option>One-off shoot</option>
+                <option>Event coverage</option>
                 <option>Not sure yet</option>
               </select>
             </div>
             <div class="field">
-              <label for="f-budget">Budget range</label>
-              <select id="f-budget" name="budget" required>
-                <option value="" selected disabled>Select…</option>
-                <option>Under £150</option>
-                <option>£150 to £300</option>
-                <option>£300 to £500</option>
-                <option>£500+</option>
-                <option>Not sure yet</option>
-              </select>
+              <label for="f-instagram">Instagram <span class="optional">(optional)</span></label>
+              <input id="f-instagram" name="instagram" type="text" placeholder="@yourhandle">
             </div>
             <div class="field">
-              <label for="f-start">When do you want to start?</label>
-              <select id="f-start" name="start" required>
-                <option value="" selected disabled>Select…</option>
-                <option>ASAP or pre-season</option>
-                <option>During this season</option>
-                <option>Just exploring</option>
+              <label for="f-budget">Budget <span class="optional">(optional)</span></label>
+              <select id="f-budget" name="budget">
+                <option value="" selected>Select…</option>
+                <option>Under £250</option>
+                <option>£250 to £500</option>
+                <option>£500 to £1,000</option>
+                <option>£1,000+</option>
+                <option>Not sure yet</option>
               </select>
             </div>
             <div class="field field-wide">
-              <label for="f-message">Message <span class="optional">(optional)</span></label>
-              <textarea id="f-message" name="message" rows="4" placeholder="Anything else we should know?"></textarea>
+              <label for="f-message">Message</label>
+              <textarea id="f-message" name="message" rows="5" placeholder="Tell us about the project: your sport, what you need, any dates." required></textarea>
             </div>
-
             <p class="form-error" id="form-error" hidden>Something went wrong sending that. Try again, or email us directly.</p>
 
             <div class="field field-wide">
