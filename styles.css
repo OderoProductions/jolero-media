@@ -1906,6 +1906,7 @@ h2 { font-size: clamp(2rem, 4.8vw, 3.6rem); }
 
 /* Hero: the tagline sits above the headline, by the red line */
 .hero-eyebrow { color: var(--paper); font-size: clamp(0.72rem, 1.1vw, 0.82rem); }
+@media (max-width: 480px) { .hero-eyebrow { font-size: 0.66rem; letter-spacing: 0.12em; } }
 
 /* Hero: the footage feathers out at the bottom into the page background,
    so it rolls into Featured projects instead of stopping at a hard edge.
