@@ -1975,3 +1975,6 @@ h2 { font-size: clamp(2rem, 4.8vw, 3.6rem); }
   .footer-left { justify-self: start; }
   .footer-right { justify-self: end; }
 }
+
+/* About: one photo of both founders in place of the two portraits */
+.founder-pair img { aspect-ratio: 1600 / 1198; }
