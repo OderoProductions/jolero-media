@@ -65,6 +65,10 @@
    ============================================================ */
 
 /* ---------- Theming ----------
+   (2026-11-14) The site is dark only: light mode and its toggle were
+   removed. The notes below describe the old two-theme setup; the dark
+   values in :root are the only palette now. */
+/* ---------- Theming (history) ----------
    Dark is the brand default and the values in :root. The whole site —
    marketing pages AND portal — flips to light when html carries
    .theme-light, which the inline bootstrap in every <head> sets from
@@ -102,34 +106,6 @@
   --halo: rgba(255, 59, 48, 0.18);
   --section-tint: rgba(255, 255, 255, 0.025);   /* the .section-alt wash */
   --frame-line: rgba(255, 255, 255, 0.28);      /* work-tile viewfinder frame */
-}
-
-html.theme-light {
-  color-scheme: light;
-
-  --accent: #D62A20;            /* deeper red: holds AA contrast on light */
-  --accent-ink: #FFFFFF;
-  --ink: #F5F5F3;
-  --ink-2: #FFFFFF;
-  --ink-3: #ECECE9;
-  --paper: #111114;
-  --paper-60: rgba(17, 17, 20, 0.68);
-  --paper-40: rgba(17, 17, 20, 0.52);
-  --line: rgba(17, 17, 20, 0.14);
-
-  --glass: rgba(245, 245, 243, 0.88);
-  --glass-solid: rgba(245, 245, 243, 0.98);
-  --soft: rgba(17, 17, 20, 0.05);
-  --soft-strong: rgba(17, 17, 20, 0.10);
-  --hover-line: rgba(17, 17, 20, 0.35);
-  --line-strong: rgba(17, 17, 20, 0.18);
-  --ghost-border: rgba(17, 17, 20, 0.35);
-  --bar-neutral: rgba(17, 17, 20, 0.55);
-  --dim: rgba(17, 17, 20, 0.28);
-  --ink-off: #EDEDEA;
-  --halo: rgba(214, 42, 32, 0.18);
-  --section-tint: rgba(17, 17, 20, 0.028);
-  --frame-line: rgba(17, 17, 20, 0.30);
 }
 
 :root {
@@ -361,10 +337,6 @@ h3 { font-size: clamp(1.35rem, 2.6vw, 1.7rem); }
    must survive even in light mode. */
 
 .wordmark .logo-mark-dark { display: none; }
-html.theme-light .wordmark .logo-mark { display: none; }
-html.theme-light .wordmark .logo-mark-dark { display: inline-block; }
-html.theme-light .nav:not(.is-scrolled):not(.is-menu-open) .logo-mark { display: inline-block; }
-html.theme-light .nav:not(.is-scrolled):not(.is-menu-open) .logo-mark-dark { display: none; }
 
 /* ---------- Nav ---------- */
 
@@ -1159,60 +1131,6 @@ html.theme-light .nav:not(.is-scrolled):not(.is-menu-open) .logo-mark-dark { dis
 }
 
 
-/* ---------- Light-mode component fixes ----------
-   Shared by the marketing pages and the portal (portal.css no longer
-   duplicates these). */
-
-html.theme-light .btn-primary:hover { background: #B92218; }
-
-html.theme-light .field select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23111114' stroke-opacity='0.6' stroke-width='1.6'/%3E%3C/svg%3E");
-}
-
-/* The scrim darkens a photo, so it stays put; nudge it lighter in light
-   mode only where the hero meets the page below it. */
-html.theme-light .hero-scrim {
-  background: linear-gradient(to top, rgba(10, 10, 10, 0.88) 0%, rgba(10, 10, 10, 0.42) 45%, rgba(10, 10, 10, 0.5) 100%);
-}
-
-/* Theme toggle button (marketing nav + mobile menu) */
-.theme-btn {
-  display: grid;
-  place-items: center;
-  width: 42px;
-  height: 42px;
-  flex: none;
-  color: var(--paper-60);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  transition: color 0.2s ease, border-color 0.2s ease;
-}
-.theme-btn:hover { color: var(--paper); border-color: var(--hover-line); }
-.theme-btn svg { width: 18px; height: 18px; }
-html:not(.theme-light) .theme-btn .icon-moon { display: none; }
-html.theme-light .theme-btn .icon-sun { display: none; }
-
-.nav .theme-btn { display: none; }
-@media (min-width: 1000px) { .nav .theme-btn { display: grid; } }
-
-.mobile-menu .theme-btn {
-  align-self: flex-start;
-  width: auto;
-  height: auto;
-  padding: 12px 20px;
-  gap: 10px;
-  grid-auto-flow: column;
-  align-items: center;
-}
-.mobile-menu .theme-btn::after {
-  content: "Theme";
-  font-family: var(--font-body);
-  font-size: 0.85rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
 /* ---------- Print ----------
    Browsers strip background colours when printing, so dark mode would
    put near-white text on white paper. Force the light palette on paper
@@ -2006,3 +1924,6 @@ h2 { font-size: clamp(2rem, 4.8vw, 3.6rem); }
   z-index: 0;
 }
 .hero-content { z-index: 1; }
+
+/* Dark only: any leftover theme toggle stays hidden */
+.theme-btn, .theme-toggle { display: none !important; }
