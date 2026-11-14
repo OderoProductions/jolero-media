@@ -1904,9 +1904,18 @@ h2 { font-size: clamp(2rem, 4.8vw, 3.6rem); }
   .featured-row.work-grid { margin-inline: calc(-1 * min((100vw - 1200px) / 2, 240px)); }
 }
 
-/* Hero: the tagline sits above the headline, by the red line */
-.hero-eyebrow { color: var(--paper); font-size: clamp(0.72rem, 1.1vw, 0.82rem); }
-@media (max-width: 480px) { .hero-eyebrow { font-size: 0.66rem; letter-spacing: 0.12em; } }
+/* Hero: the slogan sits under the headline; the red dash leads the
+   headline's first line */
+.hero-tagline { display: block; color: var(--paper); font-weight: 700; }
+.hero-title .line:first-child .line-inner::before {
+  content: "";
+  display: inline-block;
+  width: 0.55em;
+  height: max(2px, 0.05em);
+  margin-right: 0.28em;
+  vertical-align: middle;
+  background: var(--accent);
+}
 
 /* Hero: the footage feathers out at the bottom into the page background,
    so it rolls into Featured projects instead of stopping at a hard edge.
