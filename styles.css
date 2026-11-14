@@ -1904,8 +1904,8 @@ h2 { font-size: clamp(2rem, 4.8vw, 3.6rem); }
   .featured-row.work-grid { margin-inline: calc(-1 * min((100vw - 1200px) / 2, 240px)); }
 }
 
-/* Hero: the headline says what we do; the tagline leads the line under it */
-.hero-tagline { display: block; margin-bottom: 6px; color: var(--paper); font-weight: 700; }
+/* Hero: the tagline sits above the headline, by the red line */
+.hero-eyebrow { color: var(--paper); font-size: clamp(0.72rem, 1.1vw, 0.82rem); }
 
 /* Hero: the footage feathers out at the bottom into the page background,
    so it rolls into Featured projects instead of stopping at a hard edge.
