@@ -1977,4 +1977,4 @@ h2 { font-size: clamp(2rem, 4.8vw, 3.6rem); }
 }
 
 /* About: one photo of both founders in place of the two portraits */
-.founder-pair img { aspect-ratio: 1600 / 1198; }
+.founder-pair img { aspect-ratio: 1600 / 1198; border-radius: var(--radius); } /* curved like the boxes, not the 2px of other pictures */
