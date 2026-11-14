@@ -25,7 +25,7 @@
   <meta property="og:url" content="https://joleromedia.com/projects/coach-manowar/">
 
   <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
-  <link rel="stylesheet" href="../../styles.css?v=20261114">
+  <link rel="stylesheet" href="../../styles.css?v=20261114c">
   <script>/* theme before first paint: saved choice, else OS, else dark */try{var s=localStorage.getItem("jolero_theme");if(s?s==="light":matchMedia("(prefers-color-scheme: light)").matches)document.documentElement.classList.add("theme-light")}catch(e){}</script>
 </head>
 <body>
@@ -48,13 +48,12 @@
   <main id="legal-main" class="legal project-page">
 
     <!-- Hero: a loop of all 16 B-roll clips from the shoot, muted, under the
-         title. The still underneath shows first, and is all anyone with
-         reduced motion sees. -->
-    <header class="project-hero">
-      <img class="project-hero-img project-hero-img-dim" src="https://jolero-gallery.jolero-gallery-worker.workers.dev/s/coach-manowar/gym-loop-v1.jpg" alt="" width="960" height="720">
+         title. Its poster shows until it plays, and is all anyone with reduced
+         motion sees (clips.js stops it). -->
+    <header class="project-hero project-hero-big">
       <video class="project-hero-img project-hero-img-dim project-hero-video" src="https://jolero-gallery.jolero-gallery-worker.workers.dev/s/coach-manowar/gym-loop-v1.mp4" poster="https://jolero-gallery.jolero-gallery-worker.workers.dev/s/coach-manowar/gym-loop-v1.jpg" autoplay muted loop playsinline preload="auto" aria-hidden="true"></video>
       <div class="container project-hero-inner">
-        <p class="eyebrow">Featured project · Personal training</p>
+        <p class="eyebrow">Featured project</p>
         <h1>Coach ManoWar<span class="dot">.</span></h1>
         <p class="legal-lede">
           Raw, authentic coaching session content for Coach Andre: the work
@@ -76,17 +75,19 @@
       </div>
 
       <div class="container">
-        <div class="clip-rail clip-rail-goals" data-clips>
+        <!-- data-hover: these play when the mouse is over them (a tap on phones),
+             so the two never run at the same time -->
+        <div class="clip-rail clip-rail-goals clip-rail-pair" data-clips data-hover>
           <figure class="clip">
             <div class="clip-frame">
-              <video src="https://jolero-gallery.jolero-gallery-worker.workers.dev/s/coach-manowar/kieran-session-v1.mp4" poster="https://jolero-gallery.jolero-gallery-worker.workers.dev/s/coach-manowar/kieran-session-v1.jpg" muted loop playsinline controls preload="none" aria-label="One to one session with Kieran"></video>
+              <video src="https://jolero-gallery.jolero-gallery-worker.workers.dev/s/coach-manowar/kieran-session-v1.mp4" poster="https://jolero-gallery.jolero-gallery-worker.workers.dev/s/coach-manowar/kieran-session-v1.jpg" muted loop playsinline controls preload="metadata" aria-label="One to one session with Kieran"></video>
               <button class="clip-sound" type="button" aria-label="Turn sound on" aria-pressed="false" hidden><svg class="icon icon-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 9.5l4.5 5M21.5 9.5l-4.5 5"/></svg><svg class="icon icon-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg></button>
             </div>
             <figcaption>One to one session with Kieran</figcaption>
           </figure>
           <figure class="clip">
             <div class="clip-frame">
-              <video src="https://jolero-gallery.jolero-gallery-worker.workers.dev/s/coach-manowar/group-session-v1.mp4" poster="https://jolero-gallery.jolero-gallery-worker.workers.dev/s/coach-manowar/group-session-v1.jpg" muted loop playsinline controls preload="none" aria-label="Group session"></video>
+              <video src="https://jolero-gallery.jolero-gallery-worker.workers.dev/s/coach-manowar/group-session-v1.mp4" poster="https://jolero-gallery.jolero-gallery-worker.workers.dev/s/coach-manowar/group-session-v1.jpg" muted loop playsinline controls preload="metadata" aria-label="Group session"></video>
               <button class="clip-sound" type="button" aria-label="Turn sound on" aria-pressed="false" hidden><svg class="icon icon-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 9.5l4.5 5M21.5 9.5l-4.5 5"/></svg><svg class="icon icon-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg></button>
             </div>
             <figcaption>Group session</figcaption>
@@ -112,6 +113,7 @@
         <h3>In his words</h3>
         <p>Here's what Andre had to say about the content.</p>
         <blockquote class="project-quote">
+          <p class="project-stars" role="img" aria-label="5 out of 5 stars">★★★★★</p>
           <p>
             &ldquo;Hands down some of the best videography work I&rsquo;ve ever
             seen! His ability to capture the right moments, emotions and details
@@ -138,7 +140,7 @@
       <!-- PLACEHOLDERS: 20 photos from the gallery, to be swapped for the
            final pick. Each is 1080x1440 webp in assets/projects/coach-manowar/. -->
       <div class="container">
-        <div class="work-grid project-grid project-gallery">
+        <div class="work-grid project-grid project-gallery project-gallery-5">
           <figure class="work-tile"><img src="../../assets/projects/coach-manowar/coach-0001.webp" alt="The ManoWar gym crest on the wall, with Coach Andre in the foreground" loading="lazy" width="1080" height="1440"></figure>
           <figure class="work-tile"><img src="../../assets/projects/coach-manowar/coach-0002.webp" alt="Coach Andre smiling as his client works on the cable machine" loading="lazy" width="1080" height="1440"></figure>
           <figure class="work-tile"><img src="../../assets/projects/coach-manowar/coach-0003.webp" alt="Coach Andre and his client side by side in a crawl drill" loading="lazy" width="1080" height="1440"></figure>
@@ -189,7 +191,7 @@
   </footer>
 
   <script src="../../theme.js"></script>
-  <script src="../../clips.js?v=20261013" defer></script>
+  <script src="../../clips.js?v=20261114" defer></script>
   <script src="../../lightbox.js?v=20261013" defer></script>
 </body>
 </html>

@@ -1897,8 +1897,25 @@ h3 { font-size: clamp(1.05rem, 1.7vw, 1.3rem); font-weight: 700; letter-spacing:
    underneath as its poster. Reduced motion drops the video, leaving the
    still. */
 .project-hero-video { background: transparent; }
-@media (prefers-reduced-motion: reduce) {
-  .project-hero-video { display: none; }
+
+/* A bigger title, and the line under it running the full width on desktop */
+.legal .project-hero-big h1 { font-size: clamp(2.4rem, 7vw, 5rem); line-height: 1; }
+.project-hero-big .legal-lede { font-size: clamp(1.05rem, 1.8vw, 1.35rem); }
+@media (min-width: 1000px) { .project-hero-big .legal-lede { max-width: none; font-size: 1.25rem; } }
+
+/* Two vertical clips side by side, centred */
+@media (min-width: 760px) { .clip-rail-pair { justify-content: center; } }
+
+/* 20 photos: five across on desktop (4 rows), four on tablets, two on phones */
+.project-grid.project-gallery.project-gallery-5 { grid-template-columns: repeat(2, 1fr); }
+@media (min-width: 640px) { .project-grid.project-gallery.project-gallery-5 { grid-template-columns: repeat(4, 1fr); } }
+@media (min-width: 1000px) { .project-grid.project-gallery.project-gallery-5 { grid-template-columns: repeat(5, 1fr); gap: 16px; } }
+
+.legal .project-stars {
+  margin: 0 0 12px !important;
+  color: var(--accent) !important;
+  font-size: 1.2rem !important;
+  letter-spacing: 0.18em;
 }
 
 .project-quote {

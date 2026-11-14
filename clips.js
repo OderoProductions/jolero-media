@@ -11,10 +11,17 @@
    A video marked data-film (a longer piece with sound, like an interview)
    never starts by itself: a big play button starts it with sound on, and
    its bar adds a full-screen button.
+   A rail marked data-hover never plays by itself: each clip plays while
+   the mouse is over it and pauses when it leaves (a tap on touch screens),
+   so two never run at once.
    Without JavaScript the videos keep their native controls; with reduced
    motion on, nothing plays by itself. */
 (() => {
   "use strict";
+  // A hero background loop: nothing moves for anyone with reduced motion on
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    document.querySelectorAll(".project-hero-video").forEach((v) => { v.removeAttribute("autoplay"); v.pause(); });
+  }
   const videos = [...document.querySelectorAll("[data-clips] video")];
   if (!videos.length) return;
 
@@ -48,6 +55,7 @@
     const sound = clip.querySelector(".clip-sound");
     if (sound) { sound.hidden = false; bar.appendChild(sound); }
     const film = v.hasAttribute("data-film");
+    const hover = !!v.closest("[data-hover]");
     let big = null;
     let full = null;
     if (film) {
@@ -72,9 +80,9 @@
       play: bar.querySelector(".clip-play"),
       track: bar.querySelector(".clip-track"),
       time: bar.querySelector(".clip-time"),
-      film, big, full,
+      film, big, full, hover,
       started: false,
-      held: !autoplay || film,   // paused by the viewer (or never auto-started)
+      held: !autoplay || film || hover,   // paused by the viewer (or never auto-started)
       visible: false,
       hideTimer: 0,
     };
@@ -145,12 +153,32 @@
     // Click on the picture: desktop plays/pauses, touch shows the bar
     c.v.addEventListener("click", () => {
       if (c.film && !c.started) { toggle(c); return; }
-      if (touch) {
+      if (touch && c.hover) {
+        toggle(c);
+        showBar(c);
+      } else if (touch) {
         if (c.clip.classList.contains("show-bar")) hideBar(c);
         else showBar(c);
       } else {
         toggle(c);
       }
+    });
+  }
+
+  // data-hover rails: play while the mouse is over the clip
+  for (const c of clips) {
+    if (!c.hover || touch) continue;
+    c.frame.addEventListener("mouseenter", () => {
+      if (!c.v.paused) return;
+      for (const o of clips) if (o !== c && !o.v.paused) { o.held = true; o.v.pause(); o.clip.classList.add("is-held"); }
+      c.held = false;
+      c.clip.classList.remove("is-held");
+      c.v.play().catch(() => {});
+    });
+    c.frame.addEventListener("mouseleave", () => {
+      c.held = true;
+      c.clip.classList.add("is-held");
+      c.v.pause();
     });
   }
 
