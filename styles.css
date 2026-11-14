@@ -1904,16 +1904,24 @@ h2 { font-size: clamp(2rem, 4.8vw, 3.6rem); }
   .featured-row.work-grid { margin-inline: calc(-1 * min((100vw - 1200px) / 2, 240px)); }
 }
 
-/* Hero: the slogan sits under the headline; the red dash leads the
-   headline's first line */
+/* Hero: the slogan sits under the headline. A red dash hangs in the
+   margin to the left of the headline's first word, outside the text, so
+   all three lines still start in line. It never reaches past the page
+   gutter, so on phones it just gets shorter. */
 .hero-tagline { display: block; color: var(--paper); font-weight: 700; }
-.hero-title .line:first-child .line-inner::before {
+.hero-title {
+  position: relative;
+  --dash-gap: 0.2em;
+  --dash-off: min(0.75em, calc(var(--gutter) - 6px));
+}
+.hero-title::before {
   content: "";
-  display: inline-block;
-  width: 0.55em;
+  position: absolute;
+  left: calc(-1 * var(--dash-off));
+  top: 0.54em;                       /* middle of the first line (line-height 1.08) */
+  width: calc(var(--dash-off) - var(--dash-gap));
   height: max(2px, 0.05em);
-  margin-right: 0.28em;
-  vertical-align: middle;
+  transform: translateY(-50%);
   background: var(--accent);
 }
 
