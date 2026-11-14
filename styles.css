@@ -865,9 +865,8 @@ h3 { font-size: clamp(1.35rem, 2.6vw, 1.7rem); }
   gap: 18px;
   max-width: 56ch;
   font-size: clamp(1.02rem, 1.5vw, 1.15rem);
-  color: var(--paper-60);
+  color: var(--paper);
 }
-.about-copy p:first-child { color: var(--paper); }
 
 .founders {
   display: grid;
