@@ -1095,6 +1095,7 @@ h3 { font-size: clamp(1.35rem, 2.6vw, 1.7rem); }
   html.js .hero-title .line:nth-child(1) .line-inner { transition-delay: 0.35s; }
   html.js .hero-title .line:nth-child(2) .line-inner { transition-delay: 0.44s; }
   html.js .hero-title .line:nth-child(3) .line-inner { transition-delay: 0.53s; }
+  html.js .hero-title .line:nth-child(3) .line-inner { transition-delay: 0.53s; }
   html.js .hero-sub {
     transition: opacity 0.5s ease 0.65s, transform 0.5s cubic-bezier(0.2, 0.6, 0.2, 1) 0.65s;
   }
