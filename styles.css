@@ -1995,3 +1995,14 @@ html.pr .pr-item.in { opacity: 1; transform: none; }
 /* the hero footage settles from a slight zoom as the page opens */
 html.pr .pr-zoom { transform: scale(1.07); transition: transform 1.8s cubic-bezier(0.2, 0.6, 0.2, 1); }
 html.pr .pr-zoom.in { transform: none; }
+
+/* Project heroes feather into the page below, like the homepage hero:
+   the scrim finishes on the page colour itself, so there's no hard edge
+   where the photo or film stops. */
+.project-hero::after {
+  background: linear-gradient(to top,
+    var(--ink) 0%,
+    rgba(10, 10, 10, 0.86) 16%,
+    rgba(10, 10, 10, 0.45) 50%,
+    rgba(10, 10, 10, 0.15) 100%);
+}
