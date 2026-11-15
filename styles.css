@@ -1978,3 +1978,20 @@ h2 { font-size: clamp(2rem, 4.8vw, 3.6rem); }
 
 /* About: one photo of both founders in place of the two portraits */
 .founder-pair img { aspect-ratio: 1600 / 1198; border-radius: var(--radius); } /* curved like the boxes, not the 2px of other pictures */
+
+/* ---------- Project pages: reveal on load and scroll ----------
+   reveal.js adds html.pr (only with JS, motion allowed) and tags what
+   should ease in; each item rises and fades when it reaches the screen,
+   a beat after the one before it where --pr-delay says so. */
+html.pr .pr-item {
+  opacity: 0;
+  transform: translateY(26px);
+  transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.2, 0.6, 0.2, 1);
+  transition-delay: var(--pr-delay, 0s);
+}
+html.pr .project-gallery .work-tile.pr-item { transform: translateY(20px) scale(0.97); }
+html.pr .clip.pr-item { transform: translateY(30px); }
+html.pr .pr-item.in { opacity: 1; transform: none; }
+/* the hero footage settles from a slight zoom as the page opens */
+html.pr .pr-zoom { transform: scale(1.07); transition: transform 1.8s cubic-bezier(0.2, 0.6, 0.2, 1); }
+html.pr .pr-zoom.in { transform: none; }
