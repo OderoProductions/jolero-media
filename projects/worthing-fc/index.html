@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Same security policy as index.html / privacy.html. The inline theme
        script below is byte-identical to theirs, so the same hash covers it. -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9hUOTyB0SoibSiWOZkJw2eqQFml00iDkRip2DzmnPus=' 'sha256-JssKZq7Zz1tMpFd4T9itCjnPwy3MNAE7DIQFnyVS3Ec='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://jolero-gallery.jolero-gallery-worker.workers.dev; media-src 'self' https://jolero-gallery.jolero-gallery-worker.workers.dev; font-src 'self'; connect-src 'self' https://hrdjikuadcqrddbeszzb.supabase.co; form-action 'self'; frame-src https://player.vimeo.com; object-src 'none'; base-uri 'self'; upgrade-insecure-requests">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9hUOTyB0SoibSiWOZkJw2eqQFml00iDkRip2DzmnPus=' 'sha256-JssKZq7Zz1tMpFd4T9itCjnPwy3MNAE7DIQFnyVS3Ec='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://jolero-gallery.jolero-gallery-worker.workers.dev; media-src 'self' https://jolero-gallery.jolero-gallery-worker.workers.dev; font-src 'self'; connect-src 'self' https://hrdjikuadcqrddbeszzb.supabase.co; form-action 'self'; object-src 'none'; base-uri 'self'; upgrade-insecure-requests">
 
   <!-- ============================================================
        PROJECT — Worthing FC  (multi-piece: see PIECE 01 below)
@@ -76,14 +76,24 @@
           scarf, a quote about being delighted to join. For Dominic we wanted
           the club's new number 9 to feel like an arrival, not a press release.
         </p>
+      </div>
 
-        <figure class="project-video">
-          <div class="video-embed video-embed-43">
-            <iframe src="https://player.vimeo.com/video/1231781724?title=0&amp;byline=0&amp;portrait=0&amp;badge=0&amp;autopause=0&amp;dnt=1" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" loading="lazy" title="Dominic Johnson-Fisher, Worthing FC player signing video"></iframe>
-          </div>
-          <figcaption>Dominic Johnson-Fisher, Worthing FC player signing video (director's cut)</figcaption>
-        </figure>
+      <!-- The director's cut, self-hosted on the gallery worker under
+           site/worthing-fc/ (jolero-gallery site-put) and played by clips.js,
+           like every other project film. -->
+      <div class="container">
+        <div class="clip-rail clip-rail-film" data-clips>
+          <figure class="clip">
+            <div class="clip-frame">
+              <video src="https://jolero-gallery.jolero-gallery-worker.workers.dev/s/worthing-fc/dominic-signing-v1.mp4" poster="https://jolero-gallery.jolero-gallery-worker.workers.dev/s/worthing-fc/dominic-signing-v1.jpg" controls playsinline preload="none" data-film aria-label="Dominic Johnson-Fisher, Worthing FC player signing video (director's cut)"></video>
+              <button class="clip-sound" type="button" aria-label="Turn sound on" aria-pressed="false" hidden><svg class="icon icon-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 9.5l4.5 5M21.5 9.5l-4.5 5"/></svg><svg class="icon icon-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg></button>
+            </div>
+            <figcaption>Dominic Johnson-Fisher, Worthing FC player signing video (director's cut)</figcaption>
+          </figure>
+        </div>
+      </div>
 
+      <div class="container legal-inner">
         <h3>The brief</h3>
         <p>
           Worthing FC called us in at short notice to announce the signing. They
