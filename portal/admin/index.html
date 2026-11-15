@@ -15,7 +15,7 @@
   <title>Dashboard | Jolero Media Portal</title>
   <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
   <link rel="stylesheet" href="../../styles.css?v=20261114q">
-  <link rel="stylesheet" href="../portal.css?v=20261114h">
+  <link rel="stylesheet" href="../portal.css?v=20261115a">
   <script>/* theme before first paint: saved choice, else OS, else dark */try{var s=localStorage.getItem("jolero_theme");if(s?s==="light":matchMedia("(prefers-color-scheme: light)").matches)document.documentElement.classList.add("theme-light")}catch(e){}</script>
 </head>
 <body class="dash-wide">
@@ -116,6 +116,28 @@
         </div>
         <ol class="mini-galleries" id="mini-galleries"><li class="nx-empty">Loading…</li></ol>
         <a class="mgal-new" href="galleries.html">+ New gallery</a>
+      </article>
+
+      <!-- Plans: links only. The pages themselves live on Claude, shared by
+           invite from each page's Share menu, because this repo is public and
+           the plans name contacts and clients. Keep them invite only: a link
+           here is readable by anyone who reads the repo. -->
+      <article class="panel dash-panel dash-panel-plans">
+        <div class="dash-panel-head">
+          <h2>Plans<span class="dot">.</span></h2>
+          <span class="dash-panel-meta">Invite only</span>
+        </div>
+        <ol class="mini-galleries">
+          <li class="mgal">
+            <a class="mgal-body" href="https://claude.ai/artifact/GkUpoSrAhuPhbZXJKWZFcJ" target="_blank" rel="noopener noreferrer">
+              <span class="mgal-title">November '26 Checkpoint review</span>
+              <span class="mgal-meta">Plan to January 2027 · Both Sides showreel</span>
+              <span class="mgal-meta">Updated 15 Nov 2026</span>
+            </a>
+            <button class="mgal-copy" type="button" data-copy-link="https://claude.ai/artifact/GkUpoSrAhuPhbZXJKWZFcJ">Copy link</button>
+          </li>
+        </ol>
+        <p class="mplan-note">Opens on Claude for whoever it's been shared with. Share it from the Share menu on the page.</p>
       </article>
     </section>
   </main>

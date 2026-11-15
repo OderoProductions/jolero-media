@@ -1786,25 +1786,29 @@ tr:hover .crm-remove, .crm-remove:focus-visible { opacity: 1; }
 
 .dash-panels {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  grid-template-areas: "cal tasks" "crm gal" "proj proj";
+  grid-template-areas: "cal tasks" "crm gal" "crm plans" "proj proj";
 }
 .dash-panel-cal { grid-area: cal; }
 .dash-panel-tasks { grid-area: tasks; }
 .dash-panel-crm { grid-area: crm; }
 .dash-panel-galleries { grid-area: gal; }
+.dash-panel-plans { grid-area: plans; }
 .dash-panel-projects { grid-area: proj; }
 @media (min-width: 1280px) {
   .dash-panels {
     grid-template-columns: repeat(12, minmax(0, 1fr));
     grid-template-areas:
       "cal cal cal cal tasks tasks tasks tasks crm crm crm crm"
-      "proj proj proj proj proj proj proj proj gal gal gal gal";
+      "proj proj proj proj proj proj proj proj gal gal gal gal"
+      "proj proj proj proj proj proj proj proj plans plans plans plans";
   }
   .dash-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 }
 @media (max-width: 720px) {
-  .dash-panels { grid-template-columns: minmax(0, 1fr); grid-template-areas: "cal" "tasks" "crm" "gal" "proj"; }
+  .dash-panels { grid-template-columns: minmax(0, 1fr); grid-template-areas: "cal" "tasks" "crm" "gal" "plans" "proj"; }
 }
+/* plans: links to invite-only pages on Claude (never the pages themselves: this repo is public) */
+.mplan-note { margin: 0; font-size: 0.72rem; line-height: 1.5; color: var(--paper-40); }
 
 /* ---------- who to contact ---------- */
 .mcrm-bar { display: flex; gap: 2px; height: 6px; border-radius: 3px; overflow: hidden; background: var(--ink); }
