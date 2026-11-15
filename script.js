@@ -156,6 +156,18 @@
     // if it stalls or is paused by the browser, bring the still back
     heroVideo.addEventListener("pause", function () { heroMedia.classList.remove("is-playing"); });
     heroVideo.addEventListener("error", function () { heroMedia.classList.remove("is-playing"); });
+
+    /* Phones can refuse to autoplay (an iPhone in Low Power Mode does,
+       even muted). Ask again now, and once more on the first touch or
+       scroll, which counts as the visitor's go-ahead. */
+    var heroPlay = function () {
+      var p = heroVideo.play();
+      if (p && p.catch) p.catch(function () {});
+    };
+    heroPlay();
+    ["touchstart", "scroll", "click"].forEach(function (ev) {
+      window.addEventListener(ev, function () { if (heroVideo.paused) heroPlay(); }, { once: true, passive: true });
+    });
   }
 
   /* ---------- Hero parallax ----------
